@@ -15,6 +15,7 @@ from functools import lru_cache
 from pathlib import Path
 
 import audit
+import citation_check
 import mock_actions
 from ezio_client import EzioError, analyze
 
@@ -45,6 +46,7 @@ class Signals:
 class Finding:
     level: str
     message: str
+    evidence: dict = None
 
 
 @dataclass
@@ -95,16 +97,13 @@ def load_source_of_truth(persona):
 
 
 def check_source_of_truth(text, context, sot):
-    """TODO: the part where use Ezio's results and Compare the text against your persona's data to Decisions.
+    """Paralegal: every case in the memo against trusted_citations.json and known_fabricated.json.
 
-    Return a list of Finding(level, message), where level is BLOCK or HOLD_FOR_REVIEW.
-    Return [] when nothing is wrong. Read your persona's business_rules.md first.
-
-    Example (customer support): pull "NN% loyalty discount" out of the text and compare it
-    with sot["policies"]["discounts"]["loyalty"]["percent"]:
-        return [Finding(BLOCK, "Loyalty discount is 15%, the email says 30%.")]
+    Fabricated or misstated (reporter, year, holding) -> BLOCK; unknown case or advocacy language -> HOLD.
+    Verified cases come back as APPROVE-level findings so they appear as evidence.
+    See citation_check.py and personas/paralegal/business_rules.md.
     """
-    return []
+    return [Finding(level or APPROVE, message, ev) for level, message, ev in citation_check.check(text, sot)]
 
 
 def apply_policy(signals, findings, policy):
@@ -112,43 +111,78 @@ def apply_policy(signals, findings, policy):
 
     def raise_to(level, reason):
         nonlocal decision
-        reasons.append(reason)
+        reasons.append((level, reason))
         if RANK[level] > RANK[decision]:
             decision = level
 
     for f in findings:
-        raise_to(f.level, f.message)
+        if f.level != APPROVE:
+            raise_to(f.level, f.message)
+    if signals is None:
+        raise_to(policy["on_ezio_failure"], "Ezio could not give a usable answer, so only the firm's citation lists were checked")
+        return reasons, decision
+    contradicted = [c for c in signals.claims if isinstance(c, dict) and str(c.get("verdict", "")).lower() == "contradicted"]
+    n = max(signals.claims_contradicted or 0, len(contradicted))
+    if n > policy["contradicted_claims"]["block_above"]:
+        first = contradicted[0].get("text") if contradicted else None
+        raise_to(BLOCK, f"Ezio's fact-check contradicted {n} claim(s)" + (f": \"{first}\"" if first else ""))
     for dim, rule in policy["dimension_minimums"].items():
         score = getattr(signals, dim)
         if score < rule["hold_below"]:
-            raise_to(HOLD, f"{dim} score {score} is below {rule['hold_below']}")
+            raise_to(HOLD, f"Ezio's {dim} score is {score:g}, below the {rule['hold_below']} floor, even though the overall tier is {signals.tier}")
     if signals.accuracy_status == "not_scored" and policy["when_accuracy_not_scored"] != "ignore":
-        raise_to(policy["when_accuracy_not_scored"], "accuracy was not scored (no claims checked)")
+        raise_to(policy["when_accuracy_not_scored"], "Ezio checked no claims")
     if signals.accuracy_status == "unavailable":
-        raise_to(policy["when_accuracy_unavailable"], "fact-check was unavailable")
+        raise_to(policy["when_accuracy_unavailable"], "Ezio's fact-check was unavailable, so statements beyond the citation lists are unchecked")
     tier_decision = policy["tier_decisions"][signals.tier]
     if tier_decision != APPROVE:
-        raise_to(tier_decision, f"Ezio tier is {signals.tier} ({signals.score})")
-    if not reasons:
-        reasons.append(f"No issues found (Ezio {signals.tier} {signals.score})")
+        raise_to(tier_decision, f"Ezio's overall tier is {signals.tier} ({signals.score:g})")
     return reasons, decision
+
+
+def explain(decision, reasons, findings, signals):
+    verified = [f for f in findings if f.level == APPROVE]
+    if decision == APPROVE:
+        what = f"{len(verified)} case citation(s) match the firm's trusted list" if verified else "the memo cites no cases, so there is nothing to cite-check"
+        ezio = f"Ezio scored it {signals.tier} {signals.score:g}" if signals else "Ezio"
+        return f"Approved: {what}, and {ezio} with no contradicted claims or weak dimensions. Sent to the partner."
+    top = [r for lvl, r in reasons if lvl == decision][:3]
+    if decision == BLOCK:
+        return "Blocked before sending: " + "; ".join(top) + ". The partner never received this memo."
+    return "Held for attorney review: " + "; ".join(top) + ". Not sent until a reviewer approves it."
+
+
+def ezio_evidence(signals, response, error=None):
+    if signals is None:
+        return {"signal": "ezio", "reachable": False, "error": error, "malformed": bool(response)}
+    return {"signal": "ezio", "reachable": True, "tier": signals.tier, "score": signals.score,
+            "accuracy_status": signals.accuracy_status, "claims_total": signals.claims_total,
+            "claims_verified": signals.claims_verified, "claims_contradicted": signals.claims_contradicted,
+            "tone": signals.tone, "bias": signals.bias, "agreement": signals.agreement,
+            "contradicted_claims": [{"claim": c.get("text"), "source": c.get("source")} for c in signals.claims
+                                    if isinstance(c, dict) and str(c.get("verdict", "")).lower() == "contradicted"],
+            "supported_claims": [c.get("text") for c in signals.claims
+                                 if isinstance(c, dict) and str(c.get("verdict", "")).lower() == "supported"],
+            "summary": signals.summary}
 
 
 def decide(text, context=None, persona="customer_support", scenario=None, audit_log=True):
     context = context or {}
+    signals, response, error = None, None, None
     try:
         response = analyze(text, scenario=scenario)
         signals = parse_signals(response)
     except EzioError as e:
-        result = Decision(POLICY["on_ezio_failure"], f"Ezio unavailable: {e}", [],
-                          {"error": str(e), "response": e.response})
-    else:
+        error, response = str(e), e.response
+    try:
         findings = check_source_of_truth(text, context, load_source_of_truth(persona))
-        reasons, decision = apply_policy(signals, findings, POLICY)
-        result = Decision(
-            decision, "; ".join(reasons), [f.message for f in findings],
-            response,
-        )
+    except Exception as e:  # a broken check must fail closed, never open
+        findings = [Finding(HOLD, f"the citation check hit an internal error ({type(e).__name__})")]
+    reasons, decision = apply_policy(signals, findings, POLICY)
+    evidence = [f.evidence or {"finding": f.message} for f in findings]
+    evidence.append(ezio_evidence(signals, response, error))
+    result = Decision(decision, explain(decision, reasons, findings, signals), evidence,
+                      response if error is None else {"error": error, "response": response})
     if audit_log:
         audit.record(persona, text, context, result)
     return result

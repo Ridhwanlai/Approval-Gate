@@ -23,3 +23,10 @@ def record(persona, text, context, decision):
     }
     with _lock, LOG.open("a") as f:
         f.write(json.dumps(entry) + "\n")
+
+
+def record_review(entry):
+    """Log a human decision on a held item next to the gate's own decisions."""
+    entry = {"timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"), **entry}
+    with _lock, LOG.open("a") as f:
+        f.write(json.dumps(entry) + "\n")

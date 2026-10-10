@@ -5,8 +5,9 @@ from dataclasses import asdict
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+import audit
 import mock_actions
-from wrapper import APPROVE, decide
+from wrapper import APPROVE, HOLD, decide
 
 UI_DIR = Path(__file__).parent / "ui"
 PERSONAS_DIR = Path(__file__).resolve().parent.parent / "personas"
@@ -54,6 +55,8 @@ class Handler(BaseHTTPRequestHandler):
             if persona not in PERSONAS:
                 return self.send_json(400, {"error": "Unknown persona"})
             return self.send_json(200, {"samples": samples(persona)})
+        if route == "/audit":
+            return self.send_json(200, {"records": read_audit()})
         served = ui_file(route)
         if served:
             raw, content_type = served
@@ -66,6 +69,8 @@ class Handler(BaseHTTPRequestHandler):
         self.send_json(404, {"error": "Unknown endpoint"})
 
     def do_POST(self):
+        if self.path == "/review":
+            return self.review()
         if self.path != "/decide":
             return self.send_json(404, {"error": "Unknown endpoint"})
         self.connection.settimeout(10)
@@ -93,6 +98,56 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(200, {**asdict(result), "action_executed": execute})
         except Exception:
             self.send_json(500, {"error": "Wrapper failed; inspect the decision implementation"})
+
+
+def read_audit(limit=50):
+    try:
+        lines = audit.LOG.read_text().splitlines()[-limit:]
+    except OSError:
+        return []
+    out = []
+    for line in lines:
+        try:
+            rec = json.loads(line)
+        except ValueError:
+            continue
+        rec.pop("ezio", None)
+        out.append(rec)
+    return out
+
+
+def last_decision_for(text):
+    for rec in reversed(read_audit(500)):
+        if rec.get("type") != "review" and rec.get("input") == text:
+            return rec.get("decision")
+    return None
+
+
+def _review(self):
+    """A human resolves a HOLD_FOR_REVIEW. Logged either way; the action runs only on proceed."""
+    try:
+        length = int(self.headers.get("Content-Length") or 0)
+        if not 0 < length <= 1_000_000:
+            raise ValueError
+        p = json.loads(self.rfile.read(length))
+        text, outcome, note = p.get("text"), p.get("outcome"), (p.get("note") or "").strip()
+        persona = p.get("persona", "paralegal")
+        if not isinstance(text, str) or outcome not in ("proceed", "reject") or not note or persona not in PERSONAS:
+            raise ValueError
+    except (ValueError, UnicodeDecodeError, OSError, AttributeError):
+        return self.send_json(400, {"error": "Review needs text, outcome (proceed or reject) and a reason"})
+    if last_decision_for(text) != HOLD:
+        return self.send_json(409, {"error": "Only a memo the gate held for review can be resolved here; blocked memos must be fixed and resent"})
+    execute = outcome == "proceed"
+    entry = {"type": "review", "persona": persona, "input": text, "ref": p.get("ref"), "outcome": outcome,
+             "reviewer": (p.get("reviewer") or "unnamed reviewer").strip(), "note": note, "action_executed": execute}
+    audit.record_review(entry)
+    if execute:
+        mock_actions.run_for_persona(persona, text)
+    return self.send_json(200, {"logged": True, "action_executed": execute})
+
+
+Handler.review = _review
 
 
 def main():
