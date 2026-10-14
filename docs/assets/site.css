@@ -46,7 +46,7 @@ a { color: var(--accent); }
 .bar .dot { opacity: .45; margin: 0 10px; }
 
 /* nav */
-.nav { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--rule); }
+.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--rule); }
 .nav .wrap { display: flex; align-items: center; gap: 24px; height: 68px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-weight: 700; font-size: 26px; letter-spacing: -.03em; }
 .brand .mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--ink); color: var(--bg); font: 700 22px/1 var(--serif); }
