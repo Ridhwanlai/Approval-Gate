@@ -2,7 +2,8 @@
 
   para run [--port N] [--no-browser]   set up if needed, then start the gate (default command)
   para setup                           save or replace your HarnessRouter key (hidden prompt)
-  para provision                       create or update Para's three harnesses in your account
+  para provision                       create or update Para's harnesses in your account
+  para setup-email                     email approved memos to the partner (hidden password prompt)
   para status                          show what is configured, never the key itself
 """
 import argparse
@@ -89,6 +90,74 @@ def setup():
     return False
 
 
+# ---------------------------------------------------------------- email
+
+PRESETS = {"gmail": ("smtp.gmail.com", 465, "ssl"), "outlook": ("smtp.office365.com", 587, "starttls")}
+
+
+def _ask(prompt, default=""):
+    value = input(f"{prompt}{f' [{default}]' if default else ''}: ").strip()
+    return value or default
+
+
+def _save_smtp_password(value):
+    target = config.SMTP_PASSWORD_FILE
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.is_symlink():
+        raise SystemExit(f"Refusing to write the password through a symlink at {target}")
+    fd, tmp = tempfile.mkstemp(prefix=".smtp-", dir=target.parent)
+    try:
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "w") as f:
+            f.write("SMTP_PASSWORD=" + value + "\n")
+        os.replace(tmp, target)
+    finally:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+
+
+def setup_email():
+    """Ask for outgoing mail details, check the login, then save. The password is typed hidden."""
+    from . import mailer, settings
+    if not sys.stdin.isatty():
+        _say("Email setup needs an interactive terminal.")
+        return False
+    _say("Approved memos will be emailed to the partner from your own mail account.")
+    _say("Gmail and Outlook need an app password (not your normal password) when two-step sign-in is on.\n")
+    try:
+        kind = _ask("Mail provider: gmail, outlook or other", "gmail").lower()
+        host, port, security = PRESETS.get(kind, ("", 587, "starttls"))
+        if kind not in PRESETS:
+            host = _ask("SMTP server (e.g. smtp.yourfirm.com)")
+            port = int(_ask("Port", "587"))
+            security = _ask("Security: starttls or ssl", "starttls").lower()
+        username = _ask("Sign-in email or username")
+        from_addr = _ask("Send from address", username)
+        to_addr = _ask("Partner's email address (memos go here)")
+        secret = getpass.getpass("Password or app password (hidden): ")
+    except (EOFError, KeyboardInterrupt):
+        _say("\nEmail setup cancelled. Nothing was saved.")
+        return False
+    if not (host and username and "@" in from_addr and "@" in to_addr and secret and security in ("ssl", "starttls")):
+        _say("Some details were missing or invalid. Nothing was saved.")
+        return False
+    cfg = {"host": host, "port": int(port), "security": security, "username": username, "from_addr": from_addr, "to_addr": to_addr}
+    os.environ["SMTP_PASSWORD"] = secret  # for the login check only; written to its own owner-only file below
+    try:
+        mailer.check_login(cfg)
+    except mailer.MailError as e:
+        _say(f"{e}. Nothing was saved.")
+        return False
+    finally:
+        os.environ.pop("SMTP_PASSWORD", None)
+    _save_smtp_password(secret)
+    data = settings.load()
+    data["email"] = cfg
+    settings.save(data)
+    _say(f"Signed in to {host}. Approved memos will be emailed to {to_addr}.")
+    return True
+
+
 # ---------------------------------------------------------------- provisioning
 
 def ensure_harnesses(force=False):
@@ -108,8 +177,9 @@ def ensure_harnesses(force=False):
 def status():
     from . import agents
     key_source = "HR_API_KEY environment variable" if os.getenv("HR_API_KEY") else (str(config.KEY_FILE) if config.hr_api_key() else "none")
+    from . import mailer
     reg = config.registry()
-    info = {"key": key_source, "agents": agents.status(), "registry": str(config.REGISTRY),
+    info = {"key": key_source, "agents": agents.status(), "delivery": mailer.describe(), "registry": str(config.REGISTRY),
             "features": sorted(reg), "data": str(config.DATA_DIR), "harnessrouter": config.HR_BASE_URL}
     _say(json.dumps(info, indent=2))
 
@@ -185,11 +255,14 @@ def main(argv=None):
     r.add_argument("--port", type=int)
     r.add_argument("--no-browser", action="store_true")
     sub.add_parser("setup", help="save or replace your HarnessRouter key")
-    sub.add_parser("provision", help="create or update the three harnesses")
+    sub.add_parser("provision", help="create or update Para's harnesses")
+    sub.add_parser("setup-email", help="email approved memos to the partner (SMTP)")
     sub.add_parser("status", help="show what is configured")
     args = ap.parse_args(argv)
     if args.cmd == "setup":
         sys.exit(0 if setup() else 1)
+    if args.cmd == "setup-email":
+        sys.exit(0 if setup_email() else 1)
     if args.cmd == "provision":
         sys.exit(0 if ensure_harnesses(force=True) else 1)
     if args.cmd == "status":

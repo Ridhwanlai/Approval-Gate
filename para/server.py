@@ -74,7 +74,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         route = self.path.partition("?")[0]
         if route == "/health":
-            return self.send_json(200, {"status": "ok", "agents": agents.status()})
+            from . import mailer
+            return self.send_json(200, {"status": "ok", "agents": agents.status(), "delivery": mailer.describe()})
         if route == "/api/samples":
             items = json.loads((config.FIRM_DIR / "practice_set.json").read_text())["items"]
             return self.send_json(200, {"samples": [{"id": i["id"], "text": i["text"], "context": i["context"]} for i in items]})

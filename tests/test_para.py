@@ -414,6 +414,21 @@ class CliTests(unittest.TestCase):
             config.KEY_FILE = old
             os.environ["HR_API_KEY"] = "sk-hr-test-not-real"
 
+    def test_email_setup_saves_nothing_when_login_fails(self):
+        from unittest import mock
+        from para import cli, settings
+        old = config.SMTP_PASSWORD_FILE
+        config.SMTP_PASSWORD_FILE = Path(tempfile.mkdtemp(prefix="para-smtp-")) / "smtp.password"
+        answers = iter(["other", "127.0.0.1", "1", "starttls", "me@example.test", "", "partner@example.test"])
+        try:
+            with mock.patch("sys.stdin.isatty", return_value=True), mock.patch("builtins.input", lambda *_: next(answers)), \
+                    mock.patch("getpass.getpass", return_value="secret"):
+                self.assertFalse(cli.setup_email())
+            self.assertFalse(config.SMTP_PASSWORD_FILE.exists())
+            self.assertNotIn("email", settings.load())
+        finally:
+            config.SMTP_PASSWORD_FILE = old
+
     def test_key_format(self):
         from para import cli
         self.assertTrue(cli.KEY_RE.fullmatch("sk-hr-abcdefgh12345"))
