@@ -116,3 +116,16 @@
     show(memos.find((m) => m.id === "pl-07") || memos[0], memos);
   }).catch(() => { docket.innerHTML = `<p class="muted">The recorded decisions could not be loaded.</p>`; });
 })();
+
+/* Hosted sign-up. Set APP_URL to the live service (e.g. https://para-memo-gate.onrender.com) once it is deployed;
+   until then the pricing buttons lead to the free download and say so, rather than to a dead link. */
+const APP_URL = "";
+(function appLinks() {
+  const links = document.querySelectorAll("[data-app-path]");
+  if (APP_URL) {
+    links.forEach((a) => { a.href = APP_URL.replace(/\/$/, "") + a.dataset.appPath; });
+    return;
+  }
+  const note = document.getElementById("pricing-note");
+  if (note) note.insertAdjacentHTML("afterbegin", "<b>Hosted sign-up opens soon.</b> Until then, the buttons take you to the free download. ");
+})();

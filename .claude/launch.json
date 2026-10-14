@@ -11,8 +11,8 @@
     {
       "name": "site",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8770", "--bind", "127.0.0.1", "--directory", "docs"],
-      "port": 8770
+      "runtimeArgs": ["-m", "http.server", "8771", "--bind", "127.0.0.1", "--directory", "docs"],
+      "port": 8771
     }
   ]
 }

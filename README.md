@@ -34,6 +34,14 @@ locally. Ezio's production API (checked 2026-10-13) accepts only signed-in web-a
 developer API key, so a server cannot call it yet. When Ezio provides an API key and endpoint, set
 `EZIO_URL` and `EZIO_KEY` before starting and Para uses it instead.
 
+## Sell it: hosted Para
+
+The same code runs as a paid, multi-firm web service with `python3 run.py serve-hosted`: firms sign
+up, get a 14-day free trial (20 AI checks), then subscribe through Stripe to **Solo** ($20/month,
+150 checks, 1 user) or **Firm** ($150/month, 1,000 checks, 10 users). Each firm's memos, team,
+citation lists, settings and audit log are kept separate; owners manage billing in the Stripe portal.
+See **[DEPLOY.md](DEPLOY.md)** to launch it on Render with `render.yaml`.
+
 ## Develop it: from source
 
 ```bash
@@ -105,6 +113,10 @@ served through `/api/trace/<check>/<feature>`.
 | `para/policy.json` | Every threshold and agent rule with its one-sentence why |
 | `para/cli.py`, `para/provisioning.py` | `run`, `setup`, `setup-email`, `provision`, `status`; creating or updating the harnesses |
 | `para/mailer.py`, `para/settings.py` | Emailing approved memos over SMTP; non-secret settings (models, email) |
+| `para/store.py`, `para/plans.py`, `para/tenant.py` | Hosted: firms, users, sessions, usage and audit in SQLite; plans; per-firm context |
+| `para/billing.py`, `tools/stripe_setup.py` | Hosted: Stripe Checkout, customer portal and signed webhooks; creating the prices |
+| `ui/login.html`, `ui/account.html` | Hosted: sign-in, free trial, invites; plan, billing, team, lists |
+| `render.yaml`, `DEPLOY.md` | Hosted: the Render blueprint and the launch guide |
 | `harnesses/*.json`, `provision.py` | Harness configuration as data, and the script that applies it |
 | `tools/build_pyz.py`, `tools/record_demo.py` | Build the one-file download; record the site's replay demo from live runs |
 | `docs/` | The website, the replay data and the published `para.pyz` |
