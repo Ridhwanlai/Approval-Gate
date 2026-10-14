@@ -333,5 +333,26 @@ class HttpTests(Base):
         self.assertEqual(self.req("/api/checks/chk_000000000000/review", {"outcome": "proceed", "note": "x"})[0], 404)
 
 
+class CliTests(unittest.TestCase):
+    def test_save_key_is_owner_only_and_readable_back(self):
+        from para import cli
+        home = Path(tempfile.mkdtemp(prefix="para-home-"))
+        old = config.KEY_FILE
+        config.KEY_FILE = home / "harnessrouter.key"
+        try:
+            cli.save_key("sk-hr-abcdefgh12345")
+            self.assertEqual(config.KEY_FILE.stat().st_mode & 0o777, 0o600)
+            os.environ.pop("HR_API_KEY", None)
+            self.assertEqual(config.hr_api_key(), "sk-hr-abcdefgh12345")
+        finally:
+            config.KEY_FILE = old
+            os.environ["HR_API_KEY"] = "sk-hr-test-not-real"
+
+    def test_key_format(self):
+        from para import cli
+        self.assertTrue(cli.KEY_RE.fullmatch("sk-hr-abcdefgh12345"))
+        self.assertFalse(cli.KEY_RE.fullmatch("sk-ant-abcdefgh12345"))
+
+
 if __name__ == "__main__":
     unittest.main()
