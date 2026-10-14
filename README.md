@@ -1,27 +1,47 @@
-# Para: Memo Gate on HarnessRouter
+# Para: stop fabricated cases before the partner reads them
 
 Para is an approval gate between a paralegal's AI-drafted research memo and the supervising partner.
-It returns APPROVE, HOLD_FOR_REVIEW or BLOCK with a plain-language reason and evidence. The memo is
-sent only on APPROVE. This version adds three Hermes agents on HarnessRouter Cloud to the original
-list check and Ezio scoring. Decision policy: [POLICY.md](POLICY.md).
+Every memo is cite-checked against the firm's own lists, scored by Ezio, and read by AI auditors
+running on HarnessRouter. Para then returns APPROVE, HOLD_FOR_REVIEW or BLOCK with a plain-language
+reason and evidence. The memo is sent only on APPROVE.
+
+**Website:** https://ridhwanlai.github.io/Approval-Gate/ · **Download:** [`docs/download/para.pyz`](docs/download/para.pyz) ·
+**Decision policy:** [POLICY.md](POLICY.md)
+
+On the 16-memo practice set, run live through the HarnessRouter agents: 16/16 exact decisions,
+8/8 bad memos caught, 0/8 good memos stopped.
+
+## Use it: one file
+
+```bash
+python3 para.pyz            # first run asks for your HarnessRouter key (hidden), sets up the agents, opens the browser
+python3 para.pyz status     # what is configured (never prints the key)
+python3 para.pyz setup      # replace the key
+```
+
+Python 3.9+, nothing else to install. Everything Para stores lives in `~/.para` (override with
+`PARA_HOME`): the key (owner-only), the harness map and the audit log. Without a key, every memo is
+held for review, never sent unread, and the firm's lists still block fabricated cases.
+
+This release scores memos with the buildathon's simulated Ezio, run locally. To use a live Ezio,
+set `EZIO_URL` (and `EZIO_KEY`) before starting.
+
+## Develop it: from source
+
+```bash
+python3 run.py                        # http://127.0.0.1:9000/  (setup|provision|status also work)
+python3 -m unittest discover -s tests # offline: fake HarnessRouter + the mock Ezio, no key needed
+python3 tests/live_eval.py            # live: the 16 practice memos through the real harnesses (uses credits)
+python3 tools/build_pyz.py            # build dist/para.pyz
+python3 tools/record_demo.py --audit data/live_eval/audit_log.jsonl --revise pl-07 pl-12   # refresh the site demo
+```
+
+From source, the key is read from `HR_API_KEY` or the git-ignored, owner-only `.env.harnessrouter`.
+The website is the static `docs/` folder, served by GitHub Pages.
 
 The original buildathon submission is unchanged and still runs: see [TEAM_README.md](TEAM_README.md)
 (`gate.py`, `wrapper/`). The challenge brief that was this repository's README is now
 [CHALLENGE.md](CHALLENGE.md).
-
-## Run it
-
-```bash
-python3 harnesses/provision.py        # once: creates or updates the three harnesses, writes harnesses/registry.json
-python3 run.py                        # http://127.0.0.1:9000/  (PORT=50412 python3 run.py for another port)
-python3 -m unittest discover -s tests # offline: fake HarnessRouter + the real mock Ezio, no key needed
-python3 tests/live_eval.py            # live: the 16 practice memos through the real harnesses (uses credits)
-```
-
-Python 3.9+, standard library only. The HarnessRouter key is read on the server from `HR_API_KEY` or
-the git-ignored, owner-only `.env.harnessrouter`. It is set with the HarnessRouter Skill's secure
-key prompt, never pasted into chat or committed. Without a key every memo is held for review, never
-sent unread.
 
 ## How the work is split
 
@@ -48,13 +68,13 @@ quote. Validated findings can only make the decision stricter:
 - an agent saying "verified" never lowers anything
 - an agent failure (outage, timeout, billing, unreadable or off-task reply) → HOLD
 
-The browser sends memo text only. The server maps `feature_key` to `harness_id` from
-`harnesses/registry.json`. Keys, harness IDs and session IDs never reach the page. Traces are
+The browser sends memo text only. The server maps `feature_key` to `harness_id` from the
+registry provisioning writes (`~/.para/registry.json`, or `harnesses/registry.json` from source). Keys, harness IDs and session IDs never reach the page. Traces are
 served through `/api/trace/<check>/<feature>`.
 
-## Account notes (checked 2026-10-11)
+## HarnessRouter notes (checked 2026-10-11)
 
-- Workspace `hr_default`. The Free plan runs **2 tasks at a time**; the server queues to
+- The Free plan runs **2 tasks at a time**; the server queues to
   `HR_MAX_CONCURRENT` (default 2), so a full check takes about one harness run's time per memo in line.
 - `claude-haiku-5.5` returned 402 (`billing_error`, needs a provider key) on the Free plan;
   `claude-sonnet-5.5` runs, so all three harnesses use it.
@@ -71,5 +91,8 @@ served through `/api/trace/<check>/<feature>`.
 | `para/hr_client.py` | HarnessRouter UHP client: streaming, recovery without resubmitting, retries, error codes |
 | `para/citation_check.py`, `para/ezio_client.py` | From the original Para, unchanged |
 | `para/policy.json` | Every threshold and agent rule with its one-sentence why |
+| `para/cli.py`, `para/provisioning.py` | `run`, `setup`, `provision`, `status`; creating or updating the harnesses |
 | `harnesses/*.json`, `provision.py` | Harness configuration as data, and the script that applies it |
+| `tools/build_pyz.py`, `tools/record_demo.py` | Build the one-file download; record the site's replay demo from live runs |
+| `docs/` | The website, the replay data and the published `para.pyz` |
 | `data/` | `audit_log.jsonl`, `actions.log` (git-ignored) |
