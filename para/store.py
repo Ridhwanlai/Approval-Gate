@@ -276,6 +276,38 @@ def accept_invite(token, name, email, password, now=None):
     return inv["firm_id"], user_id
 
 
+def firm_of_email(email):
+    row = _one("select m.firm_id from users u join members m on m.user_id = u.id where u.email = ?", (normal_email(email),))
+    if not row:
+        raise StoreError("No account uses that email.")
+    return row["firm_id"]
+
+
+def grant(email, plan, days, now=None):
+    """Give the firm of `email` a paid plan for `days`, paid outside Stripe (e.g. Interac e-Transfer).
+
+    Starts a fresh allowance now; access lapses at the end unless granted again or replaced by Stripe.
+    """
+    now = now or time.time()
+    if plan not in plans.PAID or not 1 <= int(days) <= 400:
+        raise StoreError("Grant solo or firm for 1 to 400 days.")
+    firm_id = firm_of_email(email)
+    update_firm(firm_id, plan=plan, status="manual", period_start=now, period_end=now + int(days) * 86400)
+    return firm_id
+
+
+def revoke(email):
+    firm_id = firm_of_email(email)
+    update_firm(firm_id, status="canceled")
+    return firm_id
+
+
+def all_firms():
+    return [dict(r) for r in _q("select f.id, f.name, f.plan, f.status, f.period_end, f.trial_ends, "
+                                "(select u.email from members m join users u on u.id = m.user_id "
+                                " where m.firm_id = f.id and m.role = 'owner') owner from firms f order by f.created")]
+
+
 def remove_member(firm_id, user_id):
     row = _one("select role from members where firm_id = ? and user_id = ?", (firm_id, user_id))
     if not row:

@@ -237,6 +237,30 @@ def serve_hosted():
     _serve(os.getenv("HOST", "0.0.0.0"), int(os.getenv("PORT", "10000")), False)
 
 
+def admin(args):
+    """Account administration for the hosted service, run in its shell (it uses PARA_DATA_DIR's database)."""
+    import datetime
+    from . import store
+    config.MODE, config.HOSTED = "hosted", True
+    when = lambda t: datetime.datetime.fromtimestamp(t).strftime("%Y-%m-%d") if t else "-"  # noqa: E731
+    try:
+        if args.cmd == "grant":
+            firm_id = store.grant(args.email, args.plan, args.days)
+            u = store.usage(firm_id)
+            _say(f"{store.firm(firm_id)['name']}: {u['label']} until {when(u['period_end'])}, {u['checks']} AI checks.")
+        elif args.cmd == "revoke":
+            firm_id = store.revoke(args.email)
+            _say(f"{store.firm(firm_id)['name']}: access ended.")
+        else:
+            for f in store.all_firms():
+                u = store.usage(f["id"])
+                ends = f["trial_ends"] if f["plan"] == "trial" else f["period_end"]
+                _say(f"{f['name'][:30]:30} {f['owner'] or '-':32} {u['label']:10} {f['status']:9} "
+                     f"{u['used']:>4}/{u['checks']:<5} until {when(ends)}")
+    except store.StoreError as e:
+        raise SystemExit(str(e))
+
+
 def _serve(host, port, open_browser):
     # A real Ezio endpoint (EZIO_URL, with EZIO_KEY) is used when given; otherwise the bundled simulation runs locally.
     mock = None
@@ -279,6 +303,13 @@ def main(argv=None):
     sub.add_parser("setup-email", help="email approved memos to the partner (SMTP)")
     sub.add_parser("status", help="show what is configured")
     sub.add_parser("serve-hosted", help="run the paid multi-firm service (settings from the environment)")
+    g = sub.add_parser("grant", help="hosted: give a firm a paid plan paid outside Stripe (e.g. e-Transfer)")
+    g.add_argument("--email", required=True, help="any member's email; the whole firm gets the plan")
+    g.add_argument("--plan", required=True, choices=["solo", "firm"])
+    g.add_argument("--days", type=int, default=31)
+    r2 = sub.add_parser("revoke", help="hosted: end a firm's manually granted access")
+    r2.add_argument("--email", required=True)
+    sub.add_parser("firms", help="hosted: list firms with plan, status and usage")
     args = ap.parse_args(argv)
     if args.cmd == "setup":
         sys.exit(0 if setup() else 1)
@@ -288,6 +319,8 @@ def main(argv=None):
         sys.exit(0 if ensure_harnesses(force=True) else 1)
     if args.cmd == "serve-hosted":
         return serve_hosted()
+    if args.cmd in ("grant", "revoke", "firms"):
+        return admin(args)
     if args.cmd == "status":
         return status()
     run(getattr(args, "port", None), not getattr(args, "no_browser", False))

@@ -114,6 +114,21 @@ class UsageTests(StoreBase):
         with self.assertRaises(store.StoreError):
             store.consume(a)
 
+    def test_manual_grant_for_e_transfer_lapses_on_time(self):
+        firm_id, _ = self.new_firm()
+        now = time.time()
+        store.grant("OWNER@firm.test", "solo", 31, now=now)
+        u = store.usage(firm_id, now=now + 86400)
+        self.assertEqual((u["plan"], u["active"], u["checks"]), ("solo", True, 150))
+        store.consume(firm_id, now=now + 86400)
+        self.assertFalse(store.usage(firm_id, now=now + 32 * 86400)["active"])
+        with self.assertRaises(store.StoreError):
+            store.consume(firm_id, now=now + 32 * 86400)
+        store.revoke("owner@firm.test")
+        self.assertFalse(store.usage(firm_id)["active"])
+        with self.assertRaises(store.StoreError):
+            store.grant("nobody@firm.test", "solo", 31)
+
     def test_audit_is_kept_per_firm(self):
         a, _ = self.new_firm()
         b, _ = self.new_firm(email="other@firm.test", name="Other LLP")

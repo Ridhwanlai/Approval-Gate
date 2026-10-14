@@ -23,12 +23,18 @@ def entitlement(firm, now=None):
         return {"plan": plan, "label": spec["label"], "active": active, "checks": spec["checks"], "seats": spec["seats"],
                 "period_key": "trial", "period_end": ends,
                 "reason": None if active else "Your free trial has ended. Choose a plan to keep checking memos."}
+    start = int(firm.get("period_start") or 0)
+    if firm.get("status") == "manual":  # paid outside Stripe (e.g. e-Transfer), granted until period_end
+        ends = firm.get("period_end") or 0
+        active = now < ends
+        return {"plan": plan, "label": spec["label"], "active": active, "checks": spec["checks"], "seats": spec["seats"],
+                "period_key": f"p{start}", "period_end": ends,
+                "reason": None if active else "Your access period has ended. Choose a plan, or contact us to renew."}
     active = firm.get("status") in ACTIVE_STATUSES
     reason = None
     if not active:
         reason = "Your subscription is not active. Update your billing details or choose a plan."
     elif firm.get("status") == "past_due":
         reason = "Your last payment failed; Stripe will retry. Update your card under Manage billing."
-    start = int(firm.get("period_start") or 0)
     return {"plan": plan, "label": spec["label"], "active": active, "checks": spec["checks"], "seats": spec["seats"],
             "period_key": f"p{start}", "period_end": firm.get("period_end"), "reason": reason}
