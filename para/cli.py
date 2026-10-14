@@ -165,7 +165,7 @@ def ensure_harnesses(force=False):
     wanted = {k for s in specs() for k in s["feature_keys"]}
     if not force and wanted <= set(config.registry()):
         return True
-    _say("Setting up Para's three agents in your HarnessRouter account…")
+    _say(f"Setting up Para's {len(specs())} agents in your HarnessRouter account…")
     try:
         provision(log=lambda line: _say("  " + line))
         return True
