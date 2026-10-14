@@ -22,6 +22,12 @@ SMTP_PASSWORD_FILE = HOME / "smtp.password" if HOME else ROOT / ".env.smtp"
 HR_BASE_URL = os.getenv("HR_BASE_URL", "https://api.harnessrouter.ai").rstrip("/")
 # Discovered from GET /v1/uhp on 2026-10-11; re-run discovery before changing it.
 HR_UHP_VERSION = os.getenv("HR_UHP_VERSION", "2026-09-28")
+# "local": one install, one user (the download). "hosted": many firms behind sign-in (the paid service).
+MODE = os.getenv("PARA_MODE", "local")
+HOSTED = MODE == "hosted"
+# The public address of the hosted app, e.g. https://para-memo-gate.onrender.com (links, cookies, Stripe returns).
+PUBLIC_URL = os.getenv("PUBLIC_URL", "http://127.0.0.1:9000").rstrip("/")
+DB_FILE = DATA_DIR / "para.db"
 # Simultaneous HarnessRouter tasks this server starts. The Free plan runs 2 at a time.
 HR_MAX_CONCURRENT = max(1, int(os.getenv("HR_MAX_CONCURRENT", "2")))
 

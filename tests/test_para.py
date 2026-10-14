@@ -31,6 +31,13 @@ sys.path.insert(0, str(ROOT / "tests"))
 from fake_hr import FakeHR  # noqa: E402
 from para import agents, config, gate, pipeline, server  # noqa: E402
 from para.hr_client import Client, HRError  # noqa: E402
+from para import ezio_client  # noqa: E402
+
+# Another test module may have imported para first, so point every path at this module's temp dir.
+config.DATA_DIR = Path(TMP)
+config.SETTINGS_FILE = config.DATA_DIR / "settings.json"
+config.DB_FILE = config.DATA_DIR / "para.db"
+ezio_client.BASE = os.environ["EZIO_URL"]
 
 AUDIT, STYLE, DRAFT, WRITE = "chrn_audit", "chrn_style", "chrn_draft", "chrn_write"
 CLEAN_STYLE = json.dumps({"reads_as": "analysis", "issues": [], "notes": "Neutral."})
