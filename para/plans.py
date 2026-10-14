@@ -3,9 +3,10 @@ import time
 
 TRIAL_DAYS = 14
 PLANS = {
-    "trial": {"label": "Free trial", "price_usd": 0, "checks": 20, "seats": 3},
-    "solo": {"label": "Solo", "price_usd": 20, "checks": 150, "seats": 1, "lookup_key": "para_solo_monthly"},
-    "firm": {"label": "Firm", "price_usd": 150, "checks": 1000, "seats": 10, "lookup_key": "para_firm_monthly"},
+    # concurrent: AI jobs one firm may have running at once, so no firm can hold every HarnessRouter slot.
+    "trial": {"label": "Free trial", "price_usd": 0, "checks": 20, "seats": 3, "concurrent": 1},
+    "solo": {"label": "Solo", "price_usd": 20, "checks": 150, "seats": 1, "concurrent": 2, "lookup_key": "para_solo_monthly"},
+    "firm": {"label": "Firm", "price_usd": 150, "checks": 1000, "seats": 10, "concurrent": 4, "lookup_key": "para_firm_monthly"},
 }
 PAID = ("solo", "firm")
 # Stripe subscription statuses that keep a paid plan usable (past_due: Stripe is still retrying the card).

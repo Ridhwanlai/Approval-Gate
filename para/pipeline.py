@@ -43,6 +43,12 @@ class Job:
                     "stages": [{"key": k, **v} for k, v in self.stages.items()], "result": self.result}
 
 
+def running(firm_id):
+    """How many of this firm's jobs are still running."""
+    with _lock:
+        return sum(1 for j in _jobs.values() if j.firm_id == firm_id and j.state == "running")
+
+
 def get(job_id):
     """The job, only if it belongs to the current firm (hosted) or this install (local)."""
     with _lock:

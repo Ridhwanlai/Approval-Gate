@@ -134,8 +134,10 @@ class Handler(BaseHTTPRequestHandler):
         return (got.scheme, got.netloc) == (want.scheme, want.netloc)
 
     def client_ip(self):
-        forwarded = (self.headers.get("X-Forwarded-For") or "").split(",")[0].strip()
-        return forwarded or self.client_address[0]
+        """The visitor's address. Behind a proxy (Render) the last X-Forwarded-For entry is the one the proxy saw;
+        earlier entries can be set by the visitor, so they are not trusted."""
+        forwarded = [p.strip() for p in (self.headers.get("X-Forwarded-For") or "").split(",") if p.strip()]
+        return forwarded[-1] if forwarded else self.client_address[0]
 
     def gate_request(self, method, route):
         """Hosted mode: attach the session and firm, or answer the request. Returns True when handled."""
@@ -173,9 +175,14 @@ class Handler(BaseHTTPRequestHandler):
         """Hosted: take one AI check from the firm's allowance. Returns an error response if there is none."""
         if not config.HOSTED:
             return None
-        from . import store
+        from . import plans, store
+        firm_id = self.auth["firm_id"]
+        limit = plans.PLANS[store.usage(firm_id)["plan"]].get("concurrent", 1)
+        if pipeline.running(firm_id) >= limit:
+            return {"error": f"Your firm already has {limit} AI job{'s' if limit != 1 else ''} running. Start this one when one finishes.",
+                    "busy": True}
         try:
-            store.consume(self.auth["firm_id"])
+            store.consume(firm_id)
         except store.StoreError as e:
             return {"error": str(e), "upgrade": True}
         return None
@@ -359,7 +366,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json(400, {"error": f"text must be a non-empty string of at most {MAX_TEXT} characters"})
             refused = self.use_allowance()
             if refused:
-                return self.send_json(402, refused)
+                return self.send_json(429 if refused.get("busy") else 402, refused)
             if route == "/api/checks":
                 return self.send_json(202, {"id": pipeline.start_check(text, context).id})
             job = pipeline.start_check(text, context, background=False)
@@ -370,7 +377,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json(400, {"error": f"question must be a non-empty string of at most {agents.MAX_QUESTION} characters"})
             refused = self.use_allowance()
             if refused:
-                return self.send_json(402, refused)
+                return self.send_json(429 if refused.get("busy") else 402, refused)
             return self.send_json(202, {"id": pipeline.start_draft(question.strip(), matter.strip()[:1000]).id})
         m = re.fullmatch(r"/api/checks/(chk_[0-9a-f]{12})/(review|revision)", route)
         if m and m.group(2) == "review":
@@ -386,7 +393,7 @@ class Handler(BaseHTTPRequestHandler):
         if m and m.group(2) == "revision":
             refused = self.use_allowance()
             if refused:
-                return self.send_json(402, refused)
+                return self.send_json(429 if refused.get("busy") else 402, refused)
             job, err = pipeline.start_revision(m.group(1))
             if not job:
                 self.refund_allowance()
@@ -400,7 +407,10 @@ class Handler(BaseHTTPRequestHandler):
         from . import store
         try:
             if route == "/auth/signup":
+                if not store.signup_allowed(self.client_ip()):
+                    return self.send_json(429, {"error": "Too many new accounts from this network today. Try again tomorrow, or sign in."})
                 _, user_id = store.create_firm_with_owner(data.get("firm"), data.get("name"), data.get("email"), data.get("password"))
+                store.record_signup(self.client_ip())
             elif route == "/auth/accept-invite":
                 _, user_id = store.accept_invite(data.get("token"), data.get("name"), data.get("email"), data.get("password"))
             elif route == "/auth/login":

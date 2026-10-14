@@ -199,6 +199,17 @@ def _record_failure(email, ip, now, window=900):
         _q("update login_failures set count = count + 1 where key = ?", (key,))
 
 
+def signup_allowed(ip, now=None, limit=5, window=86400):
+    """At most `limit` new firm accounts per network address per day, so free trials can't be farmed."""
+    now = now or time.time()
+    row = _one("select count, window_start from login_failures where key = ?", (f"signup|{ip}",))
+    return not (row and now - row["window_start"] < window and row["count"] >= limit)
+
+
+def record_signup(ip, now=None):
+    _record_failure("signup", ip, now or time.time(), window=86400)
+
+
 def authenticate(email, password, ip="", now=None):
     now = now or time.time()
     try:

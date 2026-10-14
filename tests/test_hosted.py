@@ -335,6 +335,24 @@ class HostedHttpTests(StoreBase):
         code, body, _ = c("/api/drafts", {"question": "Must the state appoint counsel?"})
         self.assertEqual((code, body.get("upgrade")), (402, True))
 
+    def test_signups_per_network_are_limited(self):
+        for i in range(5):
+            self.signup(email=f"user{i}@firm{i}.test", firm=f"Firm {i}")
+        c = self.client()
+        code, body, _ = c("/auth/signup", {"firm": "Sixth", "name": "S", "email": "six@firm6.test", "password": "correct horse battery"})
+        self.assertEqual(code, 429)
+
+    def test_one_firm_cannot_hold_every_ai_slot(self):
+        from para import pipeline, tenant
+        c = self.signup()
+        tenant.set_firm(self.firm_id_of("owner@firm.test"))
+        busy = pipeline.Job("check", ["lists"], text="x", context={})  # still running
+        tenant.set_firm(None)
+        code, body, _ = c("/api/drafts", {"question": "Must the state appoint counsel?"})
+        self.assertEqual((code, body.get("busy")), (429, True))
+        self.assertEqual(store.usage(self.firm_id_of("owner@firm.test"))["used"], 0)  # nothing was charged
+        busy.state = "done"
+
     def test_team_invite_join_and_owner_only_changes(self):
         owner = self.signup()
         code, inv, _ = owner("/api/firm/invites", {})
