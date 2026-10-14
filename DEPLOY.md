@@ -68,15 +68,39 @@ an issue, chat or email.
 4. You return to Account with the Solo plan active and 150 checks. **Manage billing** opens the
    Stripe portal, where cancelling turns the plan off at the end of the period.
 
-## 4. Go live
+## 4. Customers who pay by e-Transfer
+
+For someone who pays you by Interac e-Transfer (or invoice) instead of a card:
+
+1. Have them create a firm account with **Start free trial**.
+2. When the money arrives, open your service in the Render dashboard → **Shell**, and run:
+
+   ```bash
+   python3 run.py grant --email their@email.com --plan solo --days 31
+   ```
+
+   Use `--plan firm` for the Firm plan. Their whole firm gets the plan and a fresh allowance at once.
+3. `python3 run.py firms` lists every firm with its plan, usage and end date. Access lapses on the end
+   date unless you grant it again; `python3 run.py revoke --email ...` ends it early.
+
+## 5. Go live
 
 1. Complete Stripe's account activation (business details, bank account).
 2. Run `tools/stripe_setup.py` again with the **live** key, with `--webhook`, and put the live
    `sk_live_...` and its `whsec_...` into Render.
-3. Add Terms of Service and a Privacy Policy before charging customers. Para processes your
-   customers' memo text through HarnessRouter (and Ezio when connected), so say so. Have a lawyer
-   review them: these are legal documents for a legal product.
+3. Finish the Terms of Service and Privacy Policy with a lawyer. Drafts are in `ui/terms.html` and
+   `ui/privacy.html` (served at `/terms` and `/privacy`), with every item that needs your details or
+   legal judgment in brackets: operator name and contact, currency, refunds, retention, liability,
+   governing law and PIPEDA wording. Remove the "Draft for legal review" notice only once a lawyer
+   has approved them. Sign-up already requires agreeing to them and records when each person did.
 4. Point your own domain at Render if you have one, and update `PUBLIC_URL`.
+
+## Built-in limits
+
+- Free trials: at most five new firm accounts per network address per day.
+- AI jobs running at once per firm: trial 1, Solo 2, Firm 4, so no firm can hold every HarnessRouter
+  slot; extra requests are told to wait and are not charged.
+- Sign-in: ten failed attempts in 15 minutes locks that email and address out for a while.
 
 ## What runs where
 
