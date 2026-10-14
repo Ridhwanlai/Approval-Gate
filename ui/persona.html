@@ -121,7 +121,7 @@
       </div>
       <div class="memo-head">
         <h2>MEMORANDUM</h2>
-        <div class="row"><label for="to">To</label><input id="to" type="text" value="Supervising partner"></div>
+        <div class="row"><label for="to">To</label><input id="to" type="text" value="Supervising partner" readonly title="Set by para setup-email on the server"></div>
         <div class="row"><label for="re">Re</label><input id="re" type="text" placeholder="Matter and question presented (sent as context)"></div>
       </div>
       <label class="sr" for="draft">Memo body</label>
@@ -223,8 +223,9 @@ async function health() {
   const el = $("health");
   try {
     const r = await api(CFG.healthUrl, {}, 5000);
-    const ag = r.data && r.data.agents;
-    el.textContent = r.ok ? `Gate online · ${AGENT_STATUS[ag] || "AI agents unknown"}` : `Gate error ${r.status}`;
+    const ag = r.data && r.data.agents, dl = (r.data && r.data.delivery) || {};
+    el.textContent = r.ok ? `Gate online · ${AGENT_STATUS[ag] || "AI agents unknown"} · ${dl.channel === "email" ? "email on" : "email off"}` : `Gate error ${r.status}`;
+    $("to").value = dl.channel === "email" ? `Supervising partner <${dl.to}>` : "Supervising partner (email not set up: approved memos are logged only)";
     el.className = "health " + (r.ok && ag === "configured" ? "on" : "off");
   } catch { el.textContent = "Gate offline"; el.className = "health off"; }
 }
@@ -339,7 +340,7 @@ function renderResult(box, text, out) {
   let banner = "";
   if (ez.reachable === false) banner = `<div class="banner err">Ezio was unreachable for this memo, so only the firm's lists and the AI checks were applied.</div>`;
   else if (ez.accuracy_status === "unavailable") banner = `<div class="banner">Ezio's fact-check was unavailable for this memo.</div>`;
-  const ranTxt = r.action_executed === true ? "Action: memo sent to the partner." : "Action: not sent. The memo never reached the partner.";
+  const ranTxt = deliveryText(r.delivery, r.decision);
   box.innerHTML = `<h3>Gate decision</h3>
     <div class="stamp ${d} press"><span class="glyph" aria-hidden="true">${GLYPH[d]}</span>${LABEL[d]}</div>
     ${banner}
@@ -443,7 +444,7 @@ async function review(i, outcome) {
   if (!note) { $("rn" + i).focus(); $("rn" + i).placeholder = "A reason is required before you proceed or reject."; return; }
   try {
     const r = await post(`/api/checks/${q.ref}/review`, { outcome, reviewer, note });
-    if (r.ok) q.status = outcome === "proceed" ? (r.data.action_executed ? "Proceeded: the review was logged and the memo sent." : "Proceeded: review logged.") : "Rejected: review logged, memo returned to the drafter.";
+    if (r.ok) q.status = outcome === "proceed" ? `Proceeded: review logged. ${deliveryText(r.data.delivery, "APPROVE")}` : "Rejected: review logged, memo returned to the drafter.";
     else q.status = `The gate did not accept the review (${(r.data && r.data.error) || "HTTP " + r.status}). The memo stays held and unsent.`;
   } catch (e) { q.status = `The review could not be recorded (${e.message}). The memo stays held and unsent.`; }
   renderQueue();
@@ -513,6 +514,12 @@ $("draftBtn").onclick = async () => {
   status.innerHTML = `<p class="draft-note">Draft written by ${esc(r.model || "the AI drafter")}${r.authorities_used.length ? `, citing ${esc(r.authorities_used.join(", "))}` : ""}.
     ${r.open_points.length ? `Open points: ${esc(r.open_points.join("; "))}.` : ""} Read and edit it below, then choose Check and send to partner.</p>`;
 };
+/* What actually happened to the memo, from the server's delivery record. Never claims a send that failed. */
+function deliveryText(d, decision) {
+  if (!d) return decision === "APPROVE" ? "Action: not sent." : "Action: not sent. The memo never reached the partner.";
+  if (d.channel === "email") return d.sent ? `Action: emailed to the partner (${d.to}).` : `Action: approved, but the email to ${d.to} failed: ${d.error}. Not delivered; nothing reached the partner.`;
+  return "Action: approved and logged. Email is not set up, so nothing was emailed (run para setup-email).";
+}
 </script>
 </body>
 </html>
