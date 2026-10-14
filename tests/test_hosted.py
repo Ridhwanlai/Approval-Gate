@@ -2,6 +2,7 @@
 
   python3 -m unittest discover -s tests -v
 """
+import json
 import os
 import sys
 import tempfile
@@ -179,6 +180,219 @@ class TenancyTests(StoreBase):
         t.start()
         t.join()
         self.assertEqual(seen, [self.a])
+
+
+class HostedHttpTests(StoreBase):
+    """The hosted server over HTTP: sign-in, CSRF, tenancy, owner-only changes, allowance and Stripe billing."""
+
+    @classmethod
+    def setUpClass(cls):
+        import threading
+        from http.server import ThreadingHTTPServer
+        sys.path.insert(0, str(ROOT / "tests"))
+        from fake_stripe import FakeStripe
+        from para import billing, server
+        cls.stripe = FakeStripe()
+        cls._api, billing.API = billing.API, cls.stripe.url
+        cls.web = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
+        cls.base = f"http://127.0.0.1:{cls.web.server_address[1]}"
+        threading.Thread(target=cls.web.serve_forever, daemon=True).start()
+
+    @classmethod
+    def tearDownClass(cls):
+        from para import billing
+        cls.web.shutdown()
+        cls.web.server_close()
+        cls.stripe.close()
+        billing.API = cls._api
+
+    def setUp(self):
+        super().setUp()
+        from para import billing
+        billing._price_cache.clear()
+        self._saved = (config.HOSTED, config.PUBLIC_URL)
+        config.HOSTED, config.PUBLIC_URL = True, self.base
+        os.environ.update(STRIPE_SECRET_KEY="sk_test_fake", STRIPE_WEBHOOK_SECRET="whsec_test")
+
+    def tearDown(self):
+        from para import tenant
+        tenant.set_firm(None)
+        config.HOSTED, config.PUBLIC_URL = self._saved
+        for k in ("STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"):
+            os.environ.pop(k, None)
+        super().tearDown()
+
+    # -- a tiny browser: one cookie jar per "person"
+
+    def client(self):
+        import http.cookiejar
+        import urllib.request
+        jar = http.cookiejar.CookieJar()
+
+        class NoRedirect(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, *a, **k):
+                return None
+        opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar), NoRedirect())
+        state = {"csrf": None}
+        base = self.base
+
+        def req(path, body=None, method=None, origin=True, csrf=True, raw=None, headers=None):
+            import urllib.error
+            data = raw if raw is not None else (json.dumps(body).encode() if body is not None else None)
+            h = {"Content-Type": "application/json", **(headers or {})}
+            if origin:
+                h["Origin"] = base
+            if csrf and state["csrf"]:
+                h["X-CSRF-Token"] = state["csrf"]
+            r = urllib.request.Request(base + path, data=data, method=method or ("POST" if data is not None else "GET"), headers=h)
+            try:
+                with opener.open(r, timeout=20) as f:
+                    code, text, loc = f.status, f.read(), f.headers.get("Location")
+            except urllib.error.HTTPError as e:
+                code, text, loc = e.code, e.read(), e.headers.get("Location")
+            try:
+                out = json.loads(text) if text else {}
+            except ValueError:
+                out = {"_html": True}
+            if path == "/api/me" and code == 200:
+                state["csrf"] = out.get("csrf")
+            return code, out, loc
+
+        req.state = state
+        return req
+
+    def signup(self, email="owner@firm.test", firm="Doe & Roe LLP"):
+        c = self.client()
+        code, body, _ = c("/auth/signup", {"firm": firm, "name": "Dana", "email": email, "password": "correct horse battery"})
+        self.assertEqual(code, 200, body)
+        c("/api/me")
+        return c
+
+    def firm_id_of(self, email):
+        return store.membership(store._one("select id from users where email = ?", (email,))["id"])["firm_id"]
+
+    def test_signed_out_visitors_are_sent_to_sign_in(self):
+        c = self.client()
+        self.assertEqual(c("/")[0:3:2], (303, "/login"))
+        self.assertEqual(c("/api/me")[0], 401)
+        self.assertEqual(c("/login")[0], 200)
+        self.assertEqual(c("/health")[0], 200)
+
+    def test_signup_sign_in_and_out(self):
+        c = self.signup()
+        code, me, _ = c("/api/me")
+        self.assertEqual((code, me["mode"], me["role"], me["usage"]["plan"], me["usage"]["checks"]), (200, "hosted", "owner", "trial", 20))
+        self.assertEqual(c("/auth/logout", {})[0], 200)
+        self.assertEqual(c("/api/me")[0], 401)
+        d = self.client()
+        self.assertEqual(d("/auth/login", {"email": "owner@firm.test", "password": "nope nope nope"})[0], 401)
+        self.assertEqual(d("/auth/login", {"email": "owner@firm.test", "password": "correct horse battery"})[0], 200)
+        self.assertEqual(d("/api/me")[0], 200)
+
+    def test_writes_need_csrf_and_same_origin(self):
+        c = self.signup()
+        body = {"partner_email": "partner@firm.test"}
+        self.assertEqual(c("/api/firm/settings", body, method="PUT", csrf=False)[0], 403)
+        self.assertEqual(c("/api/firm/settings", body, method="PUT", origin=False)[0], 403)
+        self.assertEqual(c("/api/firm/settings", body, method="PUT", origin=False, headers={"Origin": "https://evil.test"})[0], 403)
+        self.assertEqual(c("/api/firm/settings", body, method="PUT")[0], 200)
+        self.assertEqual(c("/api/me")[1]["firm"]["partner_email"], "partner@firm.test")
+
+    def test_one_firm_cannot_see_another_firms_work(self):
+        from para import pipeline, tenant
+        a = self.signup()
+        b = self.signup(email="b@other.test", firm="Other LLP")
+        tenant.set_firm(self.firm_id_of("owner@firm.test"))
+        job = pipeline.Job("check", ["lists"], text="secret memo", context={})
+        job.state = "done"
+        tenant.set_firm(None)
+        self.assertEqual(a(f"/api/checks/{job.id}")[0], 200)
+        self.assertEqual(b(f"/api/checks/{job.id}")[0], 404)
+        self.assertEqual(b(f"/api/checks/{job.id}/review", {"outcome": "proceed", "note": "x"})[0], 404)
+        store.add_audit(self.firm_id_of("owner@firm.test"), {"decision": "BLOCK", "input": "secret memo"})
+        self.assertNotIn("secret memo", json.dumps(b("/audit")[1]))
+
+    def test_used_up_allowance_asks_to_upgrade(self):
+        c = self.signup()
+        firm_id = self.firm_id_of("owner@firm.test")
+        for _ in range(20):
+            store.consume(firm_id)
+        code, body, _ = c("/api/drafts", {"question": "Must the state appoint counsel?"})
+        self.assertEqual((code, body.get("upgrade")), (402, True))
+
+    def test_team_invite_join_and_owner_only_changes(self):
+        owner = self.signup()
+        code, inv, _ = owner("/api/firm/invites", {})
+        self.assertEqual(code, 200)
+        token = inv["link"].split("#", 1)[1]
+        member = self.client()
+        self.assertEqual(member("/auth/accept-invite", {"token": token, "name": "Pat", "email": "pat@firm.test",
+                                                       "password": "another long password"})[0], 200)
+        member("/api/me")
+        self.assertEqual(member("/api/me")[1]["role"], "member")
+        self.assertEqual(member("/api/firm/settings", {"partner_email": "x@y.test"}, method="PUT")[0], 403)
+        self.assertEqual(member("/api/billing/checkout", {"plan": "solo"})[0], 403)
+        self.assertEqual(len(owner("/api/firm")[1]["members"]), 2)
+
+    def test_firm_lists_upload_is_validated(self):
+        c = self.signup()
+        bad = {"trusted_citations": {"cases": [{"case": "X v. Y"}]}, "known_fabricated": {"cases": []}}
+        self.assertEqual(c("/api/firm/lists", bad, method="PUT")[0], 400)
+        good = {"trusted_citations": {"cases": [{"case": "X v. Y", "citation": "1 U.S. 1", "year": 1800, "holding": "A rule."}]},
+                "known_fabricated": {"cases": [{"case": "Fake v. Case"}]}}
+        self.assertEqual(c("/api/firm/lists", good, method="PUT")[1], {"trusted": 1, "fabricated": 1})
+        self.assertTrue(c("/api/me")[1]["firm"]["custom_lists"])
+
+    def test_checkout_return_activates_the_paid_plan(self):
+        c = self.signup()
+        firm_id = self.firm_id_of("owner@firm.test")
+        code, body, _ = c("/api/billing/checkout", {"plan": "firm"})
+        self.assertEqual(code, 200, body)
+        session_id = body["url"].rsplit("/", 1)[1]
+        self.assertEqual(self.stripe.sessions[session_id]["price"], "price_firm")
+        self.assertEqual(self.stripe.sessions[session_id]["client_reference_id"], firm_id)
+        self.assertTrue(all(call[3] == "Bearer sk_test_fake" for call in self.stripe.calls))
+        self.stripe.complete(session_id, plan="firm")
+        code, _, loc = c(f"/billing/return?session_id={session_id}")
+        self.assertEqual((code, loc), (303, "/account?subscribed=1"))
+        usage = c("/api/me")[1]["usage"]
+        self.assertEqual((usage["plan"], usage["checks"], usage["active"]), ("firm", 1000, True))
+        self.assertEqual(c("/api/billing/checkout", {"plan": "solo"})[0], 400)  # already subscribed
+        self.assertTrue(c("/api/billing/portal", {})[1]["url"].startswith("https://billing.stripe.test/"))
+
+    def test_return_for_another_firms_session_is_refused(self):
+        a = self.signup()
+        b = self.signup(email="b@other.test", firm="Other LLP")
+        session_id = a("/api/billing/checkout", {"plan": "solo"})[1]["url"].rsplit("/", 1)[1]
+        self.stripe.complete(session_id)
+        self.assertEqual(b(f"/billing/return?session_id={session_id}")[2], "/account?billing_error=1")
+        self.assertEqual(b("/api/me")[1]["usage"]["plan"], "trial")
+
+    def webhook(self, event, secret="whsec_test", ts=None):
+        import hashlib
+        import hmac
+        payload = json.dumps(event).encode()
+        ts = ts or int(time.time())
+        sig = hmac.new(secret.encode(), f"{ts}.".encode() + payload, hashlib.sha256).hexdigest()
+        c = self.client()
+        return c("/stripe/webhook", raw=payload, origin=False, csrf=False, headers={"Stripe-Signature": f"t={ts},v1={sig}"})[0]
+
+    def test_webhook_updates_plan_and_rejects_forgeries(self):
+        c = self.signup()
+        firm_id = self.firm_id_of("owner@firm.test")
+        session_id = c("/api/billing/checkout", {"plan": "solo"})[1]["url"].rsplit("/", 1)[1]
+        sub = self.stripe.complete(session_id, plan="solo")
+        event = {"id": "evt_1", "type": "customer.subscription.updated", "data": {"object": sub}}
+        self.assertEqual(self.webhook(event, secret="whsec_wrong"), 400)
+        self.assertEqual(self.webhook(event, ts=int(time.time()) - 3600), 400)
+        self.assertEqual(store.firm(firm_id)["plan"], "trial")
+        self.assertEqual(self.webhook(event), 200)
+        self.assertEqual((store.firm(firm_id)["plan"], store.firm(firm_id)["status"]), ("solo", "active"))
+        cancelled = {**sub, "status": "canceled"}
+        self.assertEqual(self.webhook({"id": "evt_2", "type": "customer.subscription.deleted", "data": {"object": cancelled}}), 200)
+        self.assertFalse(store.usage(firm_id)["active"])
+        self.assertEqual(self.webhook({"id": "evt_1", "type": "customer.subscription.updated", "data": {"object": sub}}), 200)
+        self.assertEqual(store.firm(firm_id)["status"], "canceled")  # a replayed event is not applied twice
 
 
 if __name__ == "__main__":

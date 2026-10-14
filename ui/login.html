@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Para · Sign in</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230e1630'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white' font-family='Georgia'%3E%C2%B6%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap">
+<style>
+  /* Same tokens as the Para website and app. */
+  :root {
+    --bg: #f6f7fb; --card: #ffffff; --soft: #f1f3f9; --ink: #0e1630; --ink-2: #3a4360; --muted: #69718a; --rule: #e3e6ef;
+    --accent: #3b36d6; --accent-ink: #ffffff; --accent-soft: #eceafe; --block: #b4232f; --block-bg: #fbe6e8; --ok: #18794e;
+    --shadow: 0 1px 2px rgba(14, 22, 48, .06), 0 8px 24px rgba(14, 22, 48, .06);
+    --sans: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    --serif: "Newsreader", "Iowan Old Style", Palatino, Georgia, serif; color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b1020; --card: #141c38; --soft: #111831; --ink: #eef0f8; --ink-2: #c3c8dc; --muted: #9098b3; --rule: #263055;
+      --accent: #8f8bff; --accent-ink: #0b1020; --accent-soft: #23265a; --block: #ff7a85; --block-bg: #3a161c; --ok: #4cc38a;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25); color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1020; --card: #141c38; --soft: #111831; --ink: #eef0f8; --ink-2: #c3c8dc; --muted: #9098b3; --rule: #263055;
+    --accent: #8f8bff; --accent-ink: #0b1020; --accent-soft: #23265a; --block: #ff7a85; --block-bg: #3a161c; --ok: #4cc38a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25); color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased;
+    display: grid; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 860px) { body { grid-template-columns: 1fr; } .side { display: none; } }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  a { color: var(--accent); }
+  .side { background: var(--ink); color: var(--bg); padding: 56px 48px; display: flex; flex-direction: column; justify-content: space-between; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 26px; letter-spacing: -.03em; color: inherit; text-decoration: none; }
+  .brand .mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--bg); color: var(--ink); font: 700 22px/1 var(--serif); }
+  .side blockquote { margin: 0; font: 26px/1.4 var(--serif); max-width: 22ch; text-wrap: balance; }
+  .side .stamp { display: inline-block; margin-top: 18px; font: 700 18px var(--serif); letter-spacing: .06em; padding: 6px 14px;
+    border: 3px double #ff8a94; color: #ff8a94; border-radius: 8px; transform: rotate(-2deg); }
+  .side small { opacity: .7; font-size: 14px; }
+  .main { display: grid; place-items: center; padding: 40px 16px; }
+  .card { width: 100%; max-width: 420px; }
+  .mobile-brand { display: none; color: var(--ink); margin-bottom: 28px; }
+  .mobile-brand .mark { background: var(--ink); color: var(--bg); }
+  @media (max-width: 860px) { .mobile-brand { display: inline-flex; } }
+  h1 { font-size: 30px; letter-spacing: -.035em; line-height: 1.1; margin: 0 0 6px; text-wrap: balance; }
+  .lede { color: var(--ink-2); margin: 0 0 24px; }
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; margin-bottom: 24px; background: var(--card); }
+  .tabs button { border: 0; background: none; padding: 12px; font: 500 15px var(--sans); color: var(--muted); cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  form { display: grid; gap: 14px; }
+  label { display: grid; gap: 6px; font-size: 14px; font-weight: 600; color: var(--ink-2); }
+  input { font: 16px var(--sans); color: var(--ink); background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 11px 12px; width: 100%; }
+  .hint { font-weight: 400; color: var(--muted); font-size: 13px; }
+  .submit { margin-top: 6px; font: 600 16px var(--sans); padding: 13px; border-radius: 999px; border: 0; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+  .submit:disabled { opacity: .5; cursor: wait; }
+  .error { background: var(--block-bg); color: var(--block); padding: 10px 12px; border-radius: 10px; font-size: 14px; }
+  .trial { display: flex; gap: 10px; align-items: center; font-size: 14px; color: var(--ink-2); background: var(--soft); border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px; }
+  .trial b { color: var(--ok); }
+  .foot { margin-top: 22px; font-size: 13.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+  <aside class="side" aria-hidden="true">
+    <span class="brand"><span class="mark">¶</span>para<span style="color:#8f8bff">.</span></span>
+    <div>
+      <blockquote>"In <i>Varghese v. China Southern Airlines</i>, the court held…"</blockquote>
+      <span class="stamp">✕ BLOCKED</span>
+      <p><small>The case never existed. Para caught it before the partner relied on it.</small></p>
+    </div>
+    <small>Firm cite-lists · Ezio · AI auditors on HarnessRouter</small>
+  </aside>
+
+  <main class="main">
+    <div class="card">
+      <a class="brand mobile-brand" href="/login"><span class="mark" aria-hidden="true">¶</span>para.</a>
+      <h1 id="title">Sign in to Para</h1>
+      <p class="lede" id="lede">Check every AI-drafted memo before it reaches the partner.</p>
+
+      <div class="tabs" role="tablist" id="tabs">
+        <button type="button" role="tab" id="tab-login" aria-selected="true">Sign in</button>
+        <button type="button" role="tab" id="tab-signup" aria-selected="false">Start free trial</button>
+      </div>
+
+      <form id="form" novalidate>
+        <div class="trial" id="trial" hidden><b>✓</b> 14 days free, 20 AI checks, up to 3 people. No card needed.</div>
+        <label id="f-firm" hidden>Firm name<input id="firm" name="firm" autocomplete="organization" maxlength="120"></label>
+        <label id="f-name" hidden>Your name<input id="name" name="name" autocomplete="name" maxlength="120"></label>
+        <label>Work email<input id="email" name="email" type="email" autocomplete="email" required></label>
+        <label>Password <span class="hint" id="pw-hint" hidden>At least 10 characters.</span><input id="password" name="password" type="password" autocomplete="current-password" required minlength="10"></label>
+        <div class="error" id="error" role="alert" hidden></div>
+        <button class="submit" id="submit" type="submit">Sign in</button>
+      </form>
+      <p class="foot" id="foot">New to Para? Choose <b>Start free trial</b> to set up your firm.</p>
+    </div>
+  </main>
+
+<script>
+/* Sign in, start a trial, or join a firm by invite (/join#token). The token stays in the fragment, so it never reaches server logs. */
+const $ = (id) => document.getElementById(id);
+const path = location.pathname;
+const inviteToken = path === "/join" ? location.hash.slice(1) : "";
+let mode = inviteToken ? "join" : path === "/signup" ? "signup" : "login";
+
+const COPY = {
+  login: { title: "Sign in to Para", lede: "Check every AI-drafted memo before it reaches the partner.", submit: "Sign in", url: "/auth/login" },
+  signup: { title: "Start your firm's free trial", lede: "Set up your firm in a minute. You'll be its owner and can invite your team.", submit: "Create firm account", url: "/auth/signup" },
+  join: { title: "Join your firm on Para", lede: "Your firm invited you. Create your sign-in to get started.", submit: "Join firm", url: "/auth/accept-invite" },
+};
+
+function render() {
+  const c = COPY[mode];
+  $("title").textContent = c.title; $("lede").textContent = c.lede; $("submit").textContent = c.submit;
+  $("tabs").hidden = mode === "join";
+  $("tab-login").setAttribute("aria-selected", String(mode === "login"));
+  $("tab-signup").setAttribute("aria-selected", String(mode === "signup"));
+  $("f-firm").hidden = mode !== "signup";
+  $("f-name").hidden = mode === "login";
+  $("trial").hidden = mode !== "signup";
+  $("pw-hint").hidden = mode === "login";
+  $("password").autocomplete = mode === "login" ? "current-password" : "new-password";
+  $("foot").hidden = mode === "join";
+  $("foot").innerHTML = mode === "login" ? "New to Para? Choose <b>Start free trial</b> to set up your firm." : "Already have an account? Choose <b>Sign in</b>.";
+  $("error").hidden = true;
+}
+$("tab-login").onclick = () => { mode = "login"; history.replaceState(null, "", "/login"); render(); };
+$("tab-signup").onclick = () => { mode = "signup"; history.replaceState(null, "", "/signup"); render(); };
+render();
+
+$("form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const err = $("error");
+  const body = { email: $("email").value.trim(), password: $("password").value };
+  if (mode !== "login") body.name = $("name").value.trim();
+  if (mode === "signup") body.firm = $("firm").value.trim();
+  if (mode === "join") body.token = inviteToken;
+  if (!body.email || !body.password || (mode === "signup" && !body.firm)) { err.textContent = "Fill in every field."; err.hidden = false; return; }
+  if (mode !== "login" && body.password.length < 10) { err.textContent = "Use a password of at least 10 characters."; err.hidden = false; return; }
+  $("submit").disabled = true;
+  try {
+    const res = await fetch(COPY[mode].url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) { location.replace("/"); return; }
+    err.textContent = data.error || `Something went wrong (HTTP ${res.status}). Try again.`;
+  } catch (x) {
+    err.textContent = "Para could not be reached. Check your connection and try again.";
+  }
+  err.hidden = false;
+  $("submit").disabled = false;
+});
+</script>
+</body>
+</html>
