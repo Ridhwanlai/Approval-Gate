@@ -89,6 +89,11 @@
   .agent .meta { font-size: 12px; color: var(--muted); }
   .linkish { background: none; border: none; color: var(--seal); padding: 0; font: 600 13px var(--sans); text-decoration: underline; }
   .revision { border: 1px solid var(--seal); border-radius: 3px; padding: 12px; margin-top: 14px; background: #f6f8fc; }
+  .models { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 8px; }
+  .model-card { border: 1px solid var(--rule); border-radius: 3px; padding: 12px; }
+  .model-card h4 { margin: 0 0 4px; font: 600 15px/1.3 var(--sans); }
+  .model-card select { width: 100%; font: inherit; padding: 6px 8px; border: 1px solid var(--rule); border-radius: 3px; background: #fff; color: var(--ink); margin: 8px 0 4px; }
+  .model-card .saved { font-size: 12px; color: var(--ok); min-height: 16px; }
 </style>
 </head>
 <body>
@@ -124,6 +129,12 @@
       <p class="empty">Paste a memo and choose Check and send to partner. The gate decides; this page only shows what it decided.</p>
     </div>
   </div>
+
+  <section class="sheet full" id="modelsSection">
+    <h3>AI models</h3>
+    <p class="count">Each AI agent runs on HarnessRouter. Choose the model you trust for each job; the choice applies from the next memo. Para still makes every decision itself.</p>
+    <div id="models"><p class="empty">Loading the models your HarnessRouter plan offers…</p></div>
+  </section>
 
   <section class="sheet full">
     <h3>Sample docket</h3>
@@ -443,6 +454,34 @@ $("loadAudit").onclick = async () => {
        <td>${x.action_executed ? "Sent" : "No"}</td><td>${esc(x.reason || x.note || (x.changes || []).join("; ") || x.error || "")}${x.input ? `<br><span class="count">${esc(String(x.input).slice(0, 120))}</span>` : ""}</td></tr>`).join("")}</tbody></table>`;
   } catch (e) { el.innerHTML = `<div class="banner err">The audit trail could not be loaded (${esc(e.message)}).</div>`; }
 };
+/* AI models: the page only shows and forwards the choice; the server validates it against what HarnessRouter offers. */
+const PROVIDERS = [["claude", "Anthropic"], ["gpt", "OpenAI"], ["gemini", "Google"], ["grok", "xAI"], ["deepseek", "DeepSeek"], ["qwen", "Qwen"]];
+const providerOf = (id) => (PROVIDERS.find(([p]) => id.startsWith(p)) || [null, "Other"])[1];
+async function loadModels() {
+  const el = $("models");
+  try {
+    const r = await api("/api/models", {}, 20000);
+    if (!r.ok) { el.innerHTML = `<div class="banner">${esc((r.data && r.data.error) || "Models are unavailable")}. Agents use their default models.</div>`; return; }
+    el.innerHTML = `<div class="models">${r.data.agents.map((a) => {
+      const groups = {};
+      a.options.forEach((o) => (groups[providerOf(o.id)] = groups[providerOf(o.id)] || []).push(o));
+      const opts = Object.entries(groups).map(([g, list]) => `<optgroup label="${esc(g)}">${list.map((o) =>
+        `<option value="${esc(o.id)}" ${o.id === (a.choice || a.default) ? "selected" : ""}>${esc(o.label)}${o.id === a.default ? " (default)" : ""}</option>`).join("")}</optgroup>`).join("");
+      return `<div class="model-card"><h4>${esc(a.label)}</h4><p class="count">${esc(a.hint)}</p>
+        <label class="sr" for="m-${esc(a.feature)}">Model for ${esc(a.label)}</label>
+        <select id="m-${esc(a.feature)}" data-feature="${esc(a.feature)}" data-default="${esc(a.default)}">${opts}</select>
+        <div class="saved" id="ms-${esc(a.feature)}">${a.choice ? "Your choice" : "Using the default"}</div></div>`;
+    }).join("")}</div>`;
+    el.querySelectorAll("select").forEach((sel) => (sel.onchange = async () => {
+      const note = $("ms-" + sel.dataset.feature);
+      note.textContent = "Saving…";
+      const model = sel.value === sel.dataset.default ? null : sel.value;
+      const res = await api("/api/models", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ feature: sel.dataset.feature, model }) }, 20000);
+      note.textContent = res.ok ? (model ? "Saved: used from the next memo" : "Using the default") : `Not saved: ${(res.data && res.data.error) || res.status}`;
+    }));
+  } catch (e) { el.innerHTML = `<div class="banner">Models could not be loaded (${esc(e.message)}).</div>`; }
+}
+loadModels();
 </script>
 </body>
 </html>
