@@ -1,0 +1,1205 @@
+{
+ "_about": "Recorded from live Para runs (Hermes agents on HarnessRouter, mock Ezio). Replayed by the site; nothing calls an API.",
+ "exported": "2026-10-14T02:57:48+00:00",
+ "memos": [
+  {
+   "id": "pl-01",
+   "label": "good",
+   "expected": "APPROVE",
+   "text": "Under Miranda v. Arizona, 384 U.S. 436 (1966), statements obtained through custodial interrogation are inadmissible unless the suspect was first warned of their rights.",
+   "decision": "APPROVE",
+   "reason": "Approved: 1 case citation(s) match the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
+   "sent": true,
+   "evidence": [
+    {
+     "cited": "Miranda v. Arizona, 384 U.S. 436 (1966)",
+     "status": "verified",
+     "firm_list_entry": "Miranda v. Arizona, 384 U.S. 436 (1966)",
+     "note": "Statements from custodial interrogation are inadmissible unless the suspect was first warned of their rights."
+    },
+    {
+     "signal": "ezio",
+     "reachable": true,
+     "tier": "GREEN",
+     "score": 100,
+     "accuracy_status": "not_scored",
+     "claims_total": 0,
+     "claims_verified": 0,
+     "claims_contradicted": 0,
+     "tone": 100,
+     "bias": 100,
+     "agreement": 100,
+     "contradicted_claims": [],
+     "supported_claims": [],
+     "summary": "Neutral and balanced. No claims were verified."
+    },
+    {
+     "feature": "memo_cite_audit",
+     "label": "AI cite-audit",
+     "harness": "para-cite-auditor",
+     "ok": true,
+     "error": null,
+     "findings": [
+      {
+       "quote": "Miranda v. Arizona, 384 U.S. 436 (1966)",
+       "status": "verified",
+       "firm_entry": "Miranda v. Arizona",
+       "problems": []
+      }
+     ],
+     "notes": "",
+     "elapsed": 108.3,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    },
+    {
+     "feature": "memo_style_review",
+     "label": "AI memo review",
+     "harness": "para-memo-reviewer",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "The memo is a short, neutral statement of settled law with no overconfidence, emotional language, or one-sided argument.",
+     "elapsed": 104.2,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    }
+   ],
+   "recorded": "2026-10-11T23:49:09+00:00"
+  },
+  {
+   "id": "pl-02",
+   "label": "good",
+   "expected": "APPROVE",
+   "text": "Gideon v. Wainwright, 372 U.S. 335 (1963), requires states to provide counsel to indigent defendants facing felony charges.",
+   "decision": "APPROVE",
+   "reason": "Approved: 1 case citation(s) match the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
+   "sent": true,
+   "evidence": [
+    {
+     "cited": "Gideon v. Wainwright, 372 U.S. 335 (1963)",
+     "status": "verified",
+     "firm_list_entry": "Gideon v. Wainwright, 372 U.S. 335 (1963)",
+     "note": "States must provide counsel to indigent defendants facing felony charges."
+    },
+    {
+     "signal": "ezio",
+     "reachable": true,
+     "tier": "GREEN",
+     "score": 100,
+     "accuracy_status": "not_scored",
+     "claims_total": 0,
+     "claims_verified": 0,
+     "claims_contradicted": 0,
+     "tone": 100,
+     "bias": 100,
+     "agreement": 100,
+     "contradicted_claims": [],
+     "supported_claims": [],
+     "summary": "Neutral and balanced. No claims were verified."
+    },
+    {
+     "feature": "memo_cite_audit",
+     "label": "AI cite-audit",
+     "harness": "para-cite-auditor",
+     "ok": true,
+     "error": null,
+     "findings": [
+      {
+       "quote": "Gideon v. Wainwright, 372 U.S. 335 (1963)",
+       "status": "verified",
+       "firm_entry": "Gideon v. Wainwright",
+       "problems": []
+      }
+     ],
+     "notes": "",
+     "elapsed": 104.6,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    },
+    {
+     "feature": "memo_style_review",
+     "label": "AI memo review",
+     "harness": "para-memo-reviewer",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "A short, neutral statement of settled law with no overconfident, emotional, or one-sided language.",
+     "elapsed": 104.3,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    }
+   ],
+   "recorded": "2026-10-11T23:47:22+00:00"
+  },
+  {
+   "id": "pl-03",
+   "label": "good",
+   "expected": "APPROVE",
+   "text": "New York Times Co. v. Sullivan, 376 U.S. 254 (1964), requires public officials suing for defamation to prove actual malice.",
+   "decision": "APPROVE",
+   "reason": "Approved: 1 case citation(s) match the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
+   "sent": true,
+   "evidence": [
+    {
+     "cited": "New York Times Co. v. Sullivan, 376 U.S. 254 (1964)",
+     "status": "verified",
+     "firm_list_entry": "New York Times Co. v. Sullivan, 376 U.S. 254 (1964)",
+     "note": "Public officials suing for defamation must prove actual malice."
+    },
+    {
+     "signal": "ezio",
+     "reachable": true,
+     "tier": "GREEN",
+     "score": 100,
+     "accuracy_status": "not_scored",
+     "claims_total": 0,
+     "claims_verified": 0,
+     "claims_contradicted": 0,
+     "tone": 100,
+     "bias": 100,
+     "agreement": 100,
+     "contradicted_claims": [],
+     "supported_claims": [],
+     "summary": "Neutral and balanced. No claims were verified."
+    },
+    {
+     "feature": "memo_cite_audit",
+     "label": "AI cite-audit",
+     "harness": "para-cite-auditor",
+     "ok": true,
+     "error": null,
+     "findings": [
+      {
+       "quote": "New York Times Co. v. Sullivan, 376 U.S. 254 (1964)",
+       "status": "verified",
+       "firm_entry": "New York Times Co. v. Sullivan",
+       "problems": []
+      }
+     ],
+     "notes": "",
+     "elapsed": 16.0,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    },
+    {
+     "feature": "memo_style_review",
+     "label": "AI memo review",
+     "harness": "para-memo-reviewer",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "A short, neutral statement of settled law with no overconfidence, emotional language, or one-sided advocacy.",
+     "elapsed": 16.0,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    }
+   ],
+   "recorded": "2026-10-11T23:43:53+00:00"
+  },
+  {
+   "id": "pl-04",
+   "label": "good",
+   "expected": "APPROVE",
+   "text": "Federal courts sitting in diversity apply state substantive law under Erie Railroad Co. v. Tompkins, 304 U.S. 64 (1938).",
+   "decision": "APPROVE",
+   "reason": "Approved: 1 case citation(s) match the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
+   "sent": true,
+   "evidence": [
+    {
+     "cited": "Erie Railroad Co. v. Tompkins, 304 U.S. 64 (1938)",
+     "status": "verified",
+     "firm_list_entry": "Erie Railroad Co. v. Tompkins, 304 U.S. 64 (1938)",
+     "note": "Federal courts sitting in diversity apply state substantive law."
+    },
+    {
+     "signal": "ezio",
+     "reachable": true,
+     "tier": "GREEN",
+     "score": 100,
+     "accuracy_status": "not_scored",
+     "claims_total": 0,
+     "claims_verified": 0,
+     "claims_contradicted": 0,
+     "tone": 100,
+     "bias": 100,
+     "agreement": 100,
+     "contradicted_claims": [],
+     "supported_claims": [],
+     "summary": "Neutral and balanced. No claims were verified."
+    },
+    {
+     "feature": "memo_cite_audit",
+     "label": "AI cite-audit",
+     "harness": "para-cite-auditor",
+     "ok": true,
+     "error": null,
+     "findings": [
+      {
+       "quote": "Erie Railroad Co. v. Tompkins, 304 U.S. 64 (1938)",
+       "status": "verified",
+       "firm_entry": "Erie Railroad Co. v. Tompkins",
+       "problems": []
+      }
+     ],
+     "notes": "",
+     "elapsed": 103.8,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    },
+    {
+     "feature": "memo_style_review",
+     "label": "AI memo review",
+     "harness": "para-memo-reviewer",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "A short, neutral statement of the Erie doctrine with no overconfidence, emotional language, or one-sided advocacy.",
+     "elapsed": 108.7,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    }
+   ],
+   "recorded": "2026-10-11T23:49:11+00:00"
+  },
+  {
+   "id": "pl-05",
+   "label": "good",
+   "expected": "APPROVE",
+   "text": "Marbury v. Madison, 5 U.S. 137 (1803), established judicial review, and Mapp v. Ohio, 367 U.S. 643 (1961), applied the exclusionary rule to the states.",
+   "decision": "APPROVE",
+   "reason": "Approved: 2 case citation(s) match the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
+   "sent": true,
+   "evidence": [
+    {
+     "cited": "Marbury v. Madison, 5 U.S. 137 (1803)",
+     "status": "verified",
+     "firm_list_entry": "Marbury v. Madison, 5 U.S. 137 (1803)",
+     "note": "Established judicial review: courts may strike down laws that conflict with the Constitution."
+    },
+    {
+     "cited": "Mapp v. Ohio, 367 U.S. 643 (1961)",
+     "status": "verified",
+     "firm_list_entry": "Mapp v. Ohio, 367 U.S. 643 (1961)",
+     "note": "The exclusionary rule applies to the states: evidence from unconstitutional searches is inadmissible."
+    },
+    {
+     "signal": "ezio",
+     "reachable": true,
+     "tier": "GREEN",
+     "score": 100,
+     "accuracy_status": "not_scored",
+     "claims_total": 0,
+     "claims_verified": 0,
+     "claims_contradicted": 0,
+     "tone": 100,
+     "bias": 100,
+     "agreement": 100,
+     "contradicted_claims": [],
+     "supported_claims": [],
+     "summary": "Neutral and balanced. No claims were verified."
+    },
+    {
+     "feature": "memo_cite_audit",
+     "label": "AI cite-audit",
+     "harness": "para-cite-auditor",
+     "ok": true,
+     "error": null,
+     "findings": [
+      {
+       "quote": "Marbury v. Madison, 5 U.S. 137 (1803)",
+       "status": "verified",
+       "firm_entry": "Marbury v. Madison",
+       "problems": []
+      },
+      {
+       "quote": "Mapp v. Ohio, 367 U.S. 643 (1961)",
+       "status": "verified",
+       "firm_entry": "Mapp v. Ohio",
+       "problems": []
+      }
+     ],
+     "notes": "",
+     "elapsed": 108.9,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    },
+    {
+     "feature": "memo_style_review",
+     "label": "AI memo review",
+     "harness": "para-memo-reviewer",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "A short, neutral statement of two holdings with no overconfidence, emotional language, or one-sided advocacy.",
+     "elapsed": 103.6,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    }
+   ],
+   "recorded": "2026-10-11T23:50:58+00:00"
+  },
+  {
+   "id": "pl-06",
+   "label": "good",
+   "expected": "APPROVE",
+   "text": "Attached is the draft research memo on the suppression issue. Please let me know if you want the analysis expanded.",
+   "decision": "APPROVE",
+   "reason": "Approved: the memo cites no cases, so there is nothing to cite-check, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
+   "sent": true,
+   "evidence": [
+    {
+     "signal": "ezio",
+     "reachable": true,
+     "tier": "GREEN",
+     "score": 100,
+     "accuracy_status": "not_scored",
+     "claims_total": 0,
+     "claims_verified": 0,
+     "claims_contradicted": 0,
+     "tone": 100,
+     "bias": 100,
+     "agreement": 100,
+     "contradicted_claims": [],
+     "supported_claims": [],
+     "summary": "Neutral and balanced. No claims were verified."
+    },
+    {
+     "feature": "memo_cite_audit",
+     "label": "AI cite-audit",
+     "harness": "para-cite-auditor",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "",
+     "elapsed": 107.0,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    },
+    {
+     "feature": "memo_style_review",
+     "label": "AI memo review",
+     "harness": "para-memo-reviewer",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "The memo is a short cover note with no substantive analysis, so it contains no overconfident, emotional, or one-sided language.",
+     "elapsed": 109.9,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    }
+   ],
+   "recorded": "2026-10-11T23:52:45+00:00"
+  },
+  {
+   "id": "pl-07",
+   "label": "bad",
+   "expected": "BLOCK",
+   "text": "In Varghese v. China Southern Airlines, the court held that the Montreal Convention tolls the statute of limitations during bankruptcy.",
+   "decision": "BLOCK",
+   "reason": "Blocked before sending: Varghese v. China Southern Airlines is on the firm's fabricated-case list (Cited in the Mata v. Avianca brief (S.D.N.Y. 2023); the court found it did not exist.). The partner never received this memo.",
+   "sent": false,
+   "evidence": [
+    {
+     "cited": "Varghese v. China Southern Airlines",
+     "status": "fabricated",
+     "firm_list_entry": "Varghese v. China Southern Airlines",
+     "note": "Cited in the Mata v. Avianca brief (S.D.N.Y. 2023); the court found it did not exist."
+    },
+    {
+     "signal": "ezio",
+     "reachable": true,
+     "tier": "GREEN",
+     "score": 94.0,
+     "accuracy_status": "not_scored",
+     "claims_total": 0,
+     "claims_verified": 0,
+     "claims_contradicted": 0,
+     "tone": 98,
+     "bias": 95,
+     "agreement": 100,
+     "contradicted_claims": [],
+     "supported_claims": [],
+     "summary": "Neutral and balanced. No claims were verified."
+    },
+    {
+     "feature": "memo_cite_audit",
+     "label": "AI cite-audit",
+     "harness": "para-cite-auditor",
+     "ok": true,
+     "error": null,
+     "findings": [
+      {
+       "quote": "Varghese v. China Southern Airlines",
+       "status": "fabricated",
+       "firm_entry": "Varghese v. China Southern Airlines",
+       "problems": [
+        "Case appears on the firm's fabricated list; the S.D.N.Y. court in Mata v. Avianca found it does not exist."
+       ]
+      }
+     ],
+     "notes": "",
+     "elapsed": 105.5,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    },
+    {
+     "feature": "memo_style_review",
+     "label": "AI memo review",
+     "harness": "para-memo-reviewer",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "A single neutral sentence stating a holding, with no overconfidence, emotional language or one-sided advocacy.",
+     "elapsed": 110.3,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    }
+   ],
+   "recorded": "2026-10-11T23:54:34+00:00",
+   "revision": {
+    "revised_memo": "[AUTHORITY NEEDED: the Montreal Convention tolls the statute of limitations during bankruptcy.]",
+    "changes": [
+     "Removed Varghese v. China Southern Airlines: it is on the firm's fabricated list (the S.D.N.Y. court in Mata v. Avianca (2023) found it does not exist).",
+     "Removed the proposition resting on it (that the Montreal Convention tolls the statute of limitations during bankruptcy) and replaced it with an [AUTHORITY NEEDED: ...] placeholder. No replacement case was added.",
+     "No other changes: the memo had no other cases and the style review found no advocacy language."
+    ],
+    "recheck": {
+     "decision": "HOLD_FOR_REVIEW",
+     "reason": "Held for attorney review: the memo still has 1 drafting placeholder(s) to resolve: \"[AUTHORITY NEEDED: the Montreal Convention tolls the stat…]\". Not sent until a reviewer approves it.",
+     "evidence": [
+      {
+       "signal": "rule_check",
+       "rule": "Unresolved drafting placeholders",
+       "matches": [
+        "[AUTHORITY NEEDED: the Montreal Convention tolls the statute of limitations during bankruptcy.]"
+       ]
+      },
+      {
+       "signal": "ezio",
+       "reachable": true,
+       "tier": "GREEN",
+       "score": 97.2,
+       "accuracy_status": "not_scored",
+       "claims_total": 0,
+       "claims_verified": 0,
+       "claims_contradicted": 0,
+       "tone": 88,
+       "bias": 100,
+       "agreement": 100,
+       "contradicted_claims": [],
+       "supported_claims": [],
+       "summary": "Neutral and balanced. No claims were verified."
+      },
+      {
+       "feature": "memo_cite_audit",
+       "label": "AI cite-audit",
+       "harness": "para-cite-auditor",
+       "ok": true,
+       "error": null,
+       "findings": [],
+       "notes": "",
+       "elapsed": 16.3,
+       "model": "claude-sonnet-5-5",
+       "signal": "agent"
+      },
+      {
+       "feature": "memo_style_review",
+       "label": "AI memo review",
+       "harness": "para-memo-reviewer",
+       "ok": true,
+       "error": null,
+       "findings": [],
+       "notes": "The memo is a short placeholder note flagging that authority is needed, and it contains no overconfident, emotional, or one-sided language.",
+       "elapsed": 16.3,
+       "model": "claude-sonnet-5-5",
+       "signal": "agent"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "pl-08",
+   "label": "bad",
+   "expected": "BLOCK",
+   "text": "Brandenburg v. Ohio, 395 U.S. 444 (1969), held that all political speech is protected without exception.",
+   "decision": "BLOCK",
+   "reason": "Blocked before sending: Brandenburg v. Ohio, 395 U.S. 444 (1969): the memo says it held \"held that all political speech is protected without exception\", but the firm's list says: Advocacy is protected unless it is directed to inciting imminent lawless action and likely to produce it.. The partner never received this memo.",
+   "sent": false,
+   "evidence": [
+    {
+     "cited": "Brandenburg v. Ohio, 395 U.S. 444 (1969)",
+     "status": "near_miss",
+     "firm_list_entry": "Brandenburg v. Ohio, 395 U.S. 444 (1969)",
+     "note": "Advocacy is protected unless it is directed to inciting imminent lawless action and likely to produce it."
+    },
+    {
+     "signal": "ezio",
+     "reachable": true,
+     "tier": "GREEN",
+     "score": 100,
+     "accuracy_status": "not_scored",
+     "claims_total": 0,
+     "claims_verified": 0,
+     "claims_contradicted": 0,
+     "tone": 100,
+     "bias": 100,
+     "agreement": 100,
+     "contradicted_claims": [],
+     "supported_claims": [],
+     "summary": "Neutral and balanced. No claims were verified."
+    },
+    {
+     "feature": "memo_cite_audit",
+     "label": "AI cite-audit",
+     "harness": "para-cite-auditor",
+     "ok": true,
+     "error": null,
+     "findings": [
+      {
+       "quote": "Brandenburg v. Ohio, 395 U.S. 444 (1969)",
+       "status": "misstated",
+       "firm_entry": "Brandenburg v. Ohio",
+       "problems": [
+        "The memo says all political speech is protected without exception. The firm's holding is narrower: advocacy is protected unless it is directed to inciting imminent lawless action and is likely to produce it.",
+        "The memo overstates the scope of the holding with 'all' and 'without exception'."
+       ]
+      }
+     ],
+     "notes": "",
+     "elapsed": 109.2,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    },
+    {
+     "feature": "memo_style_review",
+     "label": "AI memo review",
+     "harness": "para-memo-reviewer",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "The memo is a single neutral statement of a holding with no emotional language, guarantees of outcome, or one-sided argument, so there is nothing to flag on style.",
+     "elapsed": 106.5,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    }
+   ],
+   "recorded": "2026-10-11T23:56:21+00:00"
+  },
+  {
+   "id": "pl-09",
+   "label": "bad",
+   "expected": "BLOCK",
+   "text": "Gideon v. Wainwright, 372 U.S. 335 (1963), held that the exclusionary rule applies to the states.",
+   "decision": "BLOCK",
+   "reason": "Blocked before sending: Gideon v. Wainwright, 372 U.S. 335 (1963): the memo says it held \"held that the exclusionary rule applies to the states\", but the firm's list says: States must provide counsel to indigent defendants facing felony charges. (that statement belongs to Mapp v. Ohio). The partner never received this memo.",
+   "sent": false,
+   "evidence": [
+    {
+     "cited": "Gideon v. Wainwright, 372 U.S. 335 (1963)",
+     "status": "near_miss",
+     "firm_list_entry": "Gideon v. Wainwright, 372 U.S. 335 (1963)",
+     "note": "States must provide counsel to indigent defendants facing felony charges."
+    },
+    {
+     "signal": "ezio",
+     "reachable": true,
+     "tier": "GREEN",
+     "score": 100,
+     "accuracy_status": "not_scored",
+     "claims_total": 0,
+     "claims_verified": 0,
+     "claims_contradicted": 0,
+     "tone": 100,
+     "bias": 100,
+     "agreement": 100,
+     "contradicted_claims": [],
+     "supported_claims": [],
+     "summary": "Neutral and balanced. No claims were verified."
+    },
+    {
+     "feature": "memo_cite_audit",
+     "label": "AI cite-audit",
+     "harness": "para-cite-auditor",
+     "ok": true,
+     "error": null,
+     "findings": [
+      {
+       "quote": "Gideon v. Wainwright, 372 U.S. 335 (1963)",
+       "status": "misstated",
+       "firm_entry": "Gideon v. Wainwright",
+       "problems": [
+        "The memo says Gideon held that the exclusionary rule applies to the states. That is the holding of Mapp v. Ohio.",
+        "The firm's entry says Gideon held that states must provide counsel to indigent defendants facing felony charges."
+       ]
+      }
+     ],
+     "notes": "",
+     "elapsed": 105.8,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    },
+    {
+     "feature": "memo_style_review",
+     "label": "AI memo review",
+     "harness": "para-memo-reviewer",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "A short, neutral statement of law with no overconfidence, emotional language, or one-sided advocacy (citation accuracy is outside the scope of this style review).",
+     "elapsed": 105.1,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    }
+   ],
+   "recorded": "2026-10-11T23:58:07+00:00"
+  },
+  {
+   "id": "pl-10",
+   "label": "bad",
+   "expected": "BLOCK",
+   "text": "As the court held in Shaboon v. Egyptair, 2013 IL App (1st) 111279-U, a carrier's bankruptcy filing does not toll the limitations period.",
+   "decision": "BLOCK",
+   "reason": "Blocked before sending: Shaboon v. Egyptair, 2013 is on the firm's fabricated-case list (Cited in the Mata v. Avianca brief (S.D.N.Y. 2023); the court found it did not exist.). The partner never received this memo.",
+   "sent": false,
+   "evidence": [
+    {
+     "cited": "Shaboon v. Egyptair, 2013",
+     "status": "fabricated",
+     "firm_list_entry": "Shaboon v. Egyptair",
+     "note": "Cited in the Mata v. Avianca brief (S.D.N.Y. 2023); the court found it did not exist."
+    },
+    {
+     "signal": "ezio",
+     "reachable": true,
+     "tier": "GREEN",
+     "score": 100,
+     "accuracy_status": "not_scored",
+     "claims_total": 0,
+     "claims_verified": 0,
+     "claims_contradicted": 0,
+     "tone": 100,
+     "bias": 100,
+     "agreement": 100,
+     "contradicted_claims": [],
+     "supported_claims": [],
+     "summary": "Neutral and balanced. No claims were verified."
+    },
+    {
+     "feature": "memo_cite_audit",
+     "label": "AI cite-audit",
+     "harness": "para-cite-auditor",
+     "ok": true,
+     "error": null,
+     "findings": [
+      {
+       "quote": "Shaboon v. Egyptair, 2013 IL App (1st) 111279-U",
+       "status": "fabricated",
+       "firm_entry": "Shaboon v. Egyptair",
+       "problems": [
+        "Case appears on the firm's fabricated list; the Mata v. Avianca court found it did not exist.",
+        "The memo relies on it for a holding that a carrier's bankruptcy filing does not toll the limitations period."
+       ]
+      }
+     ],
+     "notes": "",
+     "elapsed": 16.2,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    },
+    {
+     "feature": "memo_style_review",
+     "label": "AI memo review",
+     "harness": "para-memo-reviewer",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "A single neutral statement of law attributed to the court, with no overconfidence, emotional language, or one-sided advocacy.",
+     "elapsed": 14.3,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    }
+   ],
+   "recorded": "2026-10-11T23:58:21+00:00"
+  },
+  {
+   "id": "pl-11",
+   "label": "bad",
+   "expected": "HOLD_FOR_REVIEW",
+   "text": "In Harlan v. Pinecrest Mutual, 288 F.3d 1104 (3d Cir. 2002), the court held that a mutual insurer owes policyholders a fiduciary duty.",
+   "decision": "HOLD_FOR_REVIEW",
+   "reason": "Held for attorney review: Harlan v. Pinecrest Mutual, 288 F.3d 1104 (3d Cir. 2002) is on neither the trusted nor the fabricated list, so it needs a human cite-check. Not sent until a reviewer approves it.",
+   "sent": false,
+   "evidence": [
+    {
+     "cited": "Harlan v. Pinecrest Mutual, 288 F.3d 1104 (3d Cir. 2002)",
+     "status": "unverified",
+     "firm_list_entry": null,
+     "note": ""
+    },
+    {
+     "signal": "ezio",
+     "reachable": true,
+     "tier": "GREEN",
+     "score": 100,
+     "accuracy_status": "not_scored",
+     "claims_total": 0,
+     "claims_verified": 0,
+     "claims_contradicted": 0,
+     "tone": 100,
+     "bias": 100,
+     "agreement": 100,
+     "contradicted_claims": [],
+     "supported_claims": [],
+     "summary": "Neutral and balanced. No claims were verified."
+    },
+    {
+     "feature": "memo_cite_audit",
+     "label": "AI cite-audit",
+     "harness": "para-cite-auditor",
+     "ok": true,
+     "error": null,
+     "findings": [
+      {
+       "quote": "Harlan v. Pinecrest Mutual, 288 F.3d 1104 (3d Cir. 2002)",
+       "status": "unverified",
+       "firm_entry": null,
+       "problems": [
+        "Case is on neither the trusted list nor the fabricated list, so it cannot be verified from the firm's records."
+       ]
+      }
+     ],
+     "notes": "",
+     "elapsed": 16.3,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    },
+    {
+     "feature": "memo_style_review",
+     "label": "AI memo review",
+     "harness": "para-memo-reviewer",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "A short, neutral statement of a holding with no overconfidence, emotional language, or one-sided argument.",
+     "elapsed": 16.4,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    }
+   ],
+   "recorded": "2026-10-11T23:58:38+00:00"
+  },
+  {
+   "id": "pl-12",
+   "label": "bad",
+   "expected": "HOLD_FOR_REVIEW",
+   "text": "AMAZING news!!! Terry v. Ohio, 392 U.S. 1 (1968), allows stops on reasonable suspicion, so this is a slam dunk for us and the court will absolutely agree!!!",
+   "decision": "HOLD_FOR_REVIEW",
+   "reason": "Held for attorney review: the memo reads as advocacy, not analysis: \"slam dunk\" (\"slam dunk\"), certainty language (\"absolutely\"), repeated exclamation marks (\"!!!\"); the AI memo review says it reads as advocacy: emotional (\"AMAZING news!!!\"), overconfidence (\"this is a slam dunk for us\"), overconfidence (\"the court will absolutely agree!!!\"); Ezio's tone score is 38, below the 60 floor, even though the overall tier is GREEN. Not sent until a reviewer approves it.",
+   "sent": false,
+   "evidence": [
+    {
+     "cited": "Terry v. Ohio, 392 U.S. 1 (1968)",
+     "status": "verified",
+     "firm_list_entry": "Terry v. Ohio, 392 U.S. 1 (1968)",
+     "note": "Police may stop and frisk on reasonable suspicion that a person is armed and involved in crime."
+    },
+    {
+     "signal": "rule_check",
+     "rule": "Memos are not advocacy (business rule 4)",
+     "matches": [
+      "\"slam dunk\" (\"slam dunk\")",
+      "certainty language (\"absolutely\")",
+      "repeated exclamation marks (\"!!!\")",
+      "shouting (\"AMAZING\")"
+     ]
+    },
+    {
+     "signal": "ezio",
+     "reachable": true,
+     "tier": "GREEN",
+     "score": 85.7,
+     "accuracy_status": "not_scored",
+     "claims_total": 0,
+     "claims_verified": 0,
+     "claims_contradicted": 0,
+     "tone": 38,
+     "bias": 100,
+     "agreement": 100,
+     "contradicted_claims": [],
+     "supported_claims": [],
+     "summary": "Looks reliable, but note: emotional tone."
+    },
+    {
+     "feature": "memo_cite_audit",
+     "label": "AI cite-audit",
+     "harness": "para-cite-auditor",
+     "ok": true,
+     "error": null,
+     "findings": [
+      {
+       "quote": "Terry v. Ohio, 392 U.S. 1 (1968)",
+       "status": "verified",
+       "firm_entry": "Terry v. Ohio",
+       "problems": []
+      }
+     ],
+     "notes": "",
+     "elapsed": 15.8,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    },
+    {
+     "feature": "memo_style_review",
+     "label": "AI memo review",
+     "harness": "para-memo-reviewer",
+     "ok": true,
+     "error": null,
+     "findings": [
+      {
+       "quote": "AMAZING news!!!",
+       "kind": "emotional",
+       "why": "Shouting in capitals with repeated exclamation marks is heated, celebratory language that is out of place in a neutral memo."
+      },
+      {
+       "quote": "this is a slam dunk for us",
+       "kind": "overconfidence",
+       "why": "Treats the outcome as certain and frames the memo as advocacy for 'us' rather than analysis."
+      },
+      {
+       "quote": "the court will absolutely agree!!!",
+       "kind": "overconfidence",
+       "why": "Guarantees the court's ruling with no hedging and repeats exclamation marks."
+      },
+      {
+       "quote": "allows stops on reasonable suspicion, so this is a slam dunk for us",
+       "kind": "one_sided",
+       "why": "Asserts a favourable outcome from one general rule without applying it to the facts or addressing contrary arguments."
+      }
+     ],
+     "notes": "The memo is a short, celebratory cover note that predicts a certain win and uses shouting and exclamation marks instead of neutral analysis.",
+     "elapsed": 16.6,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    }
+   ],
+   "recorded": "2026-10-11T23:58:54+00:00",
+   "revision": {
+    "revised_memo": "Terry v. Ohio, 392 U.S. 1 (1968), holds that police may stop and frisk on reasonable suspicion that a person is armed and involved in crime. This authority may support our position, but the analysis of how its standard applies to our facts, and of any contrary arguments, is still to be done. The court may or may not reach the same conclusion.",
+    "changes": [
+     "Removed \"AMAZING news!!!\" and the repeated exclamation marks: shouting and emotional language are not allowed in a neutral memo (rule 4).",
+     "Replaced \"this is a slam dunk for us\" with a statement that the authority may support our position and that application to the facts and contrary arguments remain to be analyzed: removes overconfidence and one-sided framing.",
+     "Replaced \"the court will absolutely agree\" with \"the court may or may not reach the same conclusion\": removes certainty language about the outcome.",
+     "Restated the Terry v. Ohio, 392 U.S. 1 (1968) holding to match the firm's one-line holding (stop and frisk on reasonable suspicion that a person is armed and involved in crime); the original said only \"allows stops on reasonable suspicion\". Name, citation and year unchanged and verified.",
+     "No fabricated cases were present and no other cases were added or removed; no [AUTHORITY NEEDED] or [CITE-CHECK NEEDED] markers were required."
+    ],
+    "recheck": {
+     "decision": "APPROVE",
+     "reason": "Approved: 1 case citation(s) match the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
+     "evidence": [
+      {
+       "cited": "Terry v. Ohio, 392 U.S. 1 (1968)",
+       "status": "verified",
+       "firm_list_entry": "Terry v. Ohio, 392 U.S. 1 (1968)",
+       "note": "Police may stop and frisk on reasonable suspicion that a person is armed and involved in crime."
+      },
+      {
+       "signal": "ezio",
+       "reachable": true,
+       "tier": "GREEN",
+       "score": 100,
+       "accuracy_status": "not_scored",
+       "claims_total": 0,
+       "claims_verified": 0,
+       "claims_contradicted": 0,
+       "tone": 100,
+       "bias": 100,
+       "agreement": 100,
+       "contradicted_claims": [],
+       "supported_claims": [],
+       "summary": "Neutral and balanced. No claims were verified."
+      },
+      {
+       "feature": "memo_cite_audit",
+       "label": "AI cite-audit",
+       "harness": "para-cite-auditor",
+       "ok": true,
+       "error": null,
+       "findings": [
+        {
+         "quote": "Terry v. Ohio, 392 U.S. 1 (1968)",
+         "status": "verified",
+         "firm_entry": "Terry v. Ohio",
+         "problems": []
+        }
+       ],
+       "notes": "",
+       "elapsed": 16.3,
+       "model": "claude-sonnet-5-5",
+       "signal": "agent"
+      },
+      {
+       "feature": "memo_style_review",
+       "label": "AI memo review",
+       "harness": "para-memo-reviewer",
+       "ok": true,
+       "error": null,
+       "findings": [],
+       "notes": "The memo states the holding of Terry neutrally, hedges its application to the facts ('may support', 'may or may not reach'), and openly says the contrary arguments are still to be analyzed.",
+       "elapsed": 17.1,
+       "model": "claude-sonnet-5-5",
+       "signal": "agent"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "pl-13",
+   "label": "good",
+   "expected": "APPROVE",
+   "text": "The Sixth Amendment guarantees the right to a speedy and public trial, which supports our motion to dismiss.",
+   "decision": "APPROVE",
+   "reason": "Approved: the memo cites no cases, so there is nothing to cite-check, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
+   "sent": true,
+   "evidence": [
+    {
+     "signal": "ezio",
+     "reachable": true,
+     "tier": "GREEN",
+     "score": 100,
+     "accuracy_status": "scored",
+     "claims_total": 1,
+     "claims_verified": 1,
+     "claims_contradicted": 0,
+     "tone": 100,
+     "bias": 100,
+     "agreement": 100,
+     "contradicted_claims": [],
+     "supported_claims": [
+      "The Sixth Amendment guarantees the right to a speedy and public trial."
+     ],
+     "summary": "Well-sourced and balanced."
+    },
+    {
+     "feature": "memo_cite_audit",
+     "label": "AI cite-audit",
+     "harness": "para-cite-auditor",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "",
+     "elapsed": 14.4,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    },
+    {
+     "feature": "memo_style_review",
+     "label": "AI memo review",
+     "harness": "para-memo-reviewer",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "A short, neutral statement of the law with no overconfident, emotional, or one-sided language.",
+     "elapsed": 15.2,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    }
+   ],
+   "recorded": "2026-10-11T23:59:09+00:00"
+  },
+  {
+   "id": "pl-14",
+   "label": "bad",
+   "expected": "BLOCK",
+   "text": "The Fifth Amendment guarantees the right to a speedy trial, which supports our motion to dismiss.",
+   "decision": "BLOCK",
+   "reason": "Blocked before sending: Ezio's fact-check contradicted 1 claim(s): \"The Fifth Amendment guarantees the right to a speedy trial.\". The partner never received this memo.",
+   "sent": false,
+   "evidence": [
+    {
+     "signal": "ezio",
+     "reachable": true,
+     "tier": "RED",
+     "score": 45,
+     "accuracy_status": "scored",
+     "claims_total": 1,
+     "claims_verified": 0,
+     "claims_contradicted": 1,
+     "tone": 100,
+     "bias": 100,
+     "agreement": 100,
+     "contradicted_claims": [
+      {
+       "claim": "The Fifth Amendment guarantees the right to a speedy trial.",
+       "source": {
+        "url": "https://www.law.cornell.edu/constitution/fifth_amendment",
+        "publisher": "Cornell Law School - Legal Information Institute"
+       }
+      }
+     ],
+     "supported_claims": [],
+     "summary": "Not reliable: a claim is contradicted by sources."
+    },
+    {
+     "feature": "memo_cite_audit",
+     "label": "AI cite-audit",
+     "harness": "para-cite-auditor",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "",
+     "elapsed": 14.7,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    },
+    {
+     "feature": "memo_style_review",
+     "label": "AI memo review",
+     "harness": "para-memo-reviewer",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "A single neutral sentence with no overconfident, emotional or one-sided language, so there is nothing to flag on style.",
+     "elapsed": 15.0,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    }
+   ],
+   "recorded": "2026-10-11T23:59:24+00:00"
+  },
+  {
+   "id": "pl-15",
+   "label": "good",
+   "expected": "APPROVE",
+   "text": "Under Gideon, 372 U.S. 335, states must appoint counsel for indigent defendants facing felony charges.",
+   "decision": "APPROVE",
+   "reason": "Approved: 1 case citation(s) match the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
+   "sent": true,
+   "evidence": [
+    {
+     "cited": "Gideon, 372 U.S. 335",
+     "status": "verified",
+     "firm_list_entry": "Gideon v. Wainwright, 372 U.S. 335 (1963)",
+     "note": "States must provide counsel to indigent defendants facing felony charges."
+    },
+    {
+     "signal": "ezio",
+     "reachable": true,
+     "tier": "GREEN",
+     "score": 100,
+     "accuracy_status": "not_scored",
+     "claims_total": 0,
+     "claims_verified": 0,
+     "claims_contradicted": 0,
+     "tone": 100,
+     "bias": 100,
+     "agreement": 100,
+     "contradicted_claims": [],
+     "supported_claims": [],
+     "summary": "Neutral and balanced. No claims were verified."
+    },
+    {
+     "feature": "memo_cite_audit",
+     "label": "AI cite-audit",
+     "harness": "para-cite-auditor",
+     "ok": true,
+     "error": null,
+     "findings": [
+      {
+       "quote": "Under Gideon, 372 U.S. 335, states must appoint counsel for indigent defendants facing felony charges.",
+       "status": "verified",
+       "firm_entry": "Gideon v. Wainwright",
+       "problems": []
+      }
+     ],
+     "notes": "",
+     "elapsed": 48.8,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    },
+    {
+     "feature": "memo_style_review",
+     "label": "AI memo review",
+     "harness": "para-memo-reviewer",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "A short, neutral statement of settled law with no overconfident, emotional, or one-sided language.",
+     "elapsed": 46.8,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    }
+   ],
+   "recorded": "2026-10-12T00:00:11+00:00"
+  },
+  {
+   "id": "pl-16",
+   "label": "bad",
+   "expected": "BLOCK",
+   "text": "Marbury v. Madison, 5 U.S. 137 (1813), established judicial review.",
+   "decision": "BLOCK",
+   "reason": "Blocked before sending: Marbury v. Madison, 5 U.S. 137 (1813): the memo dates it 1813 but the firm's list has 1803. The partner never received this memo.",
+   "sent": false,
+   "evidence": [
+    {
+     "cited": "Marbury v. Madison, 5 U.S. 137 (1813)",
+     "status": "near_miss",
+     "firm_list_entry": "Marbury v. Madison, 5 U.S. 137 (1803)",
+     "note": "Established judicial review: courts may strike down laws that conflict with the Constitution."
+    },
+    {
+     "signal": "ezio",
+     "reachable": true,
+     "tier": "GREEN",
+     "score": 100,
+     "accuracy_status": "not_scored",
+     "claims_total": 0,
+     "claims_verified": 0,
+     "claims_contradicted": 0,
+     "tone": 100,
+     "bias": 100,
+     "agreement": 100,
+     "contradicted_claims": [],
+     "supported_claims": [],
+     "summary": "Neutral and balanced. No claims were verified."
+    },
+    {
+     "feature": "memo_cite_audit",
+     "label": "AI cite-audit",
+     "harness": "para-cite-auditor",
+     "ok": true,
+     "error": null,
+     "findings": [
+      {
+       "quote": "Marbury v. Madison, 5 U.S. 137 (1813)",
+       "status": "misstated",
+       "firm_entry": "Marbury v. Madison",
+       "problems": [
+        "Year is wrong: the firm's list gives 1803, but the memo says 1813."
+       ]
+      }
+     ],
+     "notes": "",
+     "elapsed": 18.2,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    },
+    {
+     "feature": "memo_style_review",
+     "label": "AI memo review",
+     "harness": "para-memo-reviewer",
+     "ok": true,
+     "error": null,
+     "findings": [],
+     "notes": "A short neutral statement of law with no overconfidence, emotional language, or one-sided advocacy; citation accuracy is outside this review.",
+     "elapsed": 16.3,
+     "model": "claude-sonnet-5-5",
+     "signal": "agent"
+    }
+   ],
+   "recorded": "2026-10-12T00:00:29+00:00"
+  }
+ ]
+}
