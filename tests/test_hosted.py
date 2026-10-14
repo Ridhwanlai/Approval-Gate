@@ -278,7 +278,7 @@ class HostedHttpTests(StoreBase):
 
     def signup(self, email="owner@firm.test", firm="Doe & Roe LLP"):
         c = self.client()
-        code, body, _ = c("/auth/signup", {"firm": firm, "name": "Dana", "email": email, "password": "correct horse battery"})
+        code, body, _ = c("/auth/signup", {"firm": firm, "name": "Dana", "email": email, "password": "correct horse battery", "accept_terms": True})
         self.assertEqual(code, 200, body)
         c("/api/me")
         return c
@@ -292,6 +292,15 @@ class HostedHttpTests(StoreBase):
         self.assertEqual(c("/api/me")[0], 401)
         self.assertEqual(c("/login")[0], 200)
         self.assertEqual(c("/health")[0], 200)
+
+    def test_signup_requires_agreeing_to_terms_and_records_it(self):
+        c = self.client()
+        code, body, _ = c("/auth/signup", {"firm": "F", "name": "N", "email": "t@firm.test", "password": "correct horse battery"})
+        self.assertEqual(code, 400)
+        self.assertIn("Terms", body["error"])
+        self.signup(email="t@firm.test")
+        self.assertIsNotNone(store._one("select terms_accepted_at from users where email = 't@firm.test'")["terms_accepted_at"])
+        self.assertEqual(self.client()("/terms")[0], 200)  # public, no sign-in needed
 
     def test_signup_sign_in_and_out(self):
         c = self.signup()
@@ -339,7 +348,7 @@ class HostedHttpTests(StoreBase):
         for i in range(5):
             self.signup(email=f"user{i}@firm{i}.test", firm=f"Firm {i}")
         c = self.client()
-        code, body, _ = c("/auth/signup", {"firm": "Sixth", "name": "S", "email": "six@firm6.test", "password": "correct horse battery"})
+        code, body, _ = c("/auth/signup", {"firm": "Sixth", "name": "S", "email": "six@firm6.test", "password": "correct horse battery", "accept_terms": True})
         self.assertEqual(code, 429)
 
     def test_one_firm_cannot_hold_every_ai_slot(self):
@@ -360,7 +369,7 @@ class HostedHttpTests(StoreBase):
         token = inv["link"].split("#", 1)[1]
         member = self.client()
         self.assertEqual(member("/auth/accept-invite", {"token": token, "name": "Pat", "email": "pat@firm.test",
-                                                       "password": "another long password"})[0], 200)
+                                                       "password": "another long password", "accept_terms": True})[0], 200)
         member("/api/me")
         self.assertEqual(member("/api/me")[1]["role"], "member")
         self.assertEqual(member("/api/firm/settings", {"partner_email": "x@y.test"}, method="PUT")[0], 403)

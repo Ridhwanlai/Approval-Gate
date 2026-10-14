@@ -37,9 +37,10 @@ MAX_TEXT = 20000
 SERVER_ONLY = ("session_id", "response_id", "harness_runs", "ezio")
 COOKIE = "para_session"
 # Hosted routes reachable without signing in.
-PUBLIC_GET = {"/health", "/login", "/signup", "/join", "/login.html"}
+PUBLIC_GET = {"/health", "/login", "/signup", "/join", "/login.html", "/terms", "/privacy"}
 PUBLIC_POST = {"/auth/signup", "/auth/login", "/auth/accept-invite", "/stripe/webhook"}
-PAGES = {"/": "persona.html", "/account": "account.html", "/login": "login.html", "/signup": "login.html", "/join": "login.html"}
+PAGES = {"/": "persona.html", "/account": "account.html", "/login": "login.html", "/signup": "login.html", "/join": "login.html",
+         "/terms": "terms.html", "/privacy": "privacy.html"}
 
 
 def public_audit(rec):
@@ -405,6 +406,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def auth_route(self, route, data):
         from . import store
+        if route in ("/auth/signup", "/auth/accept-invite") and data.get("accept_terms") is not True:
+            return self.send_json(400, {"error": "Agree to the Terms of Service and Privacy Policy to continue."})
         try:
             if route == "/auth/signup":
                 if not store.signup_allowed(self.client_ip()):

@@ -49,6 +49,11 @@ def db():
             _conn.execute("pragma journal_mode=wal")
             _conn.execute("pragma foreign_keys=on")
             _conn.executescript(SCHEMA)
+            for column in ("terms_accepted_at real",):  # added after launch-1 databases existed
+                try:
+                    _conn.execute(f"alter table users add column {column}")
+                except sqlite3.OperationalError:
+                    pass
         return _conn
 
 
@@ -122,8 +127,8 @@ def create_firm_with_owner(firm_name, name, email, password, now=None):
         firm_id, user_id = _new_id("firm"), _new_id("user")
         _q("insert into firms (id, name, plan, status, trial_ends, created) values (?, ?, 'trial', 'trialing', ?, ?)",
            (firm_id, firm_name, now + plans.TRIAL_DAYS * 86400, now))
-        _q("insert into users (id, email, name, pw_hash, created) values (?, ?, ?, ?, ?)",
-           (user_id, email, (name or "").strip()[:120], hash_password(password), now))
+        _q("insert into users (id, email, name, pw_hash, created, terms_accepted_at) values (?, ?, ?, ?, ?, ?)",
+           (user_id, email, (name or "").strip()[:120], hash_password(password), now, now))
         _q("insert into members (firm_id, user_id, role) values (?, ?, 'owner')", (firm_id, user_id))
     return firm_id, user_id
 
@@ -280,8 +285,8 @@ def accept_invite(token, name, email, password, now=None):
         if _one("select id from users where email = ?", (email,)):
             raise StoreError("An account with that email already exists.")
         user_id = _new_id("user")
-        _q("insert into users (id, email, name, pw_hash, created) values (?, ?, ?, ?, ?)",
-           (user_id, email, (name or "").strip()[:120], hash_password(password), now))
+        _q("insert into users (id, email, name, pw_hash, created, terms_accepted_at) values (?, ?, ?, ?, ?, ?)",
+           (user_id, email, (name or "").strip()[:120], hash_password(password), now, now))
         _q("insert into members (firm_id, user_id, role) values (?, ?, 'member')", (inv["firm_id"], user_id))
         _q("update invites set used = 1 where token_hash = ?", (_hash_token(token),))
     return inv["firm_id"], user_id

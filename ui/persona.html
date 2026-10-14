@@ -71,6 +71,7 @@
   .kicker { font-size: 12.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
   .page-head h1 { font-size: clamp(28px, 3.6vw, 40px); line-height: 1.08; letter-spacing: -.035em; margin: 0 0 8px; }
   .page-head p { margin: 0; color: var(--ink-2); max-width: 70ch; }
+  .page-head .disclaimer { margin-top: 10px; font-size: 13.5px; color: var(--muted); }
   .grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
   @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
   .sheet { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 26px 28px; box-shadow: var(--shadow); }
@@ -184,6 +185,7 @@
     <p class="kicker">Write and check</p>
     <h1>Check a memo before the partner relies on it.</h1>
     <p>Draft from a question or paste a memo. Para cite-checks it against your firm's lists, scores it with Ezio and has AI auditors read it, then sends, holds or blocks it.</p>
+    <p class="disclaimer">Para is a checking tool, not legal advice. It can miss errors, and an attorney at your firm remains responsible for every memo you rely on or send. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></p>
   </div>
   <div class="grid">
     <div class="sheet">
@@ -250,7 +252,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 const LABEL = { APPROVE: "Approved", HOLD_FOR_REVIEW: "Held for review", BLOCK: "Blocked", ERROR: "No decision" };
 const GLYPH = { APPROVE: "✓", HOLD_FOR_REVIEW: "‖", BLOCK: "✕", ERROR: "!" };
 const CONSEQ = {
-  APPROVE: "The memo went to the partner, who may rely on it in a filing. Every citation below matched the firm's trusted list.",
+  APPROVE: "Approved means Para's checks found no problems, not that the memo is legally correct. An attorney should still review it before anyone relies on it in a filing.",
   HOLD_FOR_REVIEW: "The partner has not seen this memo. An attorney must review it in the queue below before anything is sent.",
   BLOCK: "The partner never received this draft. Fix the flagged authorities and send it again.",
   ERROR: "Nothing was sent. The gate did not return a decision, so treat this memo as unreviewed.",

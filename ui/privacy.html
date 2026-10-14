@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Para · Privacy Policy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap">
+<style>
+  /* Same tokens as the Para website and app. */
+  :root {
+    --bg: #f6f7fb; --card: #ffffff; --soft: #f1f3f9; --ink: #0e1630; --ink-2: #3a4360; --muted: #69718a; --rule: #e3e6ef;
+    --accent: #3b36d6; --accent-ink: #ffffff; --accent-soft: #eceafe; --block: #b4232f; --block-bg: #fbe6e8; --ok: #18794e;
+    --shadow: 0 1px 2px rgba(14, 22, 48, .06), 0 8px 24px rgba(14, 22, 48, .06);
+    --sans: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    --serif: "Newsreader", "Iowan Old Style", Palatino, Georgia, serif; color-scheme: light;
+    --side: #0e1630; --side-ink: #eef0f8; --side-dot: #8f8bff; --side-stamp: #ff8a94;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b1020; --card: #141c38; --soft: #111831; --ink: #eef0f8; --ink-2: #c3c8dc; --muted: #9098b3; --rule: #263055;
+      --accent: #8f8bff; --accent-ink: #0b1020; --accent-soft: #23265a; --block: #ff7a85; --block-bg: #3a161c; --ok: #4cc38a;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25); color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1020; --card: #141c38; --soft: #111831; --ink: #eef0f8; --ink-2: #c3c8dc; --muted: #9098b3; --rule: #263055;
+    --accent: #8f8bff; --accent-ink: #0b1020; --accent-soft: #23265a; --block: #ff7a85; --block-bg: #3a161c; --ok: #4cc38a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25); color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  header { border-bottom: 1px solid var(--rule); }
+  .bar { max-width: 760px; margin: 0 auto; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 22px; letter-spacing: -.03em; color: var(--ink); text-decoration: none; }
+  .brand .mark { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--ink); color: var(--bg); font: 700 19px/1 var(--serif); }
+  main { max-width: 760px; margin: 0 auto; padding: 36px 20px 80px; }
+  h1 { font-size: clamp(30px, 5vw, 40px); letter-spacing: -.035em; line-height: 1.1; margin: 0 0 6px; text-wrap: balance; }
+  .meta { color: var(--muted); font-size: 14px; margin: 0 0 22px; }
+  .draft { border: 2px dashed var(--block); background: var(--block-bg); color: var(--block); border-radius: 12px; padding: 12px 14px; font-size: 15px; margin-bottom: 28px; }
+  h2 { font-size: 20px; letter-spacing: -.02em; margin: 34px 0 8px; }
+  p, li { color: var(--ink-2); max-width: 68ch; }
+  ul { padding-left: 22px; }
+  .todo { background: var(--accent-soft); color: var(--accent); border-radius: 4px; padding: 0 4px; font-weight: 600; }
+  .key { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; margin: 16px 0; }
+</style>
+</head>
+<body>
+<header><div class="bar"><a class="brand" href="/"><span class="mark" aria-hidden="true">¶</span><span>para.</span></a><a href="/login">Sign in</a></div></header>
+<main>
+<h1>Privacy Policy</h1>
+<p class="meta">Last updated <span class="todo">[date]</span></p>
+<div class="draft" role="note"><b>Draft for legal review.</b> This text was prepared as a starting point and has not been reviewed by a lawyer. Bracketed items must be completed, and the whole document approved by a lawyer, before Para takes payment. Remove this notice once it has been.</div>
+
+<div class="key"><p><b>The short version.</b> We collect what we need to run Para for your firm: your account details, the memos you check and the decisions Para makes. Memo text is sent to HarnessRouter and the AI model providers it uses so the agents can read it. Payments go through Stripe; we never see your card. We don't sell personal information.</p></div>
+
+<h2>1. Who is responsible</h2>
+<p><span class="todo">[Legal name of the operator or company]</span> operates Para. Privacy questions and requests: <span class="todo">[contact email]</span>. <span class="todo">[Name of the person accountable for privacy, if required.]</span></p>
+
+<h2>2. What we collect</h2>
+<ul>
+<li><b>Account details:</b> your name, work email and firm name, and the hashed form of your password (we can't read your password).</li>
+<li><b>Your work in Para:</b> memo text, questions you ask the drafter, your firm's citation lists, the decisions, reasons and evidence Para produces, review notes, and the partner's email address your owner sets.</li>
+<li><b>Billing:</b> your plan, its status and dates, and Stripe customer and subscription identifiers. Card details are collected and held by Stripe, not by us.</li>
+<li><b>Security and usage:</b> sign-in sessions, network addresses used to limit sign-in attempts and sign-ups, and how many AI checks your firm has used.</li>
+</ul>
+
+<h2>3. How we use it</h2>
+<p>To provide and secure Para for your firm, to keep each firm's information separate, to bill for plans, to enforce plan limits, and to contact you about your account. <span class="todo">[Any other purposes, e.g. product emails, need their own consent.]</span></p>
+
+<h2>4. Who processes it for us</h2>
+<ul>
+<li><b>Render</b> hosts Para and its database (<span class="todo">[region, e.g. United States]</span>).</li>
+<li><b>HarnessRouter</b> runs Para's AI agents. Memo text, questions and your firm's citation lists are sent to it for each AI check, draft and fix, and it uses AI model providers (such as Anthropic, OpenAI or Google, depending on the models your firm chooses) to process them.</li>
+<li><b>Stripe</b> processes payments.</li>
+<li><b>Our email provider</b> <span class="todo">[name]</span> delivers approved memos to the partner address your firm sets.</li>
+<li><b>Ezio</b>, when connected, scores memo text. <span class="todo">[Currently simulated within Para; update when a live connection is added.]</span></li>
+</ul>
+<p>These providers may store or process information outside Canada. <span class="todo">[Confirm cross-border disclosure wording and your obligations under PIPEDA and any provincial privacy law with your lawyer.]</span></p>
+
+<h2>5. How long we keep it</h2>
+<p><span class="todo">[Retention periods for accounts, memos and audit logs, and what happens after an account closes.]</span></p>
+
+<h2>6. Security</h2>
+<p>Each firm's information is kept separate. Passwords are stored only as salted hashes, sign-in sessions as hashes, and connections are encrypted. Only your firm's owner can change billing, team and settings. No system is perfectly secure; we will notify you of breaches as the law requires.</p>
+
+<h2>7. Your choices and rights</h2>
+<p>You can ask to see, correct or delete your personal information, or close your account, by writing to <span class="todo">[contact email]</span>. <span class="todo">[Response times and any rights under the law that applies.]</span></p>
+
+<h2>8. Changes</h2>
+<p>We'll post changes here and tell account owners about material ones.</p>
+
+</main>
+</body>
+</html>
