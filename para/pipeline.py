@@ -49,7 +49,7 @@ def get(job_id):
 
 # ---------------------------------------------------------------- one harness run
 
-PROGRESS = {"queued": "Queued: waiting for a free HarnessRouter slot", "waiting": "Sent to HarnessRouter; waiting for a sandbox", "started": "Agent is reading the memo",
+PROGRESS = {"queued": "Queued: waiting for a free HarnessRouter slot", "waiting": "Sent to HarnessRouter; waiting for a sandbox", "started": "Agent is working",
             "activity": "Agent is working", "retry": "Retrying after a transient error",
             "recovering": "Connection dropped; recovering the result without resubmitting"}
 

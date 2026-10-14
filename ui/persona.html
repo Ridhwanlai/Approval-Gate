@@ -94,6 +94,11 @@
   .model-card h4 { margin: 0 0 4px; font: 600 15px/1.3 var(--sans); }
   .model-card select { width: 100%; font: inherit; padding: 6px 8px; border: 1px solid var(--rule); border-radius: 3px; background: #fff; color: var(--ink); margin: 8px 0 4px; }
   .model-card .saved { font-size: 12px; color: var(--ok); min-height: 16px; }
+  .ask { border: 1px dashed var(--rule); border-radius: 3px; padding: 12px; margin-bottom: 20px; background: #fafbfd; }
+  .ask label { display: block; margin-bottom: 6px; font-size: 14px; }
+  .ask textarea { min-height: 0; font: 15px/1.5 var(--sans); padding: 8px; }
+  .ask .btns { justify-content: flex-end; }
+  .draft-note { font-size: 13px; color: var(--muted); margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -108,6 +113,12 @@
 <main>
   <div class="grid">
     <div class="sheet">
+      <div class="ask">
+        <label for="question"><b>Start from a question</b> <span class="count">The AI drafter writes a memo using only your firm's verified cases. Nothing is sent until you check it.</span></label>
+        <textarea id="question" rows="2" placeholder="e.g. Must the state appoint counsel for an indigent defendant facing a felony charge?"></textarea>
+        <div class="btns"><button class="ghost" id="draftBtn" type="button" disabled>Draft with AI</button></div>
+        <div id="draftStatus"></div>
+      </div>
       <div class="memo-head">
         <h2>MEMORANDUM</h2>
         <div class="row"><label for="to">To</label><input id="to" type="text" value="Supervising partner"></div>
@@ -482,6 +493,26 @@ async function loadModels() {
   } catch (e) { el.innerHTML = `<div class="banner">Models could not be loaded (${esc(e.message)}).</div>`; }
 }
 loadModels();
+/* Draft with AI: the drafter harness writes into the editor; the gate still decides when it is sent. */
+$("question").addEventListener("input", () => { $("draftBtn").disabled = !$("question").value.trim(); });
+$("draftBtn").onclick = async () => {
+  const question = $("question").value.trim(), status = $("draftStatus");
+  if (!question) return;
+  $("draftBtn").disabled = true;
+  status.innerHTML = `<div id="draftProg"></div>`;
+  const out = await runJob("/api/drafts", { question, matter: $("re").value.trim() }, "/api/drafts", (job) => {
+    const p = $("draftProg"); if (p) p.innerHTML = stagesHtml(job);
+  });
+  $("draftBtn").disabled = false;
+  if (out.error || !out.job.result || !out.job.result.ok) {
+    status.innerHTML = `<div class="banner err">No draft: ${esc(out.error || (out.job.result && out.job.result.error) || "unknown error")}</div>`;
+    return;
+  }
+  const r = out.job.result;
+  $("draft").value = r.memo; updateCount();
+  status.innerHTML = `<p class="draft-note">Draft written by ${esc(r.model || "the AI drafter")}${r.authorities_used.length ? `, citing ${esc(r.authorities_used.join(", "))}` : ""}.
+    ${r.open_points.length ? `Open points: ${esc(r.open_points.join("; "))}.` : ""} Read and edit it below, then choose Check and send to partner.</p>`;
+};
 </script>
 </body>
 </html>
