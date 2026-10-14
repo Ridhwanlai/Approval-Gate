@@ -96,4 +96,6 @@ Attorney reviews of held memos are logged as separate entries with the reviewer,
 
 ## 7. Measured on the practice set
 
-16 of 16 exact decisions, 8 of 8 bad memos caught, 0 of 8 good memos falsely blocked, and 6 of 6 failure drills passed.
+Original version (lists and Ezio only): 16 of 16 exact decisions, 8 of 8 bad memos caught, 0 of 8 good memos falsely blocked, and 6 of 6 failure drills passed.
+
+With the HarnessRouter agents (`python3 tests/live_eval.py`, live Hermes harnesses, 2026-10-11): 16 of 16 exact decisions, 8 of 8 bad memos caught, 0 of 8 good memos held or blocked. All 32 agent runs completed and no agent finding failed validation. The memo reviewer quoted the advocacy in pl-12 ("AMAZING news!!!", "slam dunk") on its own. One agent run takes about 15 to 20 s alone; on the Free plan's 2-task limit with four memos in flight it took a median of 76 s (max 110 s).
