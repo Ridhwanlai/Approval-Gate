@@ -1,0 +1,42 @@
+# Render blueprint for the hosted, paid Para service. Deploy: Render dashboard > New > Blueprint, or the
+# "Deploy to Render" button in DEPLOY.md. Secrets are marked sync: false, so Render asks for them at
+# deploy time and they never live in this file.
+services:
+  - type: web
+    name: para-memo-gate
+    runtime: python
+    plan: starter            # a persistent disk needs a paid instance
+    buildCommand: python3 --version   # standard library only: nothing to install
+    startCommand: python3 run.py serve-hosted
+    healthCheckPath: /health
+    disk:
+      name: para-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: PARA_DATA_DIR
+        value: /var/data
+      - key: HR_MAX_CONCURRENT
+        value: "2"           # raise to match your HarnessRouter plan
+      - key: PUBLIC_URL      # e.g. https://para-memo-gate.onrender.com
+        sync: false
+      - key: HR_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: PARA_SMTP_HOST
+        sync: false
+      - key: PARA_SMTP_PORT
+        value: "587"
+      - key: PARA_SMTP_SECURITY
+        value: starttls
+      - key: PARA_SMTP_USERNAME
+        sync: false
+      - key: PARA_SMTP_FROM
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
