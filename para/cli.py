@@ -145,25 +145,32 @@ def run(port=None, open_browser=True):
             raise SystemExit(f"Port {port} is already in use.")
         port = next(p for p in range(9001, 9100) if _port_free(p))
 
-    mock_port = _free_port()
-    env = {k: v for k, v in os.environ.items() if k != "HR_API_KEY"}  # the mock never needs the key
-    env.update(HOST="127.0.0.1", PORT=str(mock_port), LATENCY=os.getenv("LATENCY", "0.5-1.5"))
-    mock = subprocess.Popen([sys.executable, str(config.ROOT / "mock_ezio.py")], env=env, cwd=config.ROOT,
-                            stdout=subprocess.DEVNULL)
-    for _ in range(50):
-        try:
-            urllib.request.urlopen(f"http://127.0.0.1:{mock_port}/v1/health", timeout=1)
-            break
-        except OSError:
-            time.sleep(0.1)
-    os.environ["EZIO_URL"] = f"http://127.0.0.1:{mock_port}"
+    # A real Ezio endpoint (EZIO_URL, with EZIO_KEY) is used when given; otherwise the bundled simulation runs locally.
+    mock = None
+    if os.getenv("EZIO_URL"):
+        _say(f"Using the Ezio API at {os.environ['EZIO_URL']}")
+    else:
+        mock_port = _free_port()
+        env = {k: v for k, v in os.environ.items() if k != "HR_API_KEY"}  # the mock never needs the key
+        env.update(HOST="127.0.0.1", PORT=str(mock_port), LATENCY=os.getenv("LATENCY", "0.5-1.5"))
+        mock = subprocess.Popen([sys.executable, str(config.ROOT / "mock_ezio.py")], env=env, cwd=config.ROOT,
+                                stdout=subprocess.DEVNULL)
+        for _ in range(50):
+            try:
+                urllib.request.urlopen(f"http://127.0.0.1:{mock_port}/v1/health", timeout=1)
+                break
+            except OSError:
+                time.sleep(0.1)
+        os.environ["EZIO_URL"] = f"http://127.0.0.1:{mock_port}"
+        _say("Using the simulated Ezio bundled with Para (set EZIO_URL and EZIO_KEY to use a live Ezio).")
     from . import server  # imported after EZIO_URL is set; ezio_client reads it at import
     if open_browser:
         webbrowser.open(f"http://127.0.0.1:{port}/")
     try:
         server.serve("127.0.0.1", port)
     finally:
-        mock.terminate()
+        if mock:
+            mock.terminate()
 
 
 def main(argv=None):
