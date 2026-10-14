@@ -166,8 +166,8 @@ mark.fab { background: none; color: inherit; border-bottom: 3px double var(--blo
 .guarantees b { color: var(--ink); display: block; }
 
 /* agents */
-.agents { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-@media (max-width: 900px) { .agents { grid-template-columns: 1fr; } }
+.agents { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+@media (max-width: 760px) { .agents { grid-template-columns: 1fr; } }
 .agent-card { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
 .agent-card header { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
 .agent-ico { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: var(--ink); color: var(--bg); font: 600 22px var(--serif); flex: none; }
@@ -267,3 +267,10 @@ p code, .note code { font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; 
 .faq details p { margin: 0 0 18px; color: var(--ink-2); max-width: 70ch; }
 .final { padding: 96px 0 104px; background: linear-gradient(180deg, var(--bg) 0%, var(--accent-soft) 100%); }
 .final h2 { max-width: 20ch; margin-bottom: 28px; }
+
+.flowline { list-style: none; counter-reset: f; padding: 0; margin: 28px 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+@media (max-width: 860px) { .flowline { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .flowline { grid-template-columns: 1fr; } }
+.flowline li { counter-increment: f; border: 1px solid var(--rule); border-radius: var(--radius); padding: 16px 18px; background: var(--card); }
+.flowline li b::before { content: counter(f) ". "; color: var(--accent); }
+.flowline li b { display: block; margin-bottom: 4px; } .flowline li span { color: var(--ink-2); font-size: 15px; }
