@@ -129,3 +129,18 @@ footer a:hover { color: var(--accent); }
   .link span { top: 50%; left: 14px; transform: translateY(-50%); }
   .node, .node.gate, .node.outcome { max-width: 100%; width: 100%; }
 }
+
+/* problem */
+.split { display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; }
+@media (max-width: 900px) { .split { grid-template-columns: 1fr; gap: 32px; } }
+.body { color: var(--ink-2); max-width: 58ch; }
+.memo-card { margin: 0; background: var(--card); border: 1px solid var(--rule); border-radius: 18px; padding: 26px 28px; box-shadow: var(--shadow); transform: rotate(-.6deg); }
+.memo-head { display: flex; justify-content: space-between; font: 600 14px var(--serif); letter-spacing: .14em; border-bottom: 2px solid var(--ink); padding-bottom: 10px; margin-bottom: 14px; }
+.memo-head .time { letter-spacing: 0; color: var(--muted); font-family: var(--sans); font-weight: 500; }
+.memo-text { font: 20px/1.6 var(--serif); margin: 0 0 18px; }
+mark.fab { background: none; color: inherit; border-bottom: 3px double var(--block); padding: 0 1px; }
+.memo-signals { display: grid; gap: 8px; margin-bottom: 18px; }
+.memo-signals div { display: flex; justify-content: space-between; align-items: center; font-size: 15px; color: var(--ink-2); border-top: 1px dashed var(--rule); padding-top: 8px; }
+.memo-card figcaption { font-size: 15px; color: var(--ink-2); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.stamp-mini { display: inline-block; font: 700 15px var(--serif); letter-spacing: .06em; padding: 6px 12px; border: 3px double currentColor; border-radius: 6px; transform: rotate(-2deg); }
+.stamp-mini.block { color: var(--block); background: var(--block-bg); } .stamp-mini.ok { color: var(--ok); background: var(--ok-bg); } .stamp-mini.hold { color: var(--hold); background: var(--hold-bg); }
