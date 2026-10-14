@@ -9,6 +9,8 @@ Browser-facing contract (the browser never sees a key, harness id or session id)
   POST /api/checks/<id>/revision    -> 202 {id}; the drafter harness proposes a fix (never sent)
   GET  /api/revisions/<id>          progress, then the revised draft and change list
   GET  /api/trace/<job>/<feature>   sanitized trace of one harness run
+  GET  /api/models                  each agent's default model, the user's choice and the models offered
+  PUT  /api/models                  {feature, model}; model null goes back to the harness default
   GET  /audit                       recent audit records
   POST /decide                      synchronous check, kept for the challenge's gate.py contract
 """
@@ -18,7 +20,7 @@ import os
 import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from . import agents, config, pipeline, records
+from . import agents, config, pipeline, records, settings
 from .hr_client import HRError
 
 UI_DIR = config.ROOT / "ui"
@@ -74,6 +76,11 @@ class Handler(BaseHTTPRequestHandler):
         if route == "/api/samples":
             items = json.loads((config.FIRM_DIR / "practice_set.json").read_text())["items"]
             return self.send_json(200, {"samples": [{"id": i["id"], "text": i["text"], "context": i["context"]} for i in items]})
+        if route == "/api/models":
+            try:
+                return self.send_json(200, {"agents": [agents.model_options(f) for f in agents.HARNESS_NAMES if f in config.registry()]})
+            except HRError as e:
+                return self.send_json(502, {"error": str(e)})
         if route == "/audit":
             return self.send_json(200, {"records": [public_audit(r) for r in records.read_audit()]})
         m = re.fullmatch(r"/api/(checks|revisions)/([a-z]{3}_[0-9a-f]{12})", route)
@@ -104,6 +111,23 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(raw)
 
     # ------------------------------------------------------------ POST
+
+    def do_PUT(self):
+        if self.path.partition("?")[0] != "/api/models":
+            return self.send_json(404, {"error": "Unknown endpoint"})
+        try:
+            data = self.body()
+            feature, model = data.get("feature"), data.get("model") or None
+            if feature not in agents.HARNESS_NAMES:
+                raise ValueError
+            if model is not None and model not in {o["id"] for o in agents.model_options(feature)["options"]}:
+                return self.send_json(400, {"error": f"{model} is not offered for this agent"})
+        except (ValueError, UnicodeDecodeError, OSError):
+            return self.send_json(400, {"error": "Send {feature, model}; model null resets to the default"})
+        except HRError as e:
+            return self.send_json(502, {"error": str(e)})
+        settings.set_model(feature, model)
+        return self.send_json(200, agents.model_options(feature))
 
     def do_POST(self):
         route = self.path.partition("?")[0]

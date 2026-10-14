@@ -344,6 +344,29 @@ class HttpTests(Base):
         result = self.wait(f"/api/revisions/{rev['id']}")["result"]
         self.assertEqual((result["ok"], result["revised_memo"]), (True, "[AUTHORITY NEEDED: tolling]"))
 
+    def test_models_route_lists_offers_and_saves_choice(self):
+        code, body = self.req("/api/models")
+        self.assertEqual(code, 200)
+        audit = next(a for a in body["agents"] if a["feature"] == agents.CITE_AUDIT)
+        self.assertEqual(audit["default"], "claude-sonnet-5.5")
+        self.assertEqual([o["id"] for o in audit["options"]], ["claude-sonnet-5.5", "gpt-5.4-mini"])
+
+        def put(body):
+            r = urllib.request.Request(self.base + "/api/models", data=json.dumps(body).encode(), method="PUT",
+                                       headers={"Content-Type": "application/json"})
+            try:
+                with urllib.request.urlopen(r, timeout=10) as f:
+                    return f.status, json.loads(f.read())
+            except urllib.error.HTTPError as e:
+                return e.code, json.loads(e.read())
+        try:
+            self.assertEqual(put({"feature": agents.CITE_AUDIT, "model": "retired-model"})[0], 400)
+            self.assertEqual(put({"feature": "build_my_app", "model": "gpt-5.4-mini"})[0], 400)
+            code, saved = put({"feature": agents.CITE_AUDIT, "model": "gpt-5.4-mini"})
+            self.assertEqual((code, saved["choice"]), (200, "gpt-5.4-mini"))
+        finally:
+            self.assertEqual(put({"feature": agents.CITE_AUDIT, "model": None})[1]["choice"], None)
+
     def test_health_reports_agent_status(self):
         self.assertEqual(self.req("/health")[1]["agents"], "configured")
 

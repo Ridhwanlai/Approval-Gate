@@ -7,6 +7,7 @@ entries must exist on the firm's lists, or the finding is rejected and logged.
 import json
 import re
 import threading
+import time
 
 from . import config, settings
 from .hr_client import Client, HRError
@@ -60,6 +61,33 @@ def run_feature(feature_key, task_input, on_event=None, deadline_s=240, queue_s=
                             model=settings.model_for(feature_key))
     finally:
         _slots.release()
+
+
+# ---------------------------------------------------------------- model choice
+
+MODEL_HINTS = {
+    CITE_AUDIT: "Judges paraphrased holdings, so it rewards a strong reasoning model.",
+    STYLE_REVIEW: "A tone check; a fast, inexpensive model usually does well.",
+    REVISION: "Writes the corrected memo; pick the model whose legal writing you trust most.",
+}
+_model_cache = {}
+
+
+def model_options(feature_key, max_age_s=600):
+    """{default, choice, options[]} for one feature, from GET /v1/harnesses/{id}/models (cached)."""
+    harness_id = config.registry().get(feature_key)
+    if not harness_id:
+        raise HRError("not_configured", f"No harness is configured for {feature_key}.")
+    cached = _model_cache.get(harness_id)
+    if not cached or time.monotonic() - cached[0] > max_age_s:
+        data = client()._json("GET", f"/v1/harnesses/{harness_id}/models")
+        options = [{"id": m["id"], "label": m.get("label") or m["id"]}
+                   for m in data.get("models") or [] if isinstance(m, dict) and m.get("id") and m.get("available", True)]
+        cached = (time.monotonic(), data.get("default"), options)
+        _model_cache[harness_id] = cached
+    return {"feature": feature_key, "label": LABELS[feature_key], "harness": HARNESS_NAMES[feature_key],
+            "hint": MODEL_HINTS.get(feature_key, ""), "default": cached[1], "choice": settings.model_for(feature_key),
+            "options": cached[2]}
 
 
 # ---------------------------------------------------------------- shared helpers

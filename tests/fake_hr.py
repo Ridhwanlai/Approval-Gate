@@ -40,6 +40,10 @@ class FakeHR:
 
             def do_GET(self):
                 parts = self.path.split("?")[0].strip("/").split("/")
+                if parts[:2] == ["v1", "harnesses"] and parts[-1] == "models":
+                    return self._json(200, {"harness_id": parts[2], "default": "claude-sonnet-5.5", "models": [
+                        {"id": "claude-sonnet-5.5", "available": True}, {"id": "gpt-5.4-mini", "available": True},
+                        {"id": "retired-model", "available": False}]})
                 if parts[:2] == ["v1", "responses"] and parts[2] in fake.responses:
                     return self._json(200, fake.responses[parts[2]])
                 if parts[:2] == ["v1", "sessions"] and parts[-1] == "turns":
