@@ -8,3 +8,8 @@ __pycache__/
 *.jsonl
 runs/
 results/*.practice.*
+
+# Para on HarnessRouter
+/.env.harnessrouter
+/data/
+/harnesses/registry.json

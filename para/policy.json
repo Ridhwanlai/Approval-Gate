@@ -1,0 +1,54 @@
+{
+  "_help": "Paralegal policy. Gated action: submit_memo_to_partner. Every threshold carries a one-sentence why. Only the product server applies it; no harness decides.",
+  "on_ezio_failure": "HOLD_FOR_REVIEW",
+  "on_ezio_failure_why": "If Ezio is down, slow past the budget or malformed, the gate fails closed to review, while the firm's citation lists still block a fabricated or misstated case on their own.",
+  "tier_decisions": {
+    "GREEN": "APPROVE",
+    "YELLOW": "HOLD_FOR_REVIEW",
+    "RED": "HOLD_FOR_REVIEW"
+  },
+  "tier_decisions_why": "GREEN passes only if every other check also passes; YELLOW and RED send the memo to a reviewer, because a weak score is a quality concern, while a provably false claim is blocked separately by the contradicted-claim rule.",
+  "contradicted_claims": {
+    "block_above": 0,
+    "why": "One fact Ezio can show is false (for example, the wrong amendment) is enough to stop a memo the partner will sign (business rule 6)."
+  },
+  "dimension_minimums": {
+    "tone": {
+      "hold_below": 60,
+      "why": "Below 60, Ezio is flagging overconfident or emotional language, which business rule 4 says must be held even when the citations are right."
+    },
+    "bias": {
+      "hold_below": 60,
+      "why": "Below 60 the memo argues one side, and a research memo that hides adverse authority misleads the partner."
+    },
+    "agreement": {
+      "hold_below": 50,
+      "why": "Below 50 Ezio's own checks disagree with each other, which is a reason for a human to look rather than to send."
+    }
+  },
+  "when_accuracy_not_scored": "ignore",
+  "when_accuracy_not_scored_why": "Not scored means Ezio found no public claim to check, which is normal for memos about cases; the firm's citation lists are the accuracy check there, and holding every such memo would be a false block (business rule 5).",
+  "when_accuracy_unavailable": "HOLD_FOR_REVIEW",
+  "when_accuracy_unavailable_why": "When the fact-check is down, statements outside the citation lists (such as what an amendment says) are unchecked, so a human reviews before the partner sees it.",
+  "agents": {
+    "run_on_check": [
+      "memo_cite_audit",
+      "memo_style_review"
+    ],
+    "run_on_check_why": "The cite-auditor and memo-reviewer read the memo the way a person would, catching authorities and advocacy the pattern checks miss; the drafter only runs when the paralegal asks for a fix.",
+    "deadline_seconds": 150,
+    "deadline_seconds_why": "Hermes answers a memo audit in about 15 to 40 seconds; 150 s leaves room for a cold sandbox without leaving the paralegal waiting indefinitely.",
+    "on_failure": "HOLD_FOR_REVIEW",
+    "on_failure_why": "If an AI check cannot finish (no key, outage, timeout, unreadable or off-task reply), the memo goes to a human rather than being sent unread, while the firm's lists still block on their own.",
+    "fabricated": "BLOCK",
+    "fabricated_why": "The auditor's finding is only accepted when its quote is in the memo and names an entry on the firm's fabricated list, which makes it the Mata failure the lists exist to stop.",
+    "misstated": "HOLD_FOR_REVIEW",
+    "misstated_why": "An AI reading that a trusted case is misstated is a strong reason to look, but a model can misjudge a paraphrase, so it holds; only the deterministic list check blocks a misstatement outright.",
+    "unverified": "HOLD_FOR_REVIEW",
+    "unverified_why": "An authority the auditor found that is on neither list may be real, so it earns a human cite-check (business rule 3).",
+    "advocacy": "HOLD_FOR_REVIEW",
+    "advocacy_why": "A research memo informs the partner rather than arguing to them, so advocacy the reviewer can quote verbatim is held (business rule 4).",
+    "verified_never_lowers": true,
+    "verified_never_lowers_why": "An agent saying a case is fine never overrides the lists or Ezio: AI findings can only make the gate stricter, so a manipulated or mistaken agent cannot push a bad memo through."
+  }
+}

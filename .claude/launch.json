@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "para",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["run.py"],
+      "env": { "PORT": "50412" },
+      "port": 50412
+    }
+  ]
+}

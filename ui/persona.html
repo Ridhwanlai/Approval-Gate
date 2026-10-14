@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memo Gate · Paralegal</title>
+<style>
+  :root {
+    --bg: #eef1f5; --sheet: #ffffff; --ink: #172033; --muted: #5b6475; --rule: #d6dbe3;
+    --seal: #24456e; --ok: #1e6b45; --ok-bg: #e6f2eb; --hold: #8a5a00; --hold-bg: #fbf0d9;
+    --block: #a4232b; --block-bg: #f9e3e4; --focus: #2f6fd1;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 16px;
+           padding: 18px 32px; border-bottom: 1px solid var(--rule); background: var(--sheet); }
+  header h1 { margin: 0; font: 600 20px/1.2 var(--serif); }
+  header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+  .health { font-size: 13px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--rule); white-space: nowrap; }
+  .health.on { color: var(--ok); border-color: var(--ok); } .health.off { color: var(--block); border-color: var(--block); }
+  main { max-width: 1240px; margin: 0 auto; padding: 24px 32px 64px; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } main, header { padding-left: 16px; padding-right: 16px; } }
+  .sheet { background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; padding: 28px 32px; }
+  .memo-head { font-family: var(--serif); border-bottom: 2px solid var(--ink); padding-bottom: 12px; margin-bottom: 16px; }
+  .memo-head h2 { margin: 0 0 10px; font: 600 22px/1.2 var(--serif); letter-spacing: .04em; }
+  .row { display: grid; grid-template-columns: 56px 1fr; gap: 8px; align-items: center; margin: 4px 0; font-size: 15px; }
+  .row label { color: var(--muted); }
+  input[type=text], textarea { width: 100%; font: inherit; color: var(--ink); border: 1px solid var(--rule);
+           border-radius: 3px; padding: 6px 8px; background: #fff; }
+  textarea { font: 16px/1.65 var(--serif); min-height: 260px; resize: vertical; padding: 12px; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+  .count { font-size: 13px; color: var(--muted); } .count.warn { color: var(--hold); } .count.over { color: var(--block); }
+  button { font: 600 14px/1 var(--sans); border-radius: 3px; padding: 10px 16px; cursor: pointer;
+           border: 1px solid var(--seal); background: var(--seal); color: #fff; }
+  button.ghost { background: #fff; color: var(--seal); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  h3 { font: 600 17px/1.3 var(--serif); margin: 0 0 12px; }
+  .empty { color: var(--muted); font-family: var(--serif); font-size: 16px; }
+  /* the one memorable thing: the stamp */
+  .stamp { display: inline-flex; align-items: center; gap: 12px; padding: 10px 18px; border: 3px double currentColor;
+           border-radius: 6px; font: 700 22px/1 var(--serif); letter-spacing: .06em; transform: rotate(-2deg); margin: 4px 0 14px; }
+  .stamp .glyph { font-size: 26px; }
+  .stamp.APPROVE { color: var(--ok); background: var(--ok-bg); } .stamp.HOLD_FOR_REVIEW { color: var(--hold); background: var(--hold-bg); }
+  .stamp.BLOCK { color: var(--block); background: var(--block-bg); } .stamp.ERROR { color: var(--block); background: #fff; }
+  @media (prefers-reduced-motion: no-preference) { .stamp.press { animation: press .28s ease-out; } }
+  @keyframes press { from { transform: rotate(-2deg) scale(1.25); opacity: 0; } to { transform: rotate(-2deg) scale(1); opacity: 1; } }
+  .reason { font: 17px/1.55 var(--serif); margin: 0 0 10px; }
+  .consequence { border-left: 3px solid var(--rule); padding: 2px 0 2px 12px; color: var(--muted); margin: 0 0 16px; }
+  .action { font-weight: 600; margin: 0 0 16px; }
+  .banner { padding: 10px 12px; border-radius: 3px; background: var(--hold-bg); color: var(--hold); margin-bottom: 14px; font-size: 14px; }
+  .banner.err { background: var(--block-bg); color: var(--block); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .chip.verified, .chip.APPROVE { background: var(--ok-bg); color: var(--ok); }
+  .chip.unverified, .chip.ambiguous, .chip.HOLD_FOR_REVIEW { background: var(--hold-bg); color: var(--hold); }
+  .chip.fabricated, .chip.near_miss, .chip.BLOCK, .chip.ERROR { background: var(--block-bg); color: var(--block); }
+  .annotated { font: 16px/1.7 var(--serif); white-space: pre-wrap; border: 1px solid var(--rule); padding: 12px; border-radius: 3px; background: #fbfcfd; }
+  mark { background: none; padding: 0 1px; border-bottom: 3px solid; }
+  mark.verified { border-color: var(--ok); } mark.unverified, mark.ambiguous { border-color: var(--hold); border-bottom-style: dashed; }
+  mark.fabricated, mark.near_miss { border-color: var(--block); border-bottom-style: double; }
+  mark sup { font: 700 10px var(--sans); margin-left: 2px; }
+  .signals { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin: 8px 0 16px; }
+  .sig { border: 1px solid var(--rule); border-radius: 3px; padding: 8px; font-size: 13px; }
+  .sig b { display: block; font-size: 18px; font-family: var(--serif); }
+  .sig.low { border-color: var(--hold); }
+  section.full { margin-top: 24px; }
+  details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+  pre { white-space: pre-wrap; word-break: break-word; font-size: 12px; background: #f4f6f9; padding: 10px; border-radius: 3px; }
+  .review-card { border: 1px solid var(--hold); border-radius: 3px; padding: 12px; margin-bottom: 12px; }
+  .review-card p { margin: 0 0 8px; }
+  .btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .sr { position: absolute; left: -9999px; }
+  .stages { list-style: none; padding: 0; margin: 0 0 14px; font-size: 14px; }
+  .stages li { display: grid; grid-template-columns: 22px 1fr; gap: 6px; padding: 6px 0; border-bottom: 1px solid var(--rule); }
+  .stages .st { font-weight: 700; } .stages .done .st { color: var(--ok); } .stages .failed .st { color: var(--block); }
+  .stages .running .st { color: var(--seal); } .stages .pending .st { color: var(--muted); }
+  .stages small { display: block; color: var(--muted); }
+  @media (prefers-reduced-motion: no-preference) { .stages .running .st { animation: pulse 1s ease-in-out infinite alternate; } }
+  @keyframes pulse { from { opacity: .3; } to { opacity: 1; } }
+  .agent { border: 1px solid var(--rule); border-radius: 3px; padding: 10px 12px; margin: 10px 0; }
+  .agent h4 { margin: 0 0 4px; font: 600 15px/1.3 var(--sans); display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .agent ul { margin: 6px 0 0; padding-left: 18px; font-size: 14px; }
+  .agent .meta { font-size: 12px; color: var(--muted); }
+  .linkish { background: none; border: none; color: var(--seal); padding: 0; font: 600 13px var(--sans); text-decoration: underline; }
+  .revision { border: 1px solid var(--seal); border-radius: 3px; padding: 12px; margin-top: 14px; background: #f6f8fc; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Memo Gate</h1>
+    <p>Every research memo is cite-checked against the firm's lists, scored by Ezio and read by AI auditors before it reaches the partner.</p>
+  </div>
+  <span id="health" class="health" role="status">Checking gate…</span>
+</header>
+
+<main>
+  <div class="grid">
+    <div class="sheet">
+      <div class="memo-head">
+        <h2>MEMORANDUM</h2>
+        <div class="row"><label for="to">To</label><input id="to" type="text" value="Supervising partner"></div>
+        <div class="row"><label for="re">Re</label><input id="re" type="text" placeholder="Matter and question presented (sent as context)"></div>
+      </div>
+      <label class="sr" for="draft">Memo body</label>
+      <textarea id="draft" placeholder="Paste the AI-drafted memo here. Case citations are checked against the firm's trusted and fabricated lists."></textarea>
+      <div class="bar">
+        <span id="count" class="count">0 characters</span>
+        <div class="btns">
+          <button class="ghost" id="clear" type="button">Clear</button>
+          <button id="send" type="button" disabled>Check and send to partner</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sheet" id="result" aria-live="polite">
+      <h3>Gate decision</h3>
+      <p class="empty">Paste a memo and choose Check and send to partner. The gate decides; this page only shows what it decided.</p>
+    </div>
+  </div>
+
+  <section class="sheet full">
+    <h3>Sample docket</h3>
+    <p class="count">Practice memos from the challenge. Run them side by side to see which ones the gate lets through and which never reach the partner.</p>
+    <div class="btns"><button class="ghost" id="loadSamples" type="button">Load samples</button><button id="runAll" type="button" disabled>Run all samples</button></div>
+    <div id="docket" style="margin-top:12px; overflow-x:auto"></div>
+  </section>
+
+  <section class="sheet full">
+    <h3>Review queue</h3>
+    <div id="queue"><p class="empty">Held memos appear here. An attorney records a reason, then proceeds or rejects. The gate logs the call and sends the memo only on proceed.</p></div>
+  </section>
+
+  <section class="sheet full">
+    <h3>Audit trail</h3>
+    <div class="btns"><button class="ghost" id="loadAudit" type="button">Refresh audit trail</button></div>
+    <div id="audit" style="margin-top:12px; overflow-x:auto"></div>
+  </section>
+</main>
+
+<script>
+/* The page never decides, never runs the action and never talks to HarnessRouter: it shows what the server decided. */
+const CFG = { checksUrl: "/api/checks", healthUrl: "/health", samplesUrl: "/api/samples", auditUrl: "/audit",
+  pollMs: 1000, maxWaitMs: 420000, softLimit: 5000, hardLimit: 20000 };
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const LABEL = { APPROVE: "Approved", HOLD_FOR_REVIEW: "Held for review", BLOCK: "Blocked", ERROR: "No decision" };
+const GLYPH = { APPROVE: "✓", HOLD_FOR_REVIEW: "‖", BLOCK: "✕", ERROR: "!" };
+const CONSEQ = {
+  APPROVE: "The memo went to the partner, who may rely on it in a filing. Every citation below matched the firm's trusted list.",
+  HOLD_FOR_REVIEW: "The partner has not seen this memo. An attorney must review it in the queue below before anything is sent.",
+  BLOCK: "The partner never received this draft. Fix the flagged authorities and send it again.",
+  ERROR: "Nothing was sent. The gate did not return a decision, so treat this memo as unreviewed.",
+};
+const STATUS_TEXT = { verified: "Verified", unverified: "Not on firm list", ambiguous: "Ambiguous short cite", fabricated: "Fabricated", near_miss: "Near-miss cite", misstated: "Misstated" };
+const STAGE_GLYPH = { pending: "○", running: "●", done: "✓", failed: "✕" };
+const AGENT_STATUS = { configured: "AI agents ready", no_key: "AI agents not configured: memos will be held", not_provisioned: "AI harnesses not provisioned: memos will be held" };
+
+async function api(url, opts = {}, ms = 20000) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), ms);
+  try {
+    const res = await fetch(url, { ...opts, signal: ctl.signal });
+    const txt = await res.text();
+    let data; try { data = JSON.parse(txt); } catch { data = txt; }
+    return { ok: res.ok, status: res.status, data };
+  } finally { clearTimeout(t); }
+}
+const post = (url, body) => api(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/* Start a server-side job and poll it. onProgress gets each snapshot. Survives a slow sandbox start without resubmitting. */
+async function runJob(startUrl, body, pollBase, onProgress) {
+  let res;
+  try { res = await post(startUrl, body); } catch (e) { return { error: `The gate could not be reached (${e.message}). Start it with python3 run.py.` }; }
+  if (res.status !== 202 || !res.data || !res.data.id) return { error: (res.data && res.data.error) || `The gate answered HTTP ${res.status}.` };
+  const id = res.data.id, start = Date.now();
+  let misses = 0;
+  while (Date.now() - start < CFG.maxWaitMs) {
+    await sleep(CFG.pollMs);
+    try {
+      const r = await api(`${pollBase}/${id}`, {}, 10000);
+      if (!r.ok) { if (++misses > 5) return { error: `Lost track of the check (HTTP ${r.status}). Nothing was sent unless the audit trail says so.` }; continue; }
+      misses = 0;
+      if (onProgress) onProgress(r.data);
+      if (r.data.state === "done") return { job: r.data };
+    } catch { if (++misses > 5) return { error: "Lost the connection to the gate. Nothing was sent unless the audit trail says so." }; }
+  }
+  return { error: "The check is taking unusually long. It is still recorded on the server; refresh the audit trail later." };
+}
+
+/* Health */
+async function health() {
+  const el = $("health");
+  try {
+    const r = await api(CFG.healthUrl, {}, 5000);
+    const ag = r.data && r.data.agents;
+    el.textContent = r.ok ? `Gate online · ${AGENT_STATUS[ag] || "AI agents unknown"}` : `Gate error ${r.status}`;
+    el.className = "health " + (r.ok && ag === "configured" ? "on" : "off");
+  } catch { el.textContent = "Gate offline"; el.className = "health off"; }
+}
+health(); setInterval(health, 30000);
+
+/* Input */
+function updateCount() {
+  const n = $("draft").value.length;
+  const el = $("count");
+  el.textContent = `${n.toLocaleString()} characters` + (n > CFG.hardLimit ? `. Too long to send; trim below ${CFG.hardLimit.toLocaleString()}.` : n > CFG.softLimit ? `. Over Ezio's ${CFG.softLimit.toLocaleString()}-character window; the gate may hold it.` : "");
+  el.className = "count" + (n > CFG.hardLimit ? " over" : n > CFG.softLimit ? " warn" : "");
+  $("send").disabled = busy || !$("draft").value.trim() || n > CFG.hardLimit;
+}
+let busy = false;
+$("draft").addEventListener("input", updateCount);
+$("clear").onclick = () => { $("draft").value = ""; updateCount(); };
+
+function stagesHtml(job) {
+  return `<ul class="stages">${(job.stages || []).map((s) => `<li class="${esc(s.state)}"><span class="st" aria-hidden="true">${STAGE_GLYPH[s.state] || ""}</span>
+    <span>${esc(s.label)} <span class="sr">${esc(s.state)}</span><small>${esc(s.detail || (s.state === "pending" ? "Waiting" : ""))}</small></span></li>`).join("")}</ul>`;
+}
+
+$("send").onclick = async () => {
+  const text = $("draft").value, context = $("re").value.trim() ? { re: $("re").value.trim() } : {};
+  const box = $("result");
+  busy = true; updateCount();
+  box.innerHTML = `<h3>Gate decision</h3><p class="empty">Checking. Nothing is sent until every check is back.</p><div id="progress"></div>`;
+  const out = await runJob(CFG.checksUrl, { text, context }, "/api/checks", (job) => {
+    const p = $("progress"); if (p) p.innerHTML = `<p class="count">${job.seconds} s</p>` + stagesHtml(job);
+  });
+  busy = false; updateCount();
+  renderResult(box, text, out);
+  if (out.job && out.job.result && out.job.result.decision === "HOLD_FOR_REVIEW") enqueue(text, out.job.result);
+};
+
+/* Result rendering */
+function annotate(text, evidence) {
+  const cites = evidence.filter((e) => e && e.cited && e.status).sort((a, b) => b.cited.length - a.cited.length);
+  let html = esc(text);
+  const done = new Set();
+  for (const c of cites) {
+    const key = esc(c.cited.replace(/ \(short form\)$/, ""));
+    if (done.has(key) || !html.includes(key)) continue;
+    done.add(key);
+    html = html.split(key).join(`<mark class="${esc(c.status)}">${key}<sup>${esc(STATUS_TEXT[c.status] || c.status)}</sup></mark>`);
+  }
+  return html;
+}
+
+function signalsHtml(ez) {
+  if (!ez || ez.reachable === false) return "";
+  const items = [["Tier", ez.tier], ["Score", ez.score], ["Accuracy", ez.accuracy_status], ["Bias", ez.bias], ["Tone", ez.tone], ["Agreement", ez.agreement],
+                 ["Claims checked", ez.claims_total], ["Contradicted", ez.claims_contradicted]];
+  const low = (k, v) => (["Bias", "Tone", "Agreement", "Score"].includes(k) && typeof v === "number" && v < 60) || (k === "Contradicted" && v > 0) || (k === "Tier" && v === "RED");
+  return `<p class="count">Ezio's signals</p><div class="signals">${items.filter(([, v]) => v !== undefined && v !== null)
+    .map(([k, v]) => `<div class="sig ${low(k, v) ? "low" : ""}">${esc(k)}<b>${esc(typeof v === "number" ? Math.round(v) : v)}${low(k, v) ? " ▼" : ""}</b></div>`).join("")}</div>`;
+}
+
+function evidenceTable(evidence) {
+  const cites = evidence.filter((e) => e && e.cited);
+  const other = evidence.filter((e) => e && !e.cited && e.signal !== "ezio" && e.signal !== "agent");
+  other.forEach((e) => { if (e && e.matches) e.note = `${e.rule}: ${e.matches.join(", ")}`; });
+  let h = "";
+  if (cites.length) h += `<p class="count">Firm citation lists</p><table><thead><tr><th>Authority in memo</th><th>Firm list says</th><th>Status</th></tr></thead><tbody>${cites.map((c) =>
+    `<tr><td>${esc(c.cited)}</td><td>${esc(c.firm_list_entry || "Not on either list")}${c.note ? `<br><span class="count">${esc(c.note)}</span>` : ""}</td><td><span class="chip ${esc(c.status)}">${esc(STATUS_TEXT[c.status] || c.status)}</span></td></tr>`).join("")}</tbody></table>`;
+  const ez = evidence.find((e) => e && e.signal === "ezio" && e.contradicted_claims && e.contradicted_claims.length);
+  const sup = evidence.find((e) => e && e.signal === "ezio" && e.supported_claims && e.supported_claims.length);
+  if (sup) h += `<p style="margin-top:12px"><b>Claims Ezio confirmed</b></p><ul>${sup.supported_claims.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>`;
+  if (ez) h += `<p style="margin-top:12px"><b>Claims Ezio contradicted</b></p><ul>${ez.contradicted_claims.map((c) => `<li>${esc(c.claim)}${c.source ? ` <span class="count">(${esc(c.source)})</span>` : ""}</li>`).join("")}</ul>`;
+  if (other.length) h += `<ul>${other.map((e) => `<li>${esc(typeof e === "string" ? e : e.note || e.rule || e.finding || e.detail || JSON.stringify(e))}</li>`).join("")}</ul>`;
+  return h;
+}
+
+function agentsHtml(checkId, evidence) {
+  const ags = evidence.filter((e) => e && e.signal === "agent");
+  if (!ags.length) return "";
+  return `<p class="count" style="margin-top:16px">AI checks on HarnessRouter (evidence only: they can hold or block, never approve)</p>` + ags.map((a) => {
+    const items = a.feature === "memo_cite_audit"
+      ? (a.findings || []).map((f) => `<li><span class="chip ${esc(f.status)}">${esc(STATUS_TEXT[f.status] || f.status)}</span> “${esc(f.quote)}”${f.firm_entry ? ` <span class="count">→ ${esc(f.firm_entry)}</span>` : ""}${f.problems && f.problems.length ? `<br><span class="count">${esc(f.problems.join("; "))}</span>` : ""}</li>`)
+      : (a.findings || []).map((f) => `<li><span class="chip HOLD_FOR_REVIEW">${esc(String(f.kind).replace("_", "-"))}</span> “${esc(f.quote)}” <span class="count">${esc(f.why)}</span></li>`);
+    const body = !a.ok ? `<div class="banner err">${esc(a.error)}</div>`
+      : items.length ? `<ul>${items.join("")}</ul>` : `<p class="count">${a.feature === "memo_cite_audit" ? "No authorities found." : "Reads as analysis, not advocacy."}${a.notes ? " " + esc(a.notes) : ""}</p>`;
+    const rej = a.rejected && a.rejected.length ? `<p class="meta">${a.rejected.length} finding(s) discarded because they failed validation (quote not in memo, or entry not on a firm list).</p>` : "";
+    const traceBtn = a.trace ? `<button class="linkish" type="button" data-trace="${esc(checkId)}|${esc(a.feature)}">View trace</button>` : "";
+    return `<div class="agent"><h4><span>${esc(a.label)}</span>${traceBtn}</h4>
+      <p class="meta">Harness ${esc(a.harness)}${a.model ? ` · ${esc(a.model)}` : ""}${a.elapsed ? ` · ${esc(a.elapsed)} s` : ""}</p>${body}${rej}
+      <div class="trace-out"></div></div>`;
+  }).join("");
+}
+
+async function showTrace(btn) {
+  const [job, feature] = btn.dataset.trace.split("|");
+  const out = btn.closest(".agent").querySelector(".trace-out");
+  out.innerHTML = `<p class="count">Loading trace…</p>`;
+  try {
+    const r = await api(`/api/trace/${encodeURIComponent(job)}/${encodeURIComponent(feature)}`, {}, 20000);
+    if (!r.ok) { out.innerHTML = `<div class="banner">${esc((r.data && r.data.error) || "Trace unavailable")}</div>`; return; }
+    out.innerHTML = (r.data.turns || []).map((t, i) => `<details open><summary>Turn ${i + 1}: ${esc(t.status)}${t.elapsed ? `, ${esc(t.elapsed)} s` : ""}${t.model ? `, ${esc(t.model)}` : ""}${t.tools && t.tools.length ? `, tools: ${esc(t.tools.join(", "))}` : ", no tools used"}</summary>
+      ${t.error ? `<div class="banner err">${esc(typeof t.error === "string" ? t.error : JSON.stringify(t.error))}</div>` : ""}<pre>${esc(t.output)}</pre></details>`).join("") || `<p class="count">No turns recorded.</p>`;
+  } catch (e) { out.innerHTML = `<div class="banner err">Trace could not be loaded (${esc(e.message)}).</div>`; }
+}
+
+function renderResult(box, text, out) {
+  if (out.error) {
+    box.innerHTML = `<h3>Gate decision</h3><div class="stamp ERROR press"><span class="glyph">${GLYPH.ERROR}</span>${LABEL.ERROR}</div>
+      <div class="banner err">${esc(out.error)}</div><p class="consequence">${CONSEQ.ERROR}</p>`;
+    return;
+  }
+  const job = out.job, r = job.result || {}; const d = LABEL[r.decision] ? r.decision : "ERROR";
+  const evidence = r.evidence || [];
+  const ez = evidence.find((e) => e && e.signal === "ezio") || {};
+  let banner = "";
+  if (ez.reachable === false) banner = `<div class="banner err">Ezio was unreachable for this memo, so only the firm's lists and the AI checks were applied.</div>`;
+  else if (ez.accuracy_status === "unavailable") banner = `<div class="banner">Ezio's fact-check was unavailable for this memo.</div>`;
+  const ranTxt = r.action_executed === true ? "Action: memo sent to the partner." : "Action: not sent. The memo never reached the partner.";
+  box.innerHTML = `<h3>Gate decision</h3>
+    <div class="stamp ${d} press"><span class="glyph" aria-hidden="true">${GLYPH[d]}</span>${LABEL[d]}</div>
+    ${banner}
+    <p class="reason">${esc(r.reason)}</p>
+    <p class="action">${ranTxt}</p>
+    <p class="consequence">${CONSEQ[d]}</p>
+    ${r.can_revise ? `<div class="btns" style="margin-bottom:14px"><button class="ghost" type="button" id="revise">Draft a fix with AI</button></div><div id="revision"></div>` : ""}
+    <details><summary>How this was checked (${esc(job.seconds)} s)</summary>${stagesHtml(job)}</details>
+    ${signalsHtml(ez)}
+    ${evidenceTable(evidence)}
+    ${agentsHtml(job.id, evidence)}
+    <p class="count" style="margin-top:14px">Authorities as they appear in the memo</p>
+    <div class="annotated">${annotate(text, evidence)}</div>
+    <details style="margin-top:12px"><summary>Full response from the gate</summary><pre>${esc(JSON.stringify(r, null, 2))}</pre></details>`;
+  box.querySelectorAll("button[data-trace]").forEach((b) => (b.onclick = () => showTrace(b)));
+  const rv = $("revise"); if (rv) rv.onclick = () => revise(job.id, rv);
+}
+
+/* Revision: the drafter harness proposes a fix. The page loads it into the editor; it is sent only if it passes the gate again. */
+async function revise(checkId, btn) {
+  btn.disabled = true;
+  const el = $("revision");
+  el.innerHTML = `<div class="revision"><p class="count">Asking the revision drafter. This usually takes under a minute.</p><div id="revprog"></div></div>`;
+  const out = await runJob(`/api/checks/${checkId}/revision`, {}, "/api/revisions", (job) => { const p = $("revprog"); if (p) p.innerHTML = stagesHtml(job); });
+  if (out.error || !out.job.result || !out.job.result.ok) {
+    el.innerHTML = `<div class="banner err">No revision: ${esc(out.error || (out.job.result && out.job.result.error) || "unknown error")}</div>`;
+    btn.disabled = false; return;
+  }
+  const r = out.job.result;
+  el.innerHTML = `<div class="revision"><h3>Proposed revision</h3><p class="count">${esc(r.note)}</p>
+    ${r.changes && r.changes.length ? `<ul>${r.changes.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>` : ""}
+    <div class="annotated">${esc(r.revised_memo)}</div>
+    <div class="btns"><button type="button" id="loadRev">Load into the memo editor</button></div></div>`;
+  $("loadRev").onclick = () => { $("draft").value = r.revised_memo; updateCount(); $("draft").focus(); window.scrollTo({ top: 0, behavior: "smooth" }); };
+}
+
+/* Sample docket */
+let samples = [];
+$("loadSamples").onclick = async () => {
+  const el = $("docket");
+  el.innerHTML = `<p class="empty">Loading samples…</p>`;
+  try {
+    const r = await api(CFG.samplesUrl, {}, 10000);
+    samples = ((r.data && r.data.samples) || []).filter((s) => s.text);
+    if (!samples.length) { el.innerHTML = `<div class="banner">No samples came back. Paste a memo above instead.</div>`; return; }
+    el.innerHTML = `<table><thead><tr><th>Sample</th><th>Memo</th><th>Decision</th><th>Sent?</th><th>Reason</th><th></th></tr></thead><tbody>${samples.map((s, i) =>
+      `<tr id="row${i}"><td>${esc(s.id)}</td><td style="max-width:360px">${esc(s.text.slice(0, 160))}${s.text.length > 160 ? "…" : ""}</td><td class="d">Not run</td><td class="a">Not run</td><td class="r"></td>
+       <td><button class="ghost" type="button" data-i="${i}">Run</button> <button class="ghost" type="button" data-load="${i}">Open</button></td></tr>`).join("")}</tbody></table>`;
+    el.querySelectorAll("button[data-i]").forEach((b) => (b.onclick = () => runSample(+b.dataset.i)));
+    el.querySelectorAll("button[data-load]").forEach((b) => (b.onclick = () => { const s = samples[+b.dataset.load]; $("draft").value = s.text; $("re").value = (s.context && s.context.re) || ""; updateCount(); $("draft").focus(); }));
+    $("runAll").disabled = false;
+  } catch (e) { el.innerHTML = `<div class="banner err">Samples could not be loaded (${esc(e.message)}).</div>`; }
+};
+
+async function runSample(i) {
+  const s = samples[i]; const row = $("row" + i);
+  row.querySelector(".d").textContent = "Checking…";
+  const out = await runJob(CFG.checksUrl, { text: s.text, context: s.context || {} }, "/api/checks", (job) => {
+    const doneN = (job.stages || []).filter((x) => x.state === "done" || x.state === "failed").length;
+    row.querySelector(".d").textContent = `Checking… ${doneN}/${(job.stages || []).length}`;
+  });
+  if (out.error) { row.querySelector(".d").innerHTML = `<span class="chip ERROR">Error</span>`; row.querySelector(".r").textContent = out.error; return; }
+  const r = out.job.result;
+  row.querySelector(".d").innerHTML = `<span class="chip ${esc(r.decision)}">${esc(LABEL[r.decision] || r.decision)}</span>`;
+  row.querySelector(".a").textContent = r.action_executed ? "Sent" : "Never reached partner";
+  row.querySelector(".r").textContent = r.reason;
+  if (r.decision === "HOLD_FOR_REVIEW") enqueue(s.text, r);
+}
+$("runAll").onclick = async () => {
+  $("runAll").disabled = true;
+  let next = 0;
+  const worker = async () => { while (next < samples.length) await runSample(next++); };
+  await Promise.all([worker(), worker()]);  // two checks at a time; the server queues HarnessRouter tasks to the plan's limit
+  $("runAll").disabled = false;
+};
+
+/* Review queue: the page only forwards the attorney's call; the server logs it and decides whether the action runs. */
+const queue = [];
+function enqueue(text, r) {
+  if (queue.some((q) => q.ref === r.check_id)) return;
+  queue.push({ ref: r.check_id, text, reason: r.reason, status: "pending" });
+  renderQueue();
+}
+function renderQueue() {
+  const el = $("queue");
+  if (!queue.length) return;
+  el.innerHTML = queue.map((q, i) => `<div class="review-card">
+    <p><span class="chip HOLD_FOR_REVIEW">Held</span> <span class="count">${esc(q.ref)}</span></p>
+    <p style="font-family:var(--serif)">${esc(q.text.slice(0, 220))}${q.text.length > 220 ? "…" : ""}</p>
+    <p class="count">Why it was held: ${esc(q.reason)}</p>
+    ${q.status === "pending" ? `
+      <div class="row"><label for="rv${i}">By</label><input id="rv${i}" type="text" placeholder="Reviewing attorney"></div>
+      <label class="sr" for="rn${i}">Reason</label><textarea id="rn${i}" style="min-height:70px" placeholder="Reason for your call (required, logged)"></textarea>
+      <div class="btns"><button type="button" data-q="${i}" data-o="proceed">Proceed and send</button><button class="ghost" type="button" data-q="${i}" data-o="reject">Reject and return to drafter</button></div>`
+      : `<p><b>${esc(q.status)}</b></p>`}
+  </div>`).join("");
+  el.querySelectorAll("button[data-q]").forEach((b) => (b.onclick = () => review(+b.dataset.q, b.dataset.o)));
+}
+async function review(i, outcome) {
+  const q = queue[i]; const note = $("rn" + i).value.trim(); const reviewer = $("rv" + i).value.trim();
+  if (!note) { $("rn" + i).focus(); $("rn" + i).placeholder = "A reason is required before you proceed or reject."; return; }
+  try {
+    const r = await post(`/api/checks/${q.ref}/review`, { outcome, reviewer, note });
+    if (r.ok) q.status = outcome === "proceed" ? (r.data.action_executed ? "Proceeded: the review was logged and the memo sent." : "Proceeded: review logged.") : "Rejected: review logged, memo returned to the drafter.";
+    else q.status = `The gate did not accept the review (${(r.data && r.data.error) || "HTTP " + r.status}). The memo stays held and unsent.`;
+  } catch (e) { q.status = `The review could not be recorded (${e.message}). The memo stays held and unsent.`; }
+  renderQueue();
+}
+
+/* Audit trail */
+$("loadAudit").onclick = async () => {
+  const el = $("audit");
+  try {
+    const r = await api(CFG.auditUrl, {}, 10000);
+    if (!r.ok) { el.innerHTML = `<div class="banner">The audit endpoint answered HTTP ${r.status}. The full log is in data/audit_log.jsonl.</div>`; return; }
+    const rows = ((r.data && r.data.records) || []).slice(-25).reverse();
+    if (!rows.length) { el.innerHTML = `<p class="empty">No decisions logged yet.</p>`; return; }
+    const kind = (x) => x.type === "review" ? `<span class="chip HOLD_FOR_REVIEW">Review: ${esc(x.outcome)}</span>`
+      : x.type === "revision" ? `<span class="chip ${x.ok ? "verified" : "ERROR"}">AI revision${x.ok ? "" : " failed"}</span>`
+      : `<span class="chip ${esc(x.decision)}">${esc(LABEL[x.decision] || x.decision || "")}</span>`;
+    el.innerHTML = `<table><thead><tr><th>When</th><th>Event</th><th>Sent?</th><th>Reason, review note or changes</th></tr></thead><tbody>${rows.map((x) =>
+      `<tr><td>${esc((x.timestamp || "").replace("T", " ").slice(0, 19))}</td><td>${kind(x)}</td>
+       <td>${x.action_executed ? "Sent" : "No"}</td><td>${esc(x.reason || x.note || (x.changes || []).join("; ") || x.error || "")}${x.input ? `<br><span class="count">${esc(String(x.input).slice(0, 120))}</span>` : ""}</td></tr>`).join("")}</tbody></table>`;
+  } catch (e) { el.innerHTML = `<div class="banner err">The audit trail could not be loaded (${esc(e.message)}).</div>`; }
+};
+</script>
+</body>
+</html>

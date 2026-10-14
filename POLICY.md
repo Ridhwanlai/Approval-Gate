@@ -32,6 +32,26 @@ Overconfident or emotional language ("slam dunk", "absolutely", "clearly", repea
 
 Tier and score; accuracy status and claim counts; each claim's verdict; tone, bias and agreement.
 
+### 3.4. AI auditors on HarnessRouter (evidence only)
+
+Two Hermes harnesses read every memo while the lists and Ezio run. Neither decides, and both are treated as untrusted.
+
+1. **Cite-auditor** (`para-cite-auditor`): finds every authority in any format and judges it against the same firm lists, including whether a paraphrased holding matches.
+2. **Memo reviewer** (`para-memo-reviewer`): reports whether the memo reads as analysis or advocacy.
+
+A finding counts only if its quote is verbatim in the memo and any list entry it names exists and is named by the quote. Valid findings can only make the decision stricter:
+
+| Agent finding | Decision | Justification |
+|---|---|---|
+| Matches a fabricated-list case | BLOCK | Validated against the firm's own list, it is the *Mata* failure. |
+| Trusted case misstated | HOLD | A model can misjudge a paraphrase, so it earns a reader, not a block; only the list check blocks misstatements. |
+| Authority on neither list that the list check missed | HOLD | It may be real, so a human cite-checks it. |
+| Advocacy, quoted verbatim | HOLD | A research memo informs the partner; it does not argue. |
+| "Verified" | No effect | An agent never overrides the lists or Ezio, so a manipulated memo cannot talk its way through. |
+| Agent unavailable, timed out, unbillable, off-task or unreadable | HOLD | The memo was not fully read, so a person reads it first. |
+
+A third harness, `para-revision-drafter`, runs only when the paralegal asks for a fix to a held or blocked memo. Its draft is never sent; it goes back through the gate like any other draft.
+
 ## 4. Decision rules and thresholds
 
 The most severe triggered rule wins (BLOCK over HOLD over APPROVE).
@@ -64,7 +84,7 @@ APPROVE requires every rule above to pass. A memo with no citations can be appro
 
 ## 6. Decision record
 
-Every decision is appended to `wrapper/audit_log.jsonl`. Each entry records:
+Every decision is appended to `data/audit_log.jsonl`. Each entry records:
 1. The input and context.
 2. Ezio's raw response.
 3. The per-citation evidence (cited text, status, firm-list entry).
@@ -72,7 +92,7 @@ Every decision is appended to `wrapper/audit_log.jsonl`. Each entry records:
 5. The decision and its plain-language reason.
 6. A UTC timestamp.
 
-Attorney reviews of held memos are logged as separate entries with the reviewer, outcome and reason. `actions.log` shows the action only for approved or reviewed-and-proceeded memos.
+Attorney reviews of held memos are logged as separate entries with the reviewer, outcome and reason. `data/actions.log` shows the action only for approved or reviewed-and-proceeded memos.
 
 ## 7. Measured on the practice set
 
