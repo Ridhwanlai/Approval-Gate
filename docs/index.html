@@ -160,6 +160,40 @@
     </div>
   </section>
 
+  <section id="agents">
+    <div class="wrap">
+      <p class="kicker">The agents</p>
+      <h2>Three Hermes agents on HarnessRouter, one job each.</h2>
+      <p class="section-lede">Each agent is a configured harness with its own instructions, tools and limits. They are split by job and permission: the two that judge can't write, and the one that writes never judges.</p>
+      <div class="agents">
+        <article class="agent-card">
+          <header><span class="agent-ico" aria-hidden="true">§</span><div><h3>Cite-auditor</h3><code>para-cite-auditor</code></div></header>
+          <p>Finds every authority in the memo, in any citation format, and judges each against your lists, including whether the stated holding is a faithful paraphrase.</p>
+          <dl><dt>Can</dt><dd>Read the memo and your lists</dd><dt>Can't</dt><dd>Write files, run commands, browse the web</dd><dt>Runs</dt><dd>On every memo</dd></dl>
+        </article>
+        <article class="agent-card">
+          <header><span class="agent-ico" aria-hidden="true">❝</span><div><h3>Memo reviewer</h3><code>para-memo-reviewer</code></div></header>
+          <p>Decides whether the memo reads as neutral analysis or as advocacy, and quotes the exact words that cross the line.</p>
+          <dl><dt>Can</dt><dd>Read the memo</dd><dt>Can't</dt><dd>Write files, run commands, browse the web</dd><dt>Runs</dt><dd>On every memo</dd></dl>
+        </article>
+        <article class="agent-card">
+          <header><span class="agent-ico" aria-hidden="true">✎</span><div><h3>Revision drafter</h3><code>para-revision-drafter</code></div></header>
+          <p>For a held or blocked memo, drafts a fix: removes fake cases, corrects cites to your list, neutralises advocacy, and lists every change. Never invents a case.</p>
+          <dl><dt>Can</dt><dd>Write a revised draft and change list</dd><dt>Can't</dt><dd>Send anything; its draft goes back through the gate</dd><dt>Runs</dt><dd>Only when the paralegal asks</dd></dl>
+        </article>
+      </div>
+
+      <div class="arch" aria-label="How Para connects to HarnessRouter">
+        <div class="arch-node"><b>Browser</b><span>Memo text only. Never sees a key, harness or session ID.</span></div>
+        <div class="arch-link" aria-hidden="true">→</div>
+        <div class="arch-node strong"><b>Para server, on your machine</b><span>Lists, Ezio, policy, audit log. Maps each feature to its harness and makes the decision.</span></div>
+        <div class="arch-link" aria-hidden="true">→</div>
+        <div class="arch-node"><b>HarnessRouter</b><span>One API. Runs each Hermes agent in its own sandbox and keeps a trace of what it did.</span></div>
+      </div>
+      <p class="note">Agent output is untrusted. A finding is discarded unless its quote appears word for word in the memo and the case it names is really on your list. Harness configuration is plain JSON in the repository, so it can be reviewed and reproduced.</p>
+    </div>
+  </section>
+
   <!-- sections -->
 </main>
 

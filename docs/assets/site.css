@@ -163,3 +163,22 @@ mark.fab { background: none; color: inherit; border-bottom: 3px double var(--blo
 @media (max-width: 860px) { .guarantees { grid-template-columns: 1fr; } }
 .guarantees li { color: var(--ink-2); font-size: 15.5px; padding-left: 16px; border-left: 3px solid var(--accent); }
 .guarantees b { color: var(--ink); display: block; }
+
+/* agents */
+.agents { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+@media (max-width: 900px) { .agents { grid-template-columns: 1fr; } }
+.agent-card { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+.agent-card header { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
+.agent-ico { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: var(--ink); color: var(--bg); font: 600 22px var(--serif); flex: none; }
+.agent-card h3 { margin: 0; font-size: 20px; letter-spacing: -.02em; }
+.agent-card code { font-size: 13px; color: var(--muted); }
+.agent-card > p { color: var(--ink-2); font-size: 15.5px; margin: 0 0 16px; }
+.agent-card dl { display: grid; grid-template-columns: 64px 1fr; gap: 6px 10px; margin: 0; font-size: 14px; border-top: 1px solid var(--rule); padding-top: 14px; }
+.agent-card dt { color: var(--muted); font-weight: 600; } .agent-card dd { margin: 0; color: var(--ink-2); }
+.arch { display: flex; align-items: stretch; gap: 12px; margin-top: 36px; }
+.arch-node { flex: 1; border: 1px solid var(--rule); border-radius: var(--radius); padding: 18px 20px; background: var(--bg-soft); }
+.arch-node.strong { border: 2px solid var(--accent); background: var(--accent-soft); }
+.arch-node b { display: block; margin-bottom: 4px; } .arch-node span { color: var(--ink-2); font-size: 15px; }
+.arch-link { align-self: center; color: var(--muted); font-size: 22px; }
+@media (max-width: 860px) { .arch { flex-direction: column; } .arch-link { transform: rotate(90deg); } }
+.note { color: var(--muted); font-size: 15px; max-width: 80ch; margin: 22px 0 0; }
