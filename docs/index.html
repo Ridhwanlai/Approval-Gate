@@ -251,7 +251,52 @@
     </div>
   </section>
 
-  <!-- sections -->
+  <section id="faq">
+    <div class="wrap narrow">
+      <p class="kicker">Questions</p>
+      <h2>What firms ask first</h2>
+      <div class="faq">
+        <details>
+          <summary>Where does my memo go?</summary>
+          <p>The citation lists, the policy, the review queue and the audit log all run on your computer. To run the AI checks, the memo text and your citation lists are sent to HarnessRouter under your own account, and the Ezio check sends the memo to the scoring service. Nothing is sent anywhere else, and Para has no server of its own.</p>
+        </details>
+        <details>
+          <summary>Can an AI model approve a bad memo?</summary>
+          <p>No. Para's own code makes every decision. Agent findings can only make a decision stricter, and a finding is thrown out unless its quote is in the memo word for word and the case it names is really on your list. An agent saying "this case is fine" never overrides your list.</p>
+        </details>
+        <details>
+          <summary>What happens if HarnessRouter or Ezio is down?</summary>
+          <p>The memo is held for an attorney, never sent unread. Your citation lists still block a known-fake or misstated case on their own, even with no key and no network.</p>
+        </details>
+        <details>
+          <summary>Does this replace our cite-checking?</summary>
+          <p>It makes it happen every time, before the partner sees the memo. It checks cases against the lists your firm maintains; a case on neither list is held for a person to verify. Para is not a citator and does not give legal advice.</p>
+        </details>
+        <details>
+          <summary>How do we use our own citation lists?</summary>
+          <p>The lists are two JSON files in <code>firm/</code>: verified cases with citation, year and a one-line holding, and cases known to be fabricated. A pilot replaces the sample lists with yours.</p>
+        </details>
+        <details>
+          <summary>Where is my HarnessRouter key kept?</summary>
+          <p>In <code>~/.para/harnessrouter.key</code>, readable only by your user account. It is used only by the Para server on your machine; the browser never sees it.</p>
+        </details>
+        <details>
+          <summary>Can I see what an agent did?</summary>
+          <p>Yes. Every agent result in the app has a "View trace" link showing what the agent returned, and every decision is written to an append-only audit log with its evidence.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="wrap center">
+      <h2>Catch the fake case at 6:40 PM, not in the sanctions order.</h2>
+      <div class="ctas">
+        <a class="btn primary" href="#download">Download Para <span class="arrow" aria-hidden="true">↓</span></a>
+        <a class="btn ghost" href="#demo">Replay the demo</a>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer>

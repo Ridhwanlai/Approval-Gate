@@ -255,3 +255,14 @@ p code, .note code { font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; 
 .get-side h3 { margin: 0 0 8px; font-size: 19px; letter-spacing: -.02em; }
 .get-side p { color: var(--ink-2); font-size: 15.5px; margin: 0 0 14px; }
 .get-side h3:not(:first-child) { margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--rule); }
+
+/* faq and close */
+.narrow { max-width: 860px; }
+.faq details { border-bottom: 1px solid var(--rule); padding: 4px 0; }
+.faq summary { cursor: pointer; list-style: none; font-weight: 600; font-size: 18px; padding: 16px 32px 16px 0; position: relative; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; position: absolute; right: 4px; top: 12px; font-size: 24px; color: var(--accent); font-weight: 400; }
+.faq details[open] summary::after { content: "–"; }
+.faq details p { margin: 0 0 18px; color: var(--ink-2); max-width: 70ch; }
+.final { padding: 96px 0 104px; background: linear-gradient(180deg, var(--bg) 0%, var(--accent-soft) 100%); }
+.final h2 { max-width: 20ch; margin-bottom: 28px; }
