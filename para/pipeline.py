@@ -9,7 +9,7 @@ import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 
-from . import agents, gate, records
+from . import agents, gate, records, tenant
 from .ezio_client import EzioError, analyze
 from .hr_client import HRError
 
@@ -26,6 +26,7 @@ class Job:
         self.kind, self.state, self.result, self.error = kind, "running", None, None
         self.stages = {s: {"label": STAGE_LABELS[s], "state": "pending", "detail": ""} for s in stages}
         self.sessions = {}  # feature -> (session_id, response_id); server-side only
+        self.firm_id = tenant.current()  # hosted: only this firm may see or act on the job
         self.started = time.monotonic()
         self.__dict__.update(extra)
         with _lock:
@@ -43,8 +44,10 @@ class Job:
 
 
 def get(job_id):
+    """The job, only if it belongs to the current firm (hosted) or this install (local)."""
     with _lock:
-        return _jobs.get(job_id)
+        job = _jobs.get(job_id)
+    return job if job is not None and job.firm_id == tenant.current() else None
 
 
 # ---------------------------------------------------------------- one harness run
@@ -85,7 +88,7 @@ def start_check(text, context, scenario=None, background=True):
     features = list(gate.POLICY["agents"]["run_on_check"])
     job = Job("check", ["lists", "ezio", *features], text=text, context=context)
     if background:
-        threading.Thread(target=_run_check, args=(job, scenario, features), daemon=True).start()
+        tenant.thread(_run_check, job, scenario, features).start()
     else:
         _run_check(job, scenario, features)
     return job
@@ -122,8 +125,8 @@ def _run_check(job, scenario, features):
         jobs = {agents.CITE_AUDIT: (agents.audit_input(text, sot), audit_parse),
                 agents.STYLE_REVIEW: (agents.review_input(text), review_parse)}
         with ThreadPoolExecutor(max_workers=1 + len(features)) as pool:
-            f_ezio = pool.submit(ezio)
-            f_agents = [pool.submit(run_agent, job, f, *jobs[f], deadline) for f in features]
+            f_ezio = tenant.submit(pool, ezio)
+            f_agents = [tenant.submit(pool, run_agent, job, f, *jobs[f], deadline) for f in features]
             signals, response, error = f_ezio.result()
             results = [f.result() for f in f_agents]
 
@@ -180,7 +183,7 @@ def start_revision(check_id):
     if check.result["decision"] == gate.APPROVE:
         return None, "Approved memos are already with the partner; there is nothing to revise"
     job = Job("revision", [agents.REVISION], check_id=check_id)
-    threading.Thread(target=_run_revision, args=(job, check), daemon=True).start()
+    tenant.thread(_run_revision, job, check).start()
     return job, None
 
 
@@ -214,7 +217,7 @@ def _run_revision(job, check):
 
 def start_draft(question, matter=""):
     job = Job("draft", [agents.DRAFT], question=question, matter=matter)
-    threading.Thread(target=_run_draft, args=(job,), daemon=True).start()
+    tenant.thread(_run_draft, job).start()
     return job
 
 

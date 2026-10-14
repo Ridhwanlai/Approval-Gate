@@ -20,7 +20,14 @@ class MailError(Exception):
 
 
 def email_settings():
-    cfg = settings.load().get("email") or {}
+    if config.HOSTED:
+        # One outgoing mail account for the service (PARA_SMTP_* and SMTP_PASSWORD on the server);
+        # each firm only chooses its partner's address.
+        cfg = {"host": os.getenv("PARA_SMTP_HOST", ""), "port": os.getenv("PARA_SMTP_PORT", "587"),
+               "security": os.getenv("PARA_SMTP_SECURITY", "starttls"), "username": os.getenv("PARA_SMTP_USERNAME", ""),
+               "from_addr": os.getenv("PARA_SMTP_FROM", ""), "to_addr": settings.load().get("partner_email", "")}
+    else:
+        cfg = settings.load().get("email") or {}
     needed = ("host", "port", "security", "from_addr", "to_addr")
     return cfg if all(cfg.get(k) for k in needed) else None
 

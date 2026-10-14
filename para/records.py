@@ -3,7 +3,7 @@ import json
 import threading
 from datetime import datetime, timezone
 
-from . import config
+from . import config, tenant
 
 _lock = threading.Lock()
 
@@ -19,7 +19,11 @@ def _append(name, entry):
 
 
 def audit(entry):
-    _append("audit_log.jsonl", {"timestamp": _now(), **entry})
+    entry = {"timestamp": _now(), **entry}
+    if config.HOSTED:  # per-firm audit in the database
+        from . import store
+        return store.add_audit(tenant.require(), entry)
+    _append("audit_log.jsonl", entry)
 
 
 def submit_memo_to_partner(memo, check_id, reason="", subject=""):
@@ -38,12 +42,16 @@ def submit_memo_to_partner(memo, check_id, reason="", subject=""):
             delivery["error"] = str(e)
     else:
         delivery["sent"] = True  # logged-only delivery: the log entry below is the action
-    _append("actions.log", {"time": _now(), "action": "submit_memo_to_partner", "check_id": check_id, "memo": memo,
-                            "delivery": delivery})
+    if not config.HOSTED:  # hosted: the firm's audit entry for the decision records the delivery
+        _append("actions.log", {"time": _now(), "action": "submit_memo_to_partner", "check_id": check_id, "memo": memo,
+                                "delivery": delivery})
     return delivery
 
 
 def read_audit(limit=50):
+    if config.HOSTED:
+        from . import store
+        return store.read_audit(tenant.require(), limit)
     try:
         lines = (config.DATA_DIR / "audit_log.jsonl").read_text().splitlines()[-limit:]
     except OSError:

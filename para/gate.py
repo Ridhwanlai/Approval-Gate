@@ -79,6 +79,12 @@ def parse_signals(resp):
 
 
 def load_source_of_truth():
+    """The firm's citation lists: a hosted firm's own uploaded lists, else the bundled sample lists."""
+    if config.HOSTED:
+        from . import store, tenant
+        own = store.firm_lists(tenant.require())
+        if own:
+            return own
     return {stem: json.loads((config.FIRM_DIR / f"{stem}.json").read_text())
             for stem in ("trusted_citations", "known_fabricated")}
 

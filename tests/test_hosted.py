@@ -121,5 +121,65 @@ class UsageTests(StoreBase):
         self.assertEqual(store.read_audit(b), [])
 
 
+class TenancyTests(StoreBase):
+    """In hosted mode every piece of firm data is scoped to the firm in context, and nothing runs without one."""
+
+    def setUp(self):
+        super().setUp()
+        self._hosted = config.HOSTED
+        config.HOSTED = True
+        self.a, _ = self.new_firm()
+        self.b, _ = self.new_firm(email="other@firm.test", name="Other LLP")
+
+    def tearDown(self):
+        from para import tenant
+        tenant.set_firm(None)
+        config.HOSTED = self._hosted
+        super().tearDown()
+
+    def as_firm(self, firm_id):
+        from para import tenant
+        tenant.set_firm(firm_id)
+
+    def test_settings_audit_and_lists_are_per_firm(self):
+        from para import gate, records, settings
+        self.as_firm(self.a)
+        settings.set_model("memo_cite_audit", "gpt-5.4-mini")
+        records.audit({"decision": "BLOCK"})
+        store.save_firm_lists(self.a, {"trusted_citations": {"cases": []}, "known_fabricated": {"cases": []}})
+        self.as_firm(self.b)
+        self.assertIsNone(settings.model_for("memo_cite_audit"))
+        self.assertEqual(records.read_audit(), [])
+        self.assertTrue(gate.load_source_of_truth()["trusted_citations"]["cases"])  # B still has the sample lists
+        self.as_firm(self.a)
+        self.assertEqual(settings.model_for("memo_cite_audit"), "gpt-5.4-mini")
+        self.assertEqual(gate.load_source_of_truth()["trusted_citations"]["cases"], [])
+
+    def test_jobs_are_visible_only_to_their_firm(self):
+        from para import pipeline
+        self.as_firm(self.a)
+        job = pipeline.Job("check", ["lists"], text="memo", context={})
+        self.assertIs(pipeline.get(job.id), job)
+        self.as_firm(self.b)
+        self.assertIsNone(pipeline.get(job.id))
+
+    def test_no_firm_fails_closed(self):
+        from para import records, settings
+        self.as_firm(None)
+        with self.assertRaises(RuntimeError):
+            settings.load()
+        with self.assertRaises(RuntimeError):
+            records.read_audit()
+
+    def test_firm_carries_into_job_threads(self):
+        from para import tenant
+        self.as_firm(self.a)
+        seen = []
+        t = tenant.thread(lambda: seen.append(tenant.current()))
+        t.start()
+        t.join()
+        self.assertEqual(seen, [self.a])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -6,12 +6,15 @@ key and the SMTP password each live in their own owner-only file.
 import json
 import threading
 
-from . import config
+from . import config, tenant
 
 _lock = threading.Lock()
 
 
 def load():
+    if config.HOSTED:  # each firm's settings live in the database
+        from . import store
+        return store.firm_settings(tenant.require())
     try:
         data = json.loads(config.SETTINGS_FILE.read_text())
         return data if isinstance(data, dict) else {}
@@ -20,6 +23,9 @@ def load():
 
 
 def save(data):
+    if config.HOSTED:
+        from . import store
+        return store.save_firm_settings(tenant.require(), data)
     with _lock:
         config.SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
         tmp = config.SETTINGS_FILE.with_suffix(".tmp")
