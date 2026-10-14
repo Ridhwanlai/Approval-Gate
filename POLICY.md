@@ -12,6 +12,7 @@ Memo Gate sits between "send" and the partner. It reads Ezio's signals, checks e
 
 1. **Action:** `submit_memo_to_partner`.
 2. **Runs only on APPROVE.** A held memo runs only after an attorney logs a reason and chooses Proceed. A blocked memo can never be proceeded; it must be fixed and resent.
+3. **Delivery:** the action emails the memo to the partner from the firm's own SMTP account when email is set up, and logs it otherwise. It counts as executed only if the mail server accepted the message; a failed send is recorded and reported as not delivered.
 
 ## 3. Signals
 
@@ -51,6 +52,10 @@ A finding counts only if its quote is verbatim in the memo and any list entry it
 | Agent unavailable, timed out, unbillable, off-task or unreadable | HOLD | The memo was not fully read, so a person reads it first. |
 
 A third harness, `para-revision-drafter`, runs only when the paralegal asks for a fix to a held or blocked memo. Its draft is never sent; it goes back through the gate like any other draft.
+
+A fourth, `para-memo-drafter`, writes a first draft from the paralegal's question, citing only the trusted list. It never decides or sends; its draft is checked like any memo, and any "[AUTHORITY NEEDED]" it leaves is held.
+
+The model behind each agent is the user's choice. A model the HarnessRouter plan cannot bill counts as an agent failure, so the memo is held rather than checked by fewer signals.
 
 ## 4. Decision rules and thresholds
 

@@ -15,10 +15,14 @@ Authentication belongs to the Skill's trusted key flow; do not request keys in c
   - memo_cite_audit   -> para-cite-auditor
   - memo_style_review -> para-memo-reviewer
   - memo_revision     -> para-revision-drafter
+  - memo_draft        -> para-memo-drafter
 - Change a harness by editing harnesses/<name>.json and running `python3 harnesses/provision.py`.
 - Key: server-side only, in HR_API_KEY, the git-ignored .env.harnessrouter (source) or
   ~/.para/harnessrouter.key (download).
-- Ezio is the bundled simulation unless EZIO_URL is set.
+- Ezio is the bundled simulation unless EZIO_URL (and EZIO_KEY) is set. Ezio's production API only
+  accepts signed-in web sessions (checked 2026-10-13); do not lift a browser session token.
+- Per-agent models: settings.json "models", sent as the Responses API "model" field per run.
+- Email: settings.json "email" plus SMTP_PASSWORD or its owner-only file; set with `setup-email`.
 - Website: docs/ on GitHub Pages. After changing para/ or ui/, rebuild the download with
   `python3 tools/build_pyz.py --out docs/download/para.pyz`. Refresh the demo with tools/record_demo.py.
 <!-- harnessrouter:end -->
