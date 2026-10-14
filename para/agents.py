@@ -8,7 +8,7 @@ import json
 import re
 import threading
 
-from . import config
+from . import config, settings
 from .hr_client import Client, HRError
 
 CITE_AUDIT, STYLE_REVIEW, REVISION = "memo_cite_audit", "memo_style_review", "memo_revision"
@@ -45,6 +45,7 @@ def status():
 
 
 def run_feature(feature_key, task_input, on_event=None, deadline_s=240, queue_s=600):
+    """Run one feature on its harness, with the model the user chose for it (settings), if any."""
     harness_id = config.registry().get(feature_key)  # server-side map only; never from the browser
     if not harness_id:
         raise HRError("not_configured", f"No harness is configured for {feature_key}. Run harnesses/provision.py.")
@@ -55,7 +56,8 @@ def run_feature(feature_key, task_input, on_event=None, deadline_s=240, queue_s=
         if not _slots.acquire(timeout=queue_s):
             raise HRError("rate_limited", "Too many AI checks are waiting; try again shortly.")
     try:
-        return client().run(harness_id, task_input, on_event=on_event, deadline_s=deadline_s)
+        return client().run(harness_id, task_input, on_event=on_event, deadline_s=deadline_s,
+                            model=settings.model_for(feature_key))
     finally:
         _slots.release()
 

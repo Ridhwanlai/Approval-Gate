@@ -64,7 +64,7 @@ class FakeHR:
             def do_POST(self):
                 body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
                 hid = body["metadata"]["harness_id"]
-                fake.calls.append({"harness_id": hid, "input": body["input"], "headers": dict(self.headers)})
+                fake.calls.append({"harness_id": hid, "input": body["input"], "model": body.get("model"), "headers": dict(self.headers)})
                 mode = fake.modes.get(hid)
                 if mode == "http500":
                     return self._json(500, {"detail": "boom"})

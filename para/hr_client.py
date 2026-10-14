@@ -43,7 +43,7 @@ def _status_error(status, body=b""):
         err = {}
     etype, ecode = (err.get("type") if isinstance(err, dict) else None), (err.get("code") if isinstance(err, dict) else None)
     if etype == "billing_error" or status == 402:
-        return HRError("billing", "HarnessRouter cannot bill this run: the account needs a provider key or a plan for this model.")
+        return HRError("billing", "HarnessRouter cannot bill this model on your plan (it needs a provider key). Choose another model under AI models.")
     if ecode == "one_at_a_time":
         return HRError("rate_limited", "HarnessRouter's plan limit on simultaneous tasks was reached.")
     if status == 401:
@@ -98,14 +98,20 @@ class Client:
 
     # ------------------------------------------------------------------ runs
 
-    def run(self, harness_id, task_input, on_event=None, deadline_s=240, retries=2):
-        """Run one bounded task to completion. Streams, and recovers by polling if the stream drops."""
+    def run(self, harness_id, task_input, on_event=None, deadline_s=240, retries=2, model=None):
+        """Run one bounded task to completion. Streams, and recovers by polling if the stream drops.
+
+        `model` overrides the harness's default model for this run only (verified live on 2026-10-13).
+        """
         if not self.key:
             raise HRError("not_configured", "HarnessRouter is not configured on this server.")
         emit = on_event or (lambda *_: None)
         started = time.monotonic()
         idem = str(uuid.uuid4())  # one key per task; reused only to retry this exact request
-        body = json.dumps({"input": task_input, "stream": True, "metadata": {"harness_id": harness_id}})
+        payload = {"input": task_input, "stream": True, "metadata": {"harness_id": harness_id}}
+        if model:
+            payload["model"] = model
+        body = json.dumps(payload)
         attempt = 0
         while True:
             try:

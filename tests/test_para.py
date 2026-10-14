@@ -120,6 +120,18 @@ class ClientTests(Base):
             agents.client().run(AUDIT, "x")
         self.assertEqual((e.exception.code, len(self.hr.calls)), ("billing", 1))
 
+    def test_chosen_model_is_sent_per_run(self):
+        from para import settings
+        settings.set_model(agents.CITE_AUDIT, "gpt-5.4-mini")
+        try:
+            agents.run_feature(agents.CITE_AUDIT, "x")
+            self.assertEqual(self.hr.calls[-1]["model"], "gpt-5.4-mini")
+            settings.set_model(agents.CITE_AUDIT, None)
+            agents.run_feature(agents.CITE_AUDIT, "x")
+            self.assertIsNone(self.hr.calls[-1]["model"])
+        finally:
+            settings.set_model(agents.CITE_AUDIT, None)
+
     def test_failed_run_is_classified(self):
         self.hr.modes[AUDIT] = "fail"
         with self.assertRaises(HRError) as e:
