@@ -330,9 +330,10 @@ def read_audit(firm_id, limit=50):
 # ---------------------------------------------------------------- stripe idempotency
 
 def seen_event(event_id):
-    """True if this Stripe event was already handled; records it otherwise."""
-    with _lock:
-        if _one("select id from stripe_events where id = ?", (event_id,)):
-            return True
-        _q("insert into stripe_events (id, ts) values (?, ?)", (event_id, time.time()))
-        return False
+    """True if this Stripe event was already applied."""
+    return bool(_one("select id from stripe_events where id = ?", (event_id,)))
+
+
+def record_event(event_id):
+    """Mark a Stripe event applied, only after it succeeded, so a failure is retried by Stripe."""
+    _q("insert or ignore into stripe_events (id, ts) values (?, ?)", (event_id, time.time()))
