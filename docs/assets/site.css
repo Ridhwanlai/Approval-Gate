@@ -144,3 +144,22 @@ mark.fab { background: none; color: inherit; border-bottom: 3px double var(--blo
 .memo-card figcaption { font-size: 15px; color: var(--ink-2); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .stamp-mini { display: inline-block; font: 700 15px var(--serif); letter-spacing: .06em; padding: 6px 12px; border: 3px double currentColor; border-radius: 6px; transform: rotate(-2deg); }
 .stamp-mini.block { color: var(--block); background: var(--block-bg); } .stamp-mini.ok { color: var(--ok); background: var(--ok-bg); } .stamp-mini.hold { color: var(--hold); background: var(--hold-bg); }
+
+/* how it decides */
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+@media (max-width: 1000px) { .grid4 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .grid4 { grid-template-columns: 1fr; } }
+.sig-card { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 22px; display: flex; flex-direction: column; }
+.sig-card .num { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.sig-card h3 { font-size: 19px; letter-spacing: -.02em; margin: 0 0 8px; }
+.sig-card p { margin: 0; color: var(--ink-2); font-size: 15.5px; }
+.sig-card .tag { margin-top: auto; padding-top: 16px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.verdicts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 28px; }
+@media (max-width: 860px) { .verdicts { grid-template-columns: 1fr; } }
+.verdict { border-radius: var(--radius); padding: 20px 22px; border: 1px solid var(--rule); background: var(--card); }
+.verdict p { margin: 12px 0 0; color: var(--ink-2); font-size: 15.5px; }
+.verdict.ok { border-top: 4px solid var(--ok); } .verdict.hold { border-top: 4px solid var(--hold); } .verdict.block { border-top: 4px solid var(--block); }
+.guarantees { list-style: none; padding: 0; margin: 32px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+@media (max-width: 860px) { .guarantees { grid-template-columns: 1fr; } }
+.guarantees li { color: var(--ink-2); font-size: 15.5px; padding-left: 16px; border-left: 3px solid var(--accent); }
+.guarantees b { color: var(--ink); display: block; }

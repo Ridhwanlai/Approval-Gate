@@ -114,6 +114,52 @@
     </div>
   </section>
 
+  <section id="how" class="soft">
+    <div class="wrap">
+      <p class="kicker">How it decides</p>
+      <h2>Four signals. The strictest one wins.</h2>
+      <p class="section-lede">Every memo is checked four ways at once. Para's own code makes the call, never an AI model: agents add evidence and can only make a decision stricter.</p>
+      <div class="grid4">
+        <article class="sig-card">
+          <span class="num">1</span>
+          <h3>Your firm's citation lists</h3>
+          <p>Every case, short name and bare reporter cite is matched against the cases your firm has verified and the ones it knows are fake. Wrong volume, year, party or holding is caught.</p>
+          <p class="tag">Deterministic</p>
+        </article>
+        <article class="sig-card">
+          <span class="num">2</span>
+          <h3>Ezio fact-check</h3>
+          <p>Trust tier, tone, bias and agreement, plus a fact-check of public claims such as what an amendment says. A contradicted claim blocks.</p>
+          <p class="tag">Scoring API</p>
+        </article>
+        <article class="sig-card">
+          <span class="num">3</span>
+          <h3>AI cite-auditor</h3>
+          <p>Reads the memo like a careful associate: finds authorities in any format and asks whether each paraphrased holding actually matches the case.</p>
+          <p class="tag">Hermes on HarnessRouter</p>
+        </article>
+        <article class="sig-card">
+          <span class="num">4</span>
+          <h3>AI memo reviewer</h3>
+          <p>Flags advocacy that has no place in a research memo: "slam dunk", certainty about outcomes, emotional language, one-sided framing.</p>
+          <p class="tag">Hermes on HarnessRouter</p>
+        </article>
+      </div>
+
+      <div class="verdicts">
+        <div class="verdict ok"><b class="stamp-mini ok">✓ Approve</b><p>Every check passes. The memo goes to the partner, and only then.</p></div>
+        <div class="verdict hold"><b class="stamp-mini hold">‖ Hold</b><p>A case on neither list, advocacy, a weak score, an unfinished placeholder, or any check that couldn't finish. An attorney logs a reason, then proceeds or rejects.</p></div>
+        <div class="verdict block"><b class="stamp-mini block">✕ Block</b><p>A fabricated or misstated case, or a claim Ezio contradicts. It can never be pushed through; fix it and resend.</p></div>
+      </div>
+
+      <ul class="guarantees">
+        <li><b>Fails closed.</b> If Ezio or an agent is down, slow or unreadable, the memo is held, never sent unread.</li>
+        <li><b>Agents can't lower a decision.</b> An AI saying "this case is fine" never overrides your list. A memo can't talk its way through.</li>
+        <li><b>Every call is audited.</b> Input, evidence, reason, reviewer and whether it was sent, in an append-only log.</li>
+      </ul>
+    </div>
+  </section>
+
   <!-- sections -->
 </main>
 
