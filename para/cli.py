@@ -10,6 +10,7 @@ import getpass
 import json
 import os
 import re
+import signal
 import socket
 import subprocess
 import sys
@@ -163,6 +164,8 @@ def run(port=None, open_browser=True):
                 time.sleep(0.1)
         os.environ["EZIO_URL"] = f"http://127.0.0.1:{mock_port}"
         _say("Using the simulated Ezio bundled with Para (set EZIO_URL and EZIO_KEY to use a live Ezio).")
+    # Turn SIGTERM into a normal exit so the finally block below also stops the Ezio simulation.
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
     from . import server  # imported after EZIO_URL is set; ezio_client reads it at import
     if open_browser:
         webbrowser.open(f"http://127.0.0.1:{port}/")
