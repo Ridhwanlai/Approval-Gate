@@ -128,6 +128,7 @@ footer a:hover { color: var(--accent); }
   .link.bad::after { border-top-color: var(--block); border-left-color: transparent; }
   .link span { top: 50%; left: 14px; transform: translateY(-50%); }
   .node, .node.gate, .node.outcome { max-width: 100%; width: 100%; }
+  .outcomes { width: 100%; }
 }
 
 /* problem */

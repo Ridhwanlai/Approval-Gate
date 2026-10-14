@@ -109,7 +109,10 @@
     docket.innerHTML = memos.map((m) => `<button type="button" role="option" aria-selected="false" data-id="${esc(m.id)}">
       <span class="id">${esc(m.id)}</span><span class="snip">${esc(m.text)}</span>
       <span class="res"><b class="st ${CHIP[m.decision]}">${esc(LABEL[m.decision])}</b></span></button>`).join("");
-    docket.querySelectorAll("button").forEach((b) => (b.onclick = () => show(memos.find((m) => m.id === b.dataset.id), memos)));
+    docket.querySelectorAll("button").forEach((b) => (b.onclick = () => {
+      show(memos.find((m) => m.id === b.dataset.id), memos);
+      if (matchMedia("(max-width: 900px)").matches) panel.scrollIntoView({ block: "start" });  // the panel is below the list on phones
+    }));
     show(memos.find((m) => m.id === "pl-07") || memos[0], memos);
   }).catch(() => { docket.innerHTML = `<p class="muted">The recorded decisions could not be loaded.</p>`; });
 })();
