@@ -34,7 +34,6 @@
   [hidden] { display: none !important; }
   body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased;
     display: grid; grid-template-columns: 1fr 1fr; }
-  @media (max-width: 860px) { body { grid-template-columns: 1fr; } .side { display: none; } }
   :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
   a { color: var(--accent); }
   .side { background: var(--side); color: var(--side-ink); border-right: 1px solid var(--rule); padding: 56px 48px; display: flex; flex-direction: column; justify-content: space-between; }
@@ -44,6 +43,7 @@
   .side .stamp { display: inline-block; margin-top: 18px; font: 700 18px var(--serif); letter-spacing: .06em; padding: 6px 14px;
     border: 3px double var(--side-stamp); color: var(--side-stamp); border-radius: 8px; transform: rotate(-2deg); }
   .side small { opacity: .7; font-size: 14px; }
+  @media (max-width: 860px) { body { grid-template-columns: 1fr; } .side { display: none; } }  /* after .side so it wins */
   .main { display: grid; place-items: center; padding: 40px 16px; }
   .card { width: 100%; max-width: 420px; }
   .mobile-brand { display: none; color: var(--ink); margin-bottom: 28px; }
@@ -64,6 +64,9 @@
   .trial { display: flex; gap: 10px; align-items: center; font-size: 14px; color: var(--ink-2); background: var(--soft); border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px; }
   .trial b { color: var(--ok); }
   .foot { margin-top: 22px; font-size: 13.5px; color: var(--muted); }
+  .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; font-size: 14px; }
+  .check input { width: 18px; height: 18px; margin-top: 2px; flex: none; accent-color: var(--accent); }
+  .legal { margin-top: 10px; font-size: 13px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -94,10 +97,12 @@
         <label id="f-name" hidden>Your name<input id="name" name="name" autocomplete="name" maxlength="120"></label>
         <label>Work email<input id="email" name="email" type="email" autocomplete="email" required></label>
         <label>Password <span class="hint" id="pw-hint" hidden>At least 10 characters.</span><input id="password" name="password" type="password" autocomplete="current-password" required minlength="10"></label>
+        <label class="check" id="f-terms" hidden><input id="accept" type="checkbox"> <span>I agree to the <a href="/terms" target="_blank" rel="noopener">Terms of Service</a> and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>, and understand Para is a checking tool, not legal advice.</span></label>
         <div class="error" id="error" role="alert" hidden></div>
         <button class="submit" id="submit" type="submit">Sign in</button>
       </form>
       <p class="foot" id="foot">New to Para? Choose <b>Start free trial</b> to set up your firm.</p>
+      <p class="legal"><a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · Para is a checking tool, not legal advice.</p>
     </div>
   </main>
 
@@ -124,6 +129,7 @@ function render() {
   $("f-name").hidden = mode === "login";
   $("trial").hidden = mode !== "signup";
   $("pw-hint").hidden = mode === "login";
+  $("f-terms").hidden = mode === "login";
   $("password").autocomplete = mode === "login" ? "current-password" : "new-password";
   $("foot").hidden = mode === "join";
   $("foot").innerHTML = mode === "login" ? "New to Para? Choose <b>Start free trial</b> to set up your firm." : "Already have an account? Choose <b>Sign in</b>.";
@@ -140,6 +146,8 @@ $("form").addEventListener("submit", async (e) => {
   if (mode !== "login") body.name = $("name").value.trim();
   if (mode === "signup") body.firm = $("firm").value.trim();
   if (mode === "join") body.token = inviteToken;
+  if (mode !== "login") body.accept_terms = $("accept").checked;
+  if (mode !== "login" && !body.accept_terms) { err.textContent = "Agree to the Terms of Service and Privacy Policy to continue."; err.hidden = false; return; }
   if (!body.email || !body.password || (mode === "signup" && !body.firm)) { err.textContent = "Fill in every field."; err.hidden = false; return; }
   if (mode !== "login" && body.password.length < 10) { err.textContent = "Use a password of at least 10 characters."; err.hidden = false; return; }
   $("submit").disabled = true;
