@@ -61,6 +61,7 @@ The most severe triggered rule wins (BLOCK over HOLD over APPROVE).
 | Fabricated case | BLOCK | Citing a case the firm knows is fake is the *Mata* failure, and no score outweighs it. |
 | Misstated cite, year, name or holding | BLOCK | Opposing counsel will catch a misquoted authority, so it never reaches the partner. |
 | Ezio contradicts more than 0 claims | BLOCK | One fact Ezio can show is false (for example, the wrong amendment) is enough to stop a memo the partner signs. |
+| Unresolved drafting placeholder ("[AUTHORITY NEEDED]", "[CITE-CHECK NEEDED]") | HOLD | An unfinished memo goes to an attorney, not the partner, even when everything else passes. |
 | Case on neither list | HOLD | It may be real, so it earns a human cite-check rather than a block. |
 | Advocacy language | HOLD | A research memo informs the partner; it does not argue to them. |
 | Tone or bias below 60 | HOLD | A poor dimension hidden behind a GREEN tier is exactly what a clean score misses. |

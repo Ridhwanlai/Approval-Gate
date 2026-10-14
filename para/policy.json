@@ -50,5 +50,9 @@
     "advocacy_why": "A research memo informs the partner rather than arguing to them, so advocacy the reviewer can quote verbatim is held (business rule 4).",
     "verified_never_lowers": true,
     "verified_never_lowers_why": "An agent saying a case is fine never overrides the lists or Ezio: AI findings can only make the gate stricter, so a manipulated or mistaken agent cannot push a bad memo through."
+  },
+  "drafting_placeholders": {
+    "decision": "HOLD_FOR_REVIEW",
+    "why": "A memo with \"[AUTHORITY NEEDED]\" or \"[CITE-CHECK NEEDED]\" left in it is unfinished, so it goes to an attorney instead of the partner, even when everything else passes."
   }
 }

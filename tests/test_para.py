@@ -225,6 +225,13 @@ class GateTests(Base):
         _, r = self.check(PRACTICE["pl-02"]["text"])
         self.assertEqual(r["decision"], "HOLD_FOR_REVIEW")
 
+    def test_revision_placeholders_are_held_not_sent(self):
+        text = "[AUTHORITY NEEDED: The Montreal Convention tolls the statute of limitations during bankruptcy.]"
+        _, r = self.check(text)
+        self.assertEqual(r["decision"], "HOLD_FOR_REVIEW")
+        self.assertIn("placeholder", r["reason"])
+        self.assertFalse(r["action_executed"])
+
     def test_review_only_for_holds_and_only_once(self):
         _, blocked = self.check(PRACTICE["pl-07"]["text"])
         self.assertEqual(pipeline.review(blocked["check_id"], "proceed", "looks fine", "A")[0], 409)

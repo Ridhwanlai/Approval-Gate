@@ -7,6 +7,7 @@ Signals, in order of authority:
 """
 import json
 import math
+import re
 from dataclasses import dataclass, field
 
 from . import agents, citation_check, config
@@ -82,10 +83,23 @@ def load_source_of_truth():
             for stem in ("trusted_citations", "known_fabricated")}
 
 
+PLACEHOLDER_RE = re.compile(r"\[(?:AUTHORITY NEEDED|CITE-CHECK NEEDED|CITATION NEEDED|TODO|TK)\b[^\]]*\]", re.I)
+
+
+def check_placeholders(text, policy=POLICY):
+    """Drafting placeholders (for example from the revision drafter) mean the memo is unfinished."""
+    found = PLACEHOLDER_RE.findall(text)
+    if not found:
+        return []
+    shown = ", ".join(f"\"{p if len(p) <= 60 else p[:57] + '…]'}\"" for p in found[:2])
+    return [(policy["drafting_placeholders"]["decision"], f"the memo still has {len(found)} drafting placeholder(s) to resolve: {shown}",
+             {"signal": "rule_check", "rule": "Unresolved drafting placeholders", "matches": found[:5]})]
+
+
 def check_lists(text, sot):
-    """Deterministic list check -> [(level, message, evidence)]; a crash fails closed to HOLD."""
+    """Deterministic checks -> [(level, message, evidence)]; a crash fails closed to HOLD."""
     try:
-        return [(level or APPROVE, msg, ev) for level, msg, ev in citation_check.check(text, sot)]
+        return [(level or APPROVE, msg, ev) for level, msg, ev in citation_check.check(text, sot)] + check_placeholders(text)
     except Exception as e:  # a broken check must never approve
         return [(HOLD, f"the citation check hit an internal error ({type(e).__name__})", {"finding": "citation check error"})]
 
