@@ -5,6 +5,7 @@
   para provision                       create or update Para's harnesses in your account
   para setup-email                     email approved memos to the partner (hidden password prompt)
   para status                          show what is configured, never the key itself
+  para serve-hosted                    the paid multi-firm service; configured only by environment variables
 """
 import argparse
 import getpass
@@ -217,7 +218,26 @@ def run(port=None, open_browser=True):
         if explicit:
             raise SystemExit(f"Port {port} is already in use.")
         port = next(p for p in range(9001, 9100) if _port_free(p))
+    _serve("127.0.0.1", port, open_browser)
 
+
+def serve_hosted():
+    """The paid, multi-firm service (e.g. on Render). Everything comes from the environment; nothing is asked."""
+    config.MODE, config.HOSTED = "hosted", True
+    config.REGISTRY = config.DATA_DIR / "registry.json"  # keep the harness map on the persistent disk
+    if not config.hr_api_key():
+        _say("Warning: HR_API_KEY is not set, so AI agents are unavailable and every memo is held for review.")
+    if not config.PUBLIC_URL.startswith("https://"):
+        _say("Warning: PUBLIC_URL is not an https address; set it to the service's public URL before taking customers.")
+    from . import billing
+    if not billing.configured():
+        _say("Warning: STRIPE_SECRET_KEY is not set, so plans can't be bought yet (free trials still work).")
+    if config.hr_api_key():
+        ensure_harnesses()
+    _serve(os.getenv("HOST", "0.0.0.0"), int(os.getenv("PORT", "10000")), False)
+
+
+def _serve(host, port, open_browser):
     # A real Ezio endpoint (EZIO_URL, with EZIO_KEY) is used when given; otherwise the bundled simulation runs locally.
     mock = None
     if os.getenv("EZIO_URL"):
@@ -242,7 +262,7 @@ def run(port=None, open_browser=True):
     if open_browser:
         webbrowser.open(f"http://127.0.0.1:{port}/")
     try:
-        server.serve("127.0.0.1", port)
+        server.serve(host, port)
     finally:
         if mock:
             mock.terminate()
@@ -258,6 +278,7 @@ def main(argv=None):
     sub.add_parser("provision", help="create or update Para's harnesses")
     sub.add_parser("setup-email", help="email approved memos to the partner (SMTP)")
     sub.add_parser("status", help="show what is configured")
+    sub.add_parser("serve-hosted", help="run the paid multi-firm service (settings from the environment)")
     args = ap.parse_args(argv)
     if args.cmd == "setup":
         sys.exit(0 if setup() else 1)
@@ -265,6 +286,8 @@ def main(argv=None):
         sys.exit(0 if setup_email() else 1)
     if args.cmd == "provision":
         sys.exit(0 if ensure_harnesses(force=True) else 1)
+    if args.cmd == "serve-hosted":
+        return serve_hosted()
     if args.cmd == "status":
         return status()
     run(getattr(args, "port", None), not getattr(args, "no_browser", False))
