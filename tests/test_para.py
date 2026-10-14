@@ -171,6 +171,15 @@ class ValidationTests(unittest.TestCase):
         ok, _ = agents.parse_audit("```json\n" + audit_reply(auth("Gideon", "verified", "Gideon v. Wainwright")) + "\n```", self.memo, self.sot)
         self.assertEqual(len(ok), 1)
 
+    def test_doctrine_labels_are_not_citations(self):
+        text = ("Mapp v. Ohio, 367 U.S. 643 (1961), held that the exclusionary rule applies to the states: evidence from "
+                "unconstitutional searches is inadmissible. Nothing suggests that giving Miranda warnings makes an "
+                "otherwise unconstitutional search lawful.")
+        levels = [lvl for lvl, _, _ in gate.check_lists(text, self.sot)]
+        self.assertNotIn("BLOCK", levels)
+        fake = "The Varghese rule tolls the limitations period."
+        self.assertIn("BLOCK", [lvl for lvl, _, _ in gate.check_lists(fake, self.sot)])
+
     def test_style_quotes_must_be_verbatim(self):
         res, bad = agents.parse_review(json.dumps({"reads_as": "advocacy", "issues": [
             {"quote": "counsel is required", "kind": "overconfidence", "why": "w"},

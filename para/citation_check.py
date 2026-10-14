@@ -57,6 +57,8 @@ ADVOCACY = [
     (r"\b[A-Z]{5,}\b(?=[^.]*!)", "shouting"),
 ]
 
+DOCTRINE_NOUN = re.compile(r"\s+(?:warnings?|rights|rules?|stops?|frisks?|hearings?|doctrine|standard|test|analysis|violations?|claims?|issues?|motions?|line)\b", re.I)
+
 # ---------------------------------------------------------------- helpers
 
 
@@ -200,6 +202,10 @@ def check(text, sot):
     for e in entries:
         for s in e["shorts"]:
             for m in re.finditer(r"\b" + re.escape(s) + r"\b", text):
+                # "Miranda warnings", "Terry stop": a trusted case's name used as a doctrine label is not a
+                # citation, so it gets no holding check. Fabricated names are always treated as citations.
+                if e["kind"] == "trusted" and DOCTRINE_NOUN.match(text, m.end()):
+                    continue
                 if not overlaps(m.start(), m.end()):
                     taken.append((m.start(), m.end()))
                     mentions.append({"start": m.start(), "end": m.end(), "entry": e, "as": m.group(0), "short": True})

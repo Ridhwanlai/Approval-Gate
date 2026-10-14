@@ -89,7 +89,7 @@ served through `/api/trace/<check>/<feature>`.
 | `para/pipeline.py` | Runs checks and revisions as jobs with per-stage progress; review; trace |
 | `para/agents.py` | Feature → harness routing, task inputs, output validation, plan-limit queue |
 | `para/hr_client.py` | HarnessRouter UHP client: streaming, recovery without resubmitting, retries, error codes |
-| `para/citation_check.py`, `para/ezio_client.py` | From the original Para, unchanged |
+| `para/citation_check.py`, `para/ezio_client.py` | From the original Para; the cite-check now ignores doctrine labels like "Miranda warnings" |
 | `para/policy.json` | Every threshold and agent rule with its one-sentence why |
 | `para/cli.py`, `para/provisioning.py` | `run`, `setup`, `provision`, `status`; creating or updating the harnesses |
 | `harnesses/*.json`, `provision.py` | Harness configuration as data, and the script that applies it |
