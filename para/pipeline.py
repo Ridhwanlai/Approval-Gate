@@ -14,13 +14,14 @@ from .ezio_client import EzioError, analyze
 from .hr_client import HRError
 
 _jobs, _lock = {}, threading.Lock()
+ID_PREFIX = {"check": "chk", "revision": "rev"}
 STAGE_LABELS = {"lists": "Firm citation lists", "ezio": "Ezio fact-check", agents.CITE_AUDIT: "AI cite-audit (Hermes)",
                 agents.STYLE_REVIEW: "AI memo review (Hermes)", agents.REVISION: "AI revision drafter (Hermes)"}
 
 
 class Job:
     def __init__(self, kind, stages, **extra):
-        self.id = f"{kind[:3]}_{uuid.uuid4().hex[:12]}"
+        self.id = f"{ID_PREFIX[kind]}_{uuid.uuid4().hex[:12]}"  # server.py routes match these prefixes
         self.kind, self.state, self.result, self.error = kind, "running", None, None
         self.stages = {s: {"label": STAGE_LABELS[s], "state": "pending", "detail": ""} for s in stages}
         self.sessions = {}  # feature -> (session_id, response_id); server-side only

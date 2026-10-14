@@ -299,6 +299,32 @@ class HttpTests(Base):
         self.assertEqual(code, 200)
         self.assertEqual(trace["turns"][0]["status"], "completed")
 
+    def wait(self, path):
+        for _ in range(200):
+            _, job = self.req(path)
+            if job.get("state") == "done":
+                return job
+            time.sleep(0.05)
+        self.fail(f"{path} never finished")
+
+    def test_review_and_revision_routes_over_http(self):
+        self.hr.modes[AUDIT] = "http500"  # agent outage -> HOLD, so the memo is reviewable
+        _, held = self.req("/api/checks", {"text": PRACTICE["pl-02"]["text"]})
+        self.assertTrue(held["id"].startswith("chk_"))
+        self.assertEqual(self.wait(f"/api/checks/{held['id']}")["result"]["decision"], "HOLD_FOR_REVIEW")
+        code, body = self.req(f"/api/checks/{held['id']}/review", {"outcome": "reject", "note": "needs a cite-check", "reviewer": "A"})
+        self.assertEqual((code, body["action_executed"]), (200, False))
+
+        self.hr.modes.clear()
+        self.hr.replies[DRAFT] = json.dumps({"revised_memo": "[AUTHORITY NEEDED: tolling]", "changes": ["Removed Varghese"]})
+        _, blocked = self.req("/api/checks", {"text": PRACTICE["pl-07"]["text"]})
+        self.wait(f"/api/checks/{blocked['id']}")
+        code, rev = self.req(f"/api/checks/{blocked['id']}/revision", {})
+        self.assertEqual(code, 202)
+        self.assertTrue(rev["id"].startswith("rev_"))
+        result = self.wait(f"/api/revisions/{rev['id']}")["result"]
+        self.assertEqual((result["ok"], result["revised_memo"]), (True, "[AUTHORITY NEEDED: tolling]"))
+
     def test_health_reports_agent_status(self):
         self.assertEqual(self.req("/health")[1]["agents"], "configured")
 
