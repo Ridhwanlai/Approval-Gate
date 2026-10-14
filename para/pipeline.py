@@ -14,9 +14,10 @@ from .ezio_client import EzioError, analyze
 from .hr_client import HRError
 
 _jobs, _lock = {}, threading.Lock()
-ID_PREFIX = {"check": "chk", "revision": "rev"}
+ID_PREFIX = {"check": "chk", "revision": "rev", "draft": "drf"}
 STAGE_LABELS = {"lists": "Firm citation lists", "ezio": "Ezio fact-check", agents.CITE_AUDIT: "AI cite-audit (Hermes)",
-                agents.STYLE_REVIEW: "AI memo review (Hermes)", agents.REVISION: "AI revision drafter (Hermes)"}
+                agents.STYLE_REVIEW: "AI memo review (Hermes)", agents.REVISION: "AI revision drafter (Hermes)",
+                agents.DRAFT: "AI memo drafter (Hermes)"}
 
 
 class Job:
@@ -203,6 +204,31 @@ def _run_revision(job, check):
                    "response_id": result.response_id, "changes": out.get("changes"), "action_executed": False})
     job.result = {"revision_id": job.id, "ok": result.ok, "error": result.error, **out,
                   "note": "This draft has not been sent. Load it, read it, and run it through the gate again."}
+    job.state = "done"
+
+
+# ---------------------------------------------------------------- draft (drafter harness, from the paralegal's question)
+
+def start_draft(question, matter=""):
+    job = Job("draft", [agents.DRAFT], question=question, matter=matter)
+    threading.Thread(target=_run_draft, args=(job,), daemon=True).start()
+    return job
+
+
+def _run_draft(job):
+    out = {}
+
+    def parse(run):
+        out.update(agents.parse_draft(run.text))
+        return [], [], ""
+
+    task = agents.draft_input(job.question, gate.load_source_of_truth(), job.matter)
+    result = run_agent(job, agents.DRAFT, task, parse, deadline_s=240)
+    records.audit({"type": "draft", "draft_id": job.id, "question": job.question, "ok": result.ok, "error": result.error,
+                   "harness": agents.HARNESS_NAMES[agents.DRAFT], "model": result.model, "session_id": result.session_id,
+                   "response_id": result.response_id, "action_executed": False})
+    job.result = {"draft_id": job.id, "ok": result.ok, "error": result.error, "model": result.model, **out,
+                  "note": "A draft only. Nothing was sent. Read it, edit it, then run it through the gate."}
     job.state = "done"
 
 

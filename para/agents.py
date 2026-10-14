@@ -12,9 +12,10 @@ import time
 from . import config, settings
 from .hr_client import Client, HRError
 
-CITE_AUDIT, STYLE_REVIEW, REVISION = "memo_cite_audit", "memo_style_review", "memo_revision"
-HARNESS_NAMES = {CITE_AUDIT: "para-cite-auditor", STYLE_REVIEW: "para-memo-reviewer", REVISION: "para-revision-drafter"}
-LABELS = {CITE_AUDIT: "AI cite-audit", STYLE_REVIEW: "AI memo review", REVISION: "AI revision"}
+CITE_AUDIT, STYLE_REVIEW, REVISION, DRAFT = "memo_cite_audit", "memo_style_review", "memo_revision", "memo_draft"
+HARNESS_NAMES = {CITE_AUDIT: "para-cite-auditor", STYLE_REVIEW: "para-memo-reviewer", REVISION: "para-revision-drafter",
+                 DRAFT: "para-memo-drafter"}
+LABELS = {CITE_AUDIT: "AI cite-audit", STYLE_REVIEW: "AI memo review", REVISION: "AI revision", DRAFT: "AI drafting"}
 AUDIT_STATUSES = {"verified", "fabricated", "misstated", "unverified"}
 STYLE_KINDS = {"overconfidence", "emotional", "one_sided"}
 SKIP_WORDS = {"the", "and", "co.", "inc.", "corp.", "company", "of", "v.", "vs.", "railroad", "board", "education"}
@@ -69,6 +70,7 @@ MODEL_HINTS = {
     CITE_AUDIT: "Judges paraphrased holdings, so it rewards a strong reasoning model.",
     STYLE_REVIEW: "A tone check; a fast, inexpensive model usually does well.",
     REVISION: "Writes the corrected memo; pick the model whose legal writing you trust most.",
+    DRAFT: "Writes first drafts from your question; a strong writer that follows instructions closely.",
 }
 _model_cache = {}
 
@@ -217,3 +219,26 @@ def parse_revision(reply, files_text=None):
     if not revised.strip():
         raise ValueError("the drafter returned no revised memo")
     return {"revised_memo": revised.strip(), "changes": [c for c in changes if c][:30]}
+
+
+# ---------------------------------------------------------------- memo_draft
+
+MAX_QUESTION = 4000
+
+
+def draft_input(question, sot, matter=""):
+    trusted, fabricated = _firm_lists(sot)
+    matter_block = f"<matter>\n{matter}\n</matter>\n" if matter.strip() else ""
+    return ("Draft a legal research memo answering this question.\n"
+            f"<question>\n{question}\n</question>\n{matter_block}"
+            f"<trusted>\n{json.dumps(trusted, indent=1)}\n</trusted>\n<fabricated>\n{json.dumps(fabricated, indent=1)}\n</fabricated>")
+
+
+def parse_draft(reply):
+    obj = extract_json(reply)
+    memo = str(obj.get("memo") or "").strip()
+    if not memo:
+        raise ValueError("the drafter returned no memo")
+    return {"memo": memo[:20000],
+            "authorities_used": [str(a) for a in obj.get("authorities_used") or []][:20],
+            "open_points": [str(a) for a in obj.get("open_points") or []][:20]}

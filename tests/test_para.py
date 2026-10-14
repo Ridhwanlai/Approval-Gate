@@ -32,7 +32,7 @@ from fake_hr import FakeHR  # noqa: E402
 from para import agents, config, gate, pipeline, server  # noqa: E402
 from para.hr_client import Client, HRError  # noqa: E402
 
-AUDIT, STYLE, DRAFT = "chrn_audit", "chrn_style", "chrn_draft"
+AUDIT, STYLE, DRAFT, WRITE = "chrn_audit", "chrn_style", "chrn_draft", "chrn_write"
 CLEAN_STYLE = json.dumps({"reads_as": "analysis", "issues": [], "notes": "Neutral."})
 PRACTICE = {i["id"]: i for i in json.loads((ROOT / "firm" / "practice_set.json").read_text())["items"]}
 
@@ -59,7 +59,7 @@ class Base(unittest.TestCase):
         cls.hr = FakeHR()
         agents.set_client(Client(base_url=cls.hr.url, api_key="sk-hr-test-not-real", uhp_version="2026-09-28"))
         reg = Path(TMP) / "registry.json"
-        reg.write_text(json.dumps({"features": {agents.CITE_AUDIT: AUDIT, agents.STYLE_REVIEW: STYLE, agents.REVISION: DRAFT}}))
+        reg.write_text(json.dumps({"features": {agents.CITE_AUDIT: AUDIT, agents.STYLE_REVIEW: STYLE, agents.REVISION: DRAFT, agents.DRAFT: WRITE}}))
         config.REGISTRY = reg
 
     @classmethod
@@ -366,6 +366,20 @@ class HttpTests(Base):
             self.assertEqual((code, saved["choice"]), (200, "gpt-5.4-mini"))
         finally:
             self.assertEqual(put({"feature": agents.CITE_AUDIT, "model": None})[1]["choice"], None)
+
+    def test_draft_route_writes_a_draft_and_sends_nothing(self):
+        self.hr.replies[WRITE] = json.dumps({"memo": "Gideon v. Wainwright, 372 U.S. 335 (1963), requires counsel.",
+                                             "authorities_used": ["Gideon v. Wainwright"], "open_points": []})
+        actions = Path(TMP) / "actions.log"
+        before = actions.read_text() if actions.exists() else ""
+        code, body = self.req("/api/drafts", {"question": "Must the state appoint counsel for an indigent felony defendant?"})
+        self.assertEqual(code, 202)
+        self.assertTrue(body["id"].startswith("drf_"))
+        result = self.wait(f"/api/drafts/{body['id']}")["result"]
+        self.assertEqual((result["ok"], result["authorities_used"]), (True, ["Gideon v. Wainwright"]))
+        self.assertIn("<question>", self.hr.calls[-1]["input"])
+        self.assertEqual(before, actions.read_text() if actions.exists() else "")
+        self.assertEqual(self.req("/api/drafts", {"question": ""})[0], 400)
 
     def test_health_reports_agent_status(self):
         self.assertEqual(self.req("/health")[1]["agents"], "configured")

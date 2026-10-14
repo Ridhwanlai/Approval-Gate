@@ -8,6 +8,8 @@ Browser-facing contract (the browser never sees a key, harness id or session id)
   POST /api/checks/<id>/review      {outcome, note, reviewer}   attorney resolves a HOLD
   POST /api/checks/<id>/revision    -> 202 {id}; the drafter harness proposes a fix (never sent)
   GET  /api/revisions/<id>          progress, then the revised draft and change list
+  POST /api/drafts                  {question, matter}  -> 202 {id}; the drafter harness writes a first draft (never sent)
+  GET  /api/drafts/<id>             progress, then the draft memo
   GET  /api/trace/<job>/<feature>   sanitized trace of one harness run
   GET  /api/models                  each agent's default model, the user's choice and the models offered
   PUT  /api/models                  {feature, model}; model null goes back to the harness default
@@ -83,7 +85,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json(502, {"error": str(e)})
         if route == "/audit":
             return self.send_json(200, {"records": [public_audit(r) for r in records.read_audit()]})
-        m = re.fullmatch(r"/api/(checks|revisions)/([a-z]{3}_[0-9a-f]{12})", route)
+        m = re.fullmatch(r"/api/(checks|revisions|drafts)/([a-z]{3}_[0-9a-f]{12})", route)
         if m:
             job = pipeline.get(m.group(2))
             if job is None or job.kind != m.group(1)[:-1]:
@@ -144,6 +146,11 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json(202, {"id": pipeline.start_check(text, context).id})
             job = pipeline.start_check(text, context, background=False)
             return self.send_json(200, job.result)
+        if route == "/api/drafts":
+            question, matter = data.get("question"), data.get("matter") or ""
+            if not isinstance(question, str) or not question.strip() or len(question) > agents.MAX_QUESTION or not isinstance(matter, str):
+                return self.send_json(400, {"error": f"question must be a non-empty string of at most {agents.MAX_QUESTION} characters"})
+            return self.send_json(202, {"id": pipeline.start_draft(question.strip(), matter.strip()[:1000]).id})
         m = re.fullmatch(r"/api/checks/(chk_[0-9a-f]{12})/(review|revision)", route)
         if m and m.group(2) == "review":
             outcome, note = data.get("outcome"), str(data.get("note") or "").strip()
