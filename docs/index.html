@@ -23,7 +23,7 @@
 
 <nav class="nav" aria-label="Main">
   <div class="wrap">
-    <a class="brand" href="#top" aria-label="Para home"><span class="mark" aria-hidden="true">¶</span>para<span class="dot">.</span></a>
+    <a class="brand" href="#top" aria-label="Para home"><span class="mark" aria-hidden="true">¶</span><span>para<span class="dot">.</span></span></a>
     <div class="nav-links">
       <a href="#problem">Why</a>
       <a href="#how">How it decides</a>
@@ -49,6 +49,49 @@
       <p class="fineprint">One file. Runs on your computer. Python 3.9+ and a HarnessRouter key.</p>
     </div>
   </header>
+
+  <div class="wrap">
+    <div class="compare" id="compare">
+      <div class="tabs" role="tablist" aria-label="Compare">
+        <button role="tab" id="tab-without" aria-controls="panel-without" aria-selected="false" type="button">Without Para</button>
+        <button role="tab" id="tab-with" aria-controls="panel-with" aria-selected="true" type="button">With Para</button>
+      </div>
+
+      <div class="panel" id="panel-without" role="tabpanel" aria-labelledby="tab-without" hidden>
+        <div class="flow">
+          <div class="node"><span class="node-k">AI draft</span><span class="memo-line">"In <i>Varghese v. China Southern Airlines</i>, the court held…"</span></div>
+          <div class="link" aria-hidden="true"><span>Ezio: GREEN 100</span></div>
+          <div class="node"><span class="node-k">Partner</span>Relies on it in tomorrow's filing</div>
+          <div class="link bad" aria-hidden="true"></div>
+          <div class="node outcome block"><span class="node-k">Outcome</span>A case that never existed is cited to the court</div>
+        </div>
+        <p class="caption">A trust score can't see a fabricated case: there is no public claim to check. That is how <i>Mata v. Avianca</i> happened.</p>
+      </div>
+
+      <div class="panel" id="panel-with" role="tabpanel" aria-labelledby="tab-with">
+        <div class="flow">
+          <div class="node"><span class="node-k">AI draft</span><span class="memo-line">"In <i>Varghese v. China Southern Airlines</i>, the court held…"</span></div>
+          <div class="link" aria-hidden="true"></div>
+          <div class="node gate">
+            <span class="node-k">Para gate</span>
+            <ul class="checks">
+              <li><span>Firm citation lists</span><b class="st block">fabricated</b></li>
+              <li><span>Ezio score</span><b class="st ok">GREEN 100</b></li>
+              <li><span>AI cite-auditor</span><b class="st block">fabricated</b></li>
+              <li><span>AI memo reviewer</span><b class="st ok">neutral</b></li>
+            </ul>
+          </div>
+          <div class="link" aria-hidden="true"></div>
+          <div class="outcomes">
+            <div class="node outcome ok"><span class="node-k">Approve</span>Sent to the partner</div>
+            <div class="node outcome hold"><span class="node-k">Hold</span>An attorney reviews first</div>
+            <div class="node outcome block current"><span class="node-k">Block</span>Never sent. Draft a fix and resend</div>
+          </div>
+        </div>
+        <p class="caption">The firm's own list knows <i>Varghese</i> is fake, and the AI cite-auditor agrees. The strictest signal wins, so the memo is blocked before anyone relies on it.</p>
+      </div>
+    </div>
+  </div>
 
   <!-- sections -->
 </main>
