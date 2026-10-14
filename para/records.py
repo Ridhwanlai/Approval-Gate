@@ -22,9 +22,25 @@ def audit(entry):
     _append("audit_log.jsonl", {"timestamp": _now(), **entry})
 
 
-def submit_memo_to_partner(memo, check_id):
-    """The gated action, mocked: it logs instead of emailing, so a blocked memo is visible by its absence."""
-    _append("actions.log", {"time": _now(), "action": "submit_memo_to_partner", "check_id": check_id, "memo": memo})
+def submit_memo_to_partner(memo, check_id, reason="", subject=""):
+    """The gated action. Emails the partner when email is set up; otherwise it is logged only.
+
+    Returns {channel, to, sent, error}. Every attempt, failed or not, goes to actions.log, so a blocked
+    memo is visible by its absence and a failed delivery is never mistaken for a sent one.
+    """
+    from . import mailer
+    delivery = {**mailer.describe(), "sent": False, "error": None}
+    if delivery["channel"] == "email":
+        try:
+            mailer.send_memo(memo, check_id, reason, subject)
+            delivery["sent"] = True
+        except mailer.MailError as e:
+            delivery["error"] = str(e)
+    else:
+        delivery["sent"] = True  # logged-only delivery: the log entry below is the action
+    _append("actions.log", {"time": _now(), "action": "submit_memo_to_partner", "check_id": check_id, "memo": memo,
+                            "delivery": delivery})
+    return delivery
 
 
 def read_audit(limit=50):

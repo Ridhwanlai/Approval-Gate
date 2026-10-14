@@ -128,18 +128,19 @@ def _run_check(job, scenario, features):
             results = [f.result() for f in f_agents]
 
         out = gate.decide(text, signals, response, error, list_findings, results)
-        executed = out["decision"] == gate.APPROVE
-        if executed:
-            records.submit_memo_to_partner(text, job.id)
+        delivery = None
+        if out["decision"] == gate.APPROVE:
+            delivery = records.submit_memo_to_partner(text, job.id, out["reason"], (job.context or {}).get("re", ""))
+        executed = bool(delivery and delivery["sent"])
         records.audit({"type": "decision", "check_id": job.id, "input": text, "context": job.context,
                        "decision": out["decision"], "reason": out["reason"], "evidence": out["evidence"],
-                       "ezio": out["ezio"], "action_executed": executed,
+                       "ezio": out["ezio"], "action_executed": executed, "delivery": delivery,
                        "harness_runs": [{"feature": r.feature, "harness": agents.HARNESS_NAMES[r.feature], "ok": r.ok,
                                          "error": r.error, "session_id": r.session_id, "response_id": r.response_id,
                                          "elapsed": r.elapsed} for r in results]})
         job.decision = out["decision"]
         job.result = {"check_id": job.id, "decision": out["decision"], "reason": out["reason"],
-                      "evidence": out["evidence"], "action_executed": executed,
+                      "evidence": out["evidence"], "action_executed": executed, "delivery": delivery,
                       "can_revise": out["decision"] != gate.APPROVE}
         job.state = "done"
     except Exception as e:  # never crash open: an unexpected error records a HOLD and sends nothing
@@ -160,12 +161,14 @@ def review(check_id, outcome, note, reviewer):
     if getattr(job, "decision", None) != gate.HOLD or getattr(job, "reviewed", False):
         return 409, {"error": "Only a memo the gate held, and not yet reviewed, can be resolved here; blocked memos must be fixed and resent"}
     job.reviewed = True
-    executed = outcome == "proceed"
+    delivery = None
+    if outcome == "proceed":
+        delivery = records.submit_memo_to_partner(job.text, check_id, f"Held, then approved by {reviewer or 'an attorney'}: {note}",
+                                                  (job.context or {}).get("re", ""))
+    executed = bool(delivery and delivery["sent"])
     records.audit({"type": "review", "check_id": check_id, "input": job.text, "outcome": outcome,
-                   "reviewer": reviewer or "unnamed reviewer", "note": note, "action_executed": executed})
-    if executed:
-        records.submit_memo_to_partner(job.text, check_id)
-    return 200, {"logged": True, "action_executed": executed}
+                   "reviewer": reviewer or "unnamed reviewer", "note": note, "action_executed": executed, "delivery": delivery})
+    return 200, {"logged": True, "action_executed": executed, "delivery": delivery}
 
 
 # ---------------------------------------------------------------- revision (drafter harness)

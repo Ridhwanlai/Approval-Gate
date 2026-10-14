@@ -14,3 +14,4 @@ results/*.practice.*
 /data/
 /harnesses/registry.json
 /dist/
+/.env.smtp

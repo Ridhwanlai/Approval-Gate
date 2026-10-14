@@ -66,6 +66,7 @@ class Base(unittest.TestCase):
     def tearDownClass(cls):
         cls.hr.close()
         cls.mock.terminate()
+        cls.mock.wait()
 
     def setUp(self):
         self.hr.replies.clear()
@@ -417,6 +418,78 @@ class CliTests(unittest.TestCase):
         from para import cli
         self.assertTrue(cli.KEY_RE.fullmatch("sk-hr-abcdefgh12345"))
         self.assertFalse(cli.KEY_RE.fullmatch("sk-ant-abcdefgh12345"))
+
+
+class EmailTests(Base):
+    """The gated action over SMTP, against a local fake mail server."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        from fake_smtp import FakeSMTP
+        cls.smtp = FakeSMTP()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.smtp.close()
+        super().tearDownClass()
+
+    def setUp(self):
+        super().setUp()
+        from para import settings
+        self.smtp.messages.clear()
+        settings.save({**settings.load(), "email": {"host": "127.0.0.1", "port": self.smtp.port, "security": "none",
+                                                   "username": self.smtp.username, "from_addr": "para@example.test",
+                                                   "to_addr": "partner@example.test"}})
+        os.environ["SMTP_PASSWORD"] = self.smtp.password
+
+    def tearDown(self):
+        from para import settings
+        data = settings.load()
+        data.pop("email", None)
+        settings.save(data)
+        os.environ.pop("SMTP_PASSWORD", None)
+
+    def approved_memo(self):
+        self.hr.replies[AUDIT] = audit_reply(auth("Gideon v. Wainwright, 372 U.S. 335 (1963)", "verified", "Gideon v. Wainwright"))
+        return PRACTICE["pl-02"]["text"]
+
+    def test_approved_memo_is_emailed_to_the_partner(self):
+        job, r = self.check(self.approved_memo())
+        self.assertEqual(r["decision"], "APPROVE")
+        self.assertEqual(r["delivery"], {"channel": "email", "to": "partner@example.test", "sent": True, "error": None})
+        self.assertTrue(r["action_executed"])
+        self.assertEqual(len(self.smtp.messages), 1)
+        msg = self.smtp.messages[0]
+        self.assertEqual(msg["to"], ["partner@example.test"])
+        self.assertIn("Gideon v. Wainwright", msg["data"])
+        self.assertIn(job.id, msg["data"])
+
+    def test_blocked_memo_sends_no_email(self):
+        _, r = self.check(PRACTICE["pl-07"]["text"])
+        self.assertEqual((r["decision"], r["delivery"], self.smtp.messages), ("BLOCK", None, []))
+
+    def test_rejected_password_is_reported_not_sent(self):
+        os.environ["SMTP_PASSWORD"] = "wrong"
+        _, r = self.check(self.approved_memo())
+        self.assertEqual(r["decision"], "APPROVE")
+        self.assertFalse(r["action_executed"])
+        self.assertFalse(r["delivery"]["sent"])
+        self.assertIn("rejected", r["delivery"]["error"])
+        self.assertNotIn("wrong", json.dumps(r))
+
+    def test_review_proceed_emails_the_memo(self):
+        self.hr.modes[AUDIT] = "http500"
+        _, held = self.check(PRACTICE["pl-02"]["text"])
+        code, body = pipeline.review(held["check_id"], "proceed", "cite-checked by hand", "A. Attorney")
+        self.assertEqual((code, body["delivery"]["sent"]), (200, True))
+        self.assertIn("cite-checked by hand", self.smtp.messages[-1]["data"])
+
+    def test_unencrypted_smtp_only_to_this_machine(self):
+        from para import mailer
+        with self.assertRaises(mailer.MailError):
+            mailer.check_login({"host": "smtp.example.test", "port": 25, "security": "none", "username": "u"})
+        mailer.check_login(mailer.email_settings())
 
 
 if __name__ == "__main__":

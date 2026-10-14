@@ -17,6 +17,7 @@ KEY_FILE = HOME / "harnessrouter.key" if HOME else ROOT / ".env.harnessrouter"
 DATA_DIR = Path(os.getenv("PARA_DATA_DIR") or (HOME / "data" if HOME else ROOT / "data"))
 REGISTRY = HOME / "registry.json" if HOME else ROOT / "harnesses" / "registry.json"
 SETTINGS_FILE = DATA_DIR / "settings.json"
+SMTP_PASSWORD_FILE = HOME / "smtp.password" if HOME else ROOT / ".env.smtp"
 
 HR_BASE_URL = os.getenv("HR_BASE_URL", "https://api.harnessrouter.ai").rstrip("/")
 # Discovered from GET /v1/uhp on 2026-10-11; re-run discovery before changing it.
