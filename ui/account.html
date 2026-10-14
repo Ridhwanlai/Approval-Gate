@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Para · Account</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230e1630'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white' font-family='Georgia'%3E%C2%B6%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap">
+<style>
+  /* Same tokens as the Para website and app. Layout: a narrow account column of stacked panels. */
+  :root {
+    --bg: #f6f7fb; --card: #ffffff; --soft: #f1f3f9; --ink: #0e1630; --ink-2: #3a4360; --muted: #69718a; --rule: #e3e6ef;
+    --accent: #3b36d6; --accent-ink: #ffffff; --accent-soft: #eceafe; --bar: #0e1630; --bar-ink: #e9ebf5;
+    --ok: #18794e; --ok-bg: #e5f4ec; --hold: #9a5b00; --hold-bg: #fdf1dc; --block: #b4232f; --block-bg: #fbe6e8;
+    --shadow: 0 1px 2px rgba(14, 22, 48, .06), 0 8px 24px rgba(14, 22, 48, .06);
+    --sans: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    --serif: "Newsreader", "Iowan Old Style", Palatino, Georgia, serif; --radius: 14px; color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b1020; --card: #141c38; --soft: #111831; --ink: #eef0f8; --ink-2: #c3c8dc; --muted: #9098b3; --rule: #263055;
+      --accent: #8f8bff; --accent-ink: #0b1020; --accent-soft: #23265a; --bar: #1b2350;
+      --ok: #4cc38a; --ok-bg: #12301f; --hold: #f0b44c; --hold-bg: #33260f; --block: #ff7a85; --block-bg: #3a161c;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25); color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1020; --card: #141c38; --soft: #111831; --ink: #eef0f8; --ink-2: #c3c8dc; --muted: #9098b3; --rule: #263055;
+    --accent: #8f8bff; --accent-ink: #0b1020; --accent-soft: #23265a; --bar: #1b2350;
+    --ok: #4cc38a; --ok-bg: #12301f; --hold: #f0b44c; --hold-bg: #33260f; --block: #ff7a85; --block-bg: #3a161c;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25); color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  a { color: var(--accent); }
+  [hidden] { display: none !important; }
+  .nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--rule); }
+  .nav-in { max-width: 920px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; gap: 16px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-weight: 700; font-size: 24px; letter-spacing: -.03em; }
+  .brand .mark { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; background: var(--ink); color: var(--bg); font: 700 21px/1 var(--serif); }
+  .brand .dot { color: var(--accent); }
+  .nav .right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  main { max-width: 920px; margin: 0 auto; padding: 32px 24px 80px; display: grid; gap: 22px; }
+  @media (max-width: 640px) { main, .nav-in { padding-left: 16px; padding-right: 16px; } }
+  h1 { font-size: clamp(28px, 4vw, 38px); letter-spacing: -.035em; line-height: 1.08; margin: 0; text-wrap: balance; }
+  .sub { color: var(--ink-2); margin: 6px 0 0; }
+  .panel { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 24px 26px; box-shadow: var(--shadow); min-width: 0; }
+  @media (max-width: 640px) { .panel { padding: 20px 16px; } }
+  .panel h2 { font-size: 19px; letter-spacing: -.02em; margin: 0 0 4px; }
+  .panel > p { margin: 0 0 14px; color: var(--ink-2); font-size: 15px; }
+  .kicker { font-size: 12.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: 600 14.5px/1 var(--sans); padding: 11px 18px; border-radius: 999px;
+    border: 1.5px solid var(--accent); background: var(--accent); color: var(--accent-ink); cursor: pointer; text-decoration: none; }
+  .btn.ghost { background: transparent; color: var(--accent); border-color: var(--rule); }
+  .btn.danger { background: transparent; color: var(--block); border-color: var(--rule); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  input { font: 15px var(--sans); color: var(--ink); background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px; min-width: 0; flex: 1 1 240px; }
+  .note { font-size: 13.5px; color: var(--muted); margin: 10px 0 0; }
+  .msg { font-size: 14px; padding: 10px 12px; border-radius: 10px; margin-top: 12px; }
+  .msg.ok { background: var(--ok-bg); color: var(--ok); } .msg.err { background: var(--block-bg); color: var(--block); } .msg.warn { background: var(--hold-bg); color: var(--hold); }
+  /* plan summary: the meter is the point of this panel */
+  .plan-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: baseline; }
+  .plan-name { font-size: 26px; font-weight: 700; letter-spacing: -.03em; }
+  .pill { font-size: 12.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+  .pill.ok { background: var(--ok-bg); color: var(--ok); } .pill.hold { background: var(--hold-bg); color: var(--hold); } .pill.block { background: var(--block-bg); color: var(--block); }
+  .meter { height: 10px; background: var(--soft); border: 1px solid var(--rule); border-radius: 999px; overflow: hidden; margin: 14px 0 6px; }
+  .meter span { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width .4s ease; }
+  .meter.full span { background: var(--block); }
+  .usage-line { display: flex; justify-content: space-between; font-size: 14px; color: var(--ink-2); font-variant-numeric: tabular-nums; gap: 12px; flex-wrap: wrap; }
+  .plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+  @media (max-width: 640px) { .plans { grid-template-columns: 1fr; } }
+  .plan { border: 1px solid var(--rule); border-radius: 12px; padding: 18px; display: grid; gap: 8px; background: var(--soft); }
+  .plan.current { border: 2px solid var(--accent); background: var(--accent-soft); }
+  .plan h3 { margin: 0; font-size: 18px; }
+  .price { font-size: 30px; font-weight: 700; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+  .price small { font-size: 14px; color: var(--muted); font-weight: 500; letter-spacing: 0; }
+  .plan ul { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 14.5px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  td, th { text-align: left; padding: 9px 6px; border-bottom: 1px solid var(--rule); }
+  th { color: var(--muted); font-size: 13px; font-weight: 600; }
+  .tablewrap { overflow-x: auto; }
+  code { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--soft); border: 1px solid var(--rule); border-radius: 6px; padding: 1px 6px; word-break: break-all; }
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="Account">
+  <div class="nav-in">
+    <a class="brand" href="/" aria-label="Back to the memo gate"><span class="mark" aria-hidden="true">¶</span><span>para<span class="dot">.</span></span></a>
+    <div class="right">
+      <a class="btn ghost" href="/">Back to memos</a>
+      <button class="btn ghost" type="button" id="signout">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <header>
+    <p class="kicker" id="firmName">Your firm</p>
+    <h1>Plan, team and settings</h1>
+    <p class="sub" id="who">Loading your account…</p>
+  </header>
+
+  <div id="banner"></div>
+
+  <section class="panel" aria-labelledby="h-plan">
+    <div class="plan-head">
+      <div><p class="kicker" id="h-plan">Plan</p><span class="plan-name" id="planName">…</span> <span class="pill" id="planState"></span></div>
+      <div class="row" id="billingButtons"></div>
+    </div>
+    <div class="meter" id="meter" role="meter" aria-label="AI checks used this period" aria-valuemin="0"><span id="meterBar" style="width:0"></span></div>
+    <div class="usage-line"><span id="usageText">…</span><span id="periodText"></span></div>
+    <div class="plans" id="plans">
+      <article class="plan" data-plan="solo">
+        <h3>Solo</h3><div class="price">$20<small> / month</small></div>
+        <ul><li>150 AI checks a month</li><li>1 user</li><li>Drafting, AI fixes, email to the partner</li></ul>
+        <button class="btn" type="button" data-subscribe="solo">Subscribe to Solo</button>
+      </article>
+      <article class="plan" data-plan="firm">
+        <h3>Firm</h3><div class="price">$150<small> / month</small></div>
+        <ul><li>1,000 AI checks a month</li><li>Up to 10 users</li><li>Your own citation lists, shared review queue</li></ul>
+        <button class="btn" type="button" data-subscribe="firm">Subscribe to Firm</button>
+      </article>
+    </div>
+    <p class="note">Each memo check, AI draft and AI fix uses one AI check. Payments are handled by Stripe; Para never sees your card.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="h-delivery">
+    <h2 id="h-delivery">Where approved memos go</h2>
+    <p>Approved memos, and held memos an attorney proceeds with, are emailed to this address.</p>
+    <form class="row" id="partnerForm">
+      <label class="sr" for="partner" hidden>Partner's email</label>
+      <input id="partner" type="email" placeholder="partner@yourfirm.com" autocomplete="email">
+      <button class="btn" type="submit" id="partnerSave">Save</button>
+    </form>
+    <div id="partnerMsg"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-team">
+    <h2 id="h-team">Team</h2>
+    <p id="seatText">People who can draft and check memos for your firm.</p>
+    <div class="tablewrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th></th></tr></thead><tbody id="members"></tbody></table></div>
+    <div class="row" style="margin-top:14px"><button class="btn ghost" type="button" id="invite">Create invite link</button></div>
+    <div id="inviteOut"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-lists">
+    <h2 id="h-lists">Citation lists</h2>
+    <p id="listsText">Para checks memos against the sample lists until you upload your firm's own.</p>
+    <div class="row">
+      <label class="btn ghost" for="listsFile" id="listsLabel">Upload lists (JSON)</label>
+      <input id="listsFile" type="file" accept="application/json,.json" hidden>
+      <button class="btn danger" type="button" id="listsReset" hidden>Go back to the sample lists</button>
+    </div>
+    <p class="note">One JSON file with <code>trusted_citations.cases</code> (case, citation, year, holding) and <code>known_fabricated.cases</code> (case, optional note): the same shape as the sample files in the Para repository.</p>
+    <div id="listsMsg"></div>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let me = null;
+
+async function call(url, method = "GET", body) {
+  const headers = { "Content-Type": "application/json" };
+  if (method !== "GET" && me) headers["X-CSRF-Token"] = me.csrf;
+  const res = await fetch(url, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
+  if (res.status === 401) { location.replace("/login"); throw new Error("signed out"); }
+  const data = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, data };
+}
+const msg = (el, kind, text) => { $(el).innerHTML = `<div class="msg ${kind}" role="status">${esc(text)}</div>`; };
+const date = (t) => t ? new Date(t * 1000).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }) : "";
+
+function renderPlan() {
+  const u = me.usage, owner = me.role === "owner";
+  $("planName").textContent = u.label;
+  const state = !u.active ? ["block", "Inactive"] : me.billing.status === "past_due" ? ["hold", "Payment failed"] : u.plan === "trial" ? ["ok", "Trial"] : ["ok", "Active"];
+  $("planState").className = "pill " + state[0]; $("planState").textContent = state[1];
+  const pct = Math.min(100, Math.round((u.used / u.checks) * 100));
+  $("meterBar").style.width = pct + "%";
+  $("meter").classList.toggle("full", u.used >= u.checks);
+  $("meter").setAttribute("aria-valuemax", u.checks); $("meter").setAttribute("aria-valuenow", u.used);
+  $("usageText").textContent = `${u.used.toLocaleString()} of ${u.checks.toLocaleString()} AI checks used`;
+  $("periodText").textContent = u.plan === "trial" ? (u.active ? `Trial ends ${date(u.period_end)}` : "Trial ended") : u.period_end ? `Renews ${date(u.period_end)}` : "";
+  const paid = u.plan !== "trial" && u.active;
+  document.querySelectorAll(".plan").forEach((p) => p.classList.toggle("current", p.dataset.plan === u.plan && u.active));
+  document.querySelectorAll("[data-subscribe]").forEach((b) => {
+    b.hidden = paid || !owner;
+    b.disabled = !me.billing.available;
+  });
+  $("billingButtons").innerHTML = owner && me.billing.customer ? `<button class="btn ghost" type="button" id="portal">Manage billing</button>` : "";
+  if ($("portal")) $("portal").onclick = openPortal;
+  let banner = "";
+  if (u.reason) banner = `<div class="msg ${u.active ? "warn" : "err"}">${esc(u.reason)}</div>`;
+  else if (!me.billing.available && owner) banner = `<div class="msg warn">Payments are not switched on for this server yet, so plans can't be bought here.</div>`;
+  if (new URLSearchParams(location.search).has("subscribed")) banner = `<div class="msg ok">Thank you. Your ${esc(u.label)} plan is active.</div>` + banner;
+  if (new URLSearchParams(location.search).has("billing_error")) banner = `<div class="msg err">We couldn't confirm that payment with Stripe. If you were charged, it will appear here within a few minutes.</div>` + banner;
+  $("banner").innerHTML = banner;
+}
+
+async function load() {
+  const r = await call("/api/me");
+  me = r.data;
+  if (me.mode !== "hosted") { location.replace("/"); return; }
+  const owner = me.role === "owner";
+  $("firmName").textContent = me.firm.name;
+  $("who").textContent = `Signed in as ${me.user.email}${owner ? " (owner)" : ""}.${owner ? "" : " Only your firm's owner can change these settings."}`;
+  renderPlan();
+  $("partner").value = me.firm.partner_email || "";
+  $("partner").disabled = $("partnerSave").disabled = !owner;
+  $("invite").hidden = !owner;
+  $("listsLabel").hidden = !owner;
+  $("listsReset").hidden = !owner || !me.firm.custom_lists;
+  $("listsText").textContent = me.firm.custom_lists ? "Para checks memos against your firm's own uploaded lists." : "Para checks memos against the sample lists until you upload your firm's own.";
+  const firm = (await call("/api/firm")).data;
+  $("seatText").textContent = `People who can draft and check memos for your firm. Your ${me.usage.label} plan includes ${me.usage.seats} user${me.usage.seats === 1 ? "" : "s"}.`;
+  $("members").innerHTML = firm.members.map((m) => `<tr><td>${esc(m.name || "")}</td><td>${esc(m.email)}</td><td>${esc(m.role)}</td>
+    <td>${owner && m.role !== "owner" ? `<button class="btn danger" type="button" data-remove="${esc(m.id)}">Remove</button>` : ""}</td></tr>`).join("");
+  document.querySelectorAll("[data-remove]").forEach((b) => (b.onclick = async () => {
+    const r = await call(`/api/firm/members/${b.dataset.remove}`, "DELETE");
+    if (r.ok) load(); else msg("inviteOut", "err", r.data.error || "Could not remove that person.");
+  }));
+}
+
+document.querySelectorAll("[data-subscribe]").forEach((b) => (b.onclick = async () => {
+  b.disabled = true;
+  const r = await call("/api/billing/checkout", "POST", { plan: b.dataset.subscribe });
+  if (r.ok && r.data.url) { location.assign(r.data.url); return; }
+  $("banner").innerHTML = `<div class="msg err">${esc(r.data.error || "Checkout could not start.")}</div>`;
+  b.disabled = false;
+}));
+async function openPortal() {
+  const r = await call("/api/billing/portal", "POST", {});
+  if (r.ok && r.data.url) location.assign(r.data.url);
+  else $("banner").innerHTML = `<div class="msg err">${esc(r.data.error || "Billing could not open.")}</div>`;
+}
+$("partnerForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const r = await call("/api/firm/settings", "PUT", { partner_email: $("partner").value.trim() });
+  if (r.ok) msg("partnerMsg", "ok", r.data.partner_email ? `Saved. Approved memos go to ${r.data.partner_email}.` : "Cleared. Approved memos will be logged only.");
+  else msg("partnerMsg", "err", r.data.error || "Could not save.");
+});
+$("invite").onclick = async () => {
+  const r = await call("/api/firm/invites", "POST", {});
+  if (!r.ok) { msg("inviteOut", "err", r.data.error || "Could not create an invite."); return; }
+  $("inviteOut").innerHTML = `<div class="msg ok">Send this link to your colleague. It works once and expires in ${r.data.expires_days} days.<br><code id="inviteLink">${esc(r.data.link)}</code>
+    <button class="btn ghost" type="button" id="copyInvite" style="margin-top:8px">Copy link</button></div>`;
+  $("copyInvite").onclick = async () => {
+    try { await navigator.clipboard.writeText(r.data.link); $("copyInvite").textContent = "Copied"; }
+    catch { const range = document.createRange(); range.selectNodeContents($("inviteLink")); getSelection().removeAllRanges(); getSelection().addRange(range); $("copyInvite").textContent = "Selected: press Copy"; }
+  };
+};
+$("listsFile").onchange = async () => {
+  const file = $("listsFile").files[0];
+  if (!file) return;
+  let data;
+  try { data = JSON.parse(await file.text()); } catch { msg("listsMsg", "err", "That file is not valid JSON."); return; }
+  const r = await call("/api/firm/lists", "PUT", data);
+  if (r.ok) { msg("listsMsg", "ok", `Loaded ${r.data.trusted} trusted and ${r.data.fabricated} fabricated cases. New checks use them now.`); load(); }
+  else msg("listsMsg", "err", r.data.error || "Those lists could not be loaded.");
+  $("listsFile").value = "";
+};
+$("listsReset").onclick = async () => {
+  const r = await call("/api/firm/lists", "DELETE");
+  if (r.ok) { msg("listsMsg", "ok", "Back to the sample lists."); load(); }
+};
+$("signout").onclick = async () => { await call("/auth/logout", "POST", {}); location.replace("/login"); };
+load();
+</script>
+</body>
+</html>

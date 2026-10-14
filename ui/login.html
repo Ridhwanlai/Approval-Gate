@@ -16,6 +16,7 @@
     --shadow: 0 1px 2px rgba(14, 22, 48, .06), 0 8px 24px rgba(14, 22, 48, .06);
     --sans: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     --serif: "Newsreader", "Iowan Old Style", Palatino, Georgia, serif; color-scheme: light;
+    --side: #0e1630; --side-ink: #eef0f8; --side-dot: #8f8bff; --side-stamp: #ff8a94;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -30,17 +31,18 @@
     --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25); color-scheme: dark;
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased;
     display: grid; grid-template-columns: 1fr 1fr; }
   @media (max-width: 860px) { body { grid-template-columns: 1fr; } .side { display: none; } }
   :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
   a { color: var(--accent); }
-  .side { background: var(--ink); color: var(--bg); padding: 56px 48px; display: flex; flex-direction: column; justify-content: space-between; }
+  .side { background: var(--side); color: var(--side-ink); border-right: 1px solid var(--rule); padding: 56px 48px; display: flex; flex-direction: column; justify-content: space-between; }
   .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 26px; letter-spacing: -.03em; color: inherit; text-decoration: none; }
-  .brand .mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--bg); color: var(--ink); font: 700 22px/1 var(--serif); }
+  .brand .mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--side-ink); color: var(--side); font: 700 22px/1 var(--serif); }
   .side blockquote { margin: 0; font: 26px/1.4 var(--serif); max-width: 22ch; text-wrap: balance; }
   .side .stamp { display: inline-block; margin-top: 18px; font: 700 18px var(--serif); letter-spacing: .06em; padding: 6px 14px;
-    border: 3px double #ff8a94; color: #ff8a94; border-radius: 8px; transform: rotate(-2deg); }
+    border: 3px double var(--side-stamp); color: var(--side-stamp); border-radius: 8px; transform: rotate(-2deg); }
   .side small { opacity: .7; font-size: 14px; }
   .main { display: grid; place-items: center; padding: 40px 16px; }
   .card { width: 100%; max-width: 420px; }
@@ -66,7 +68,7 @@
 </head>
 <body>
   <aside class="side" aria-hidden="true">
-    <span class="brand"><span class="mark">¶</span>para<span style="color:#8f8bff">.</span></span>
+    <span class="brand"><span class="mark">¶</span><span>para<span style="color: var(--side-dot)">.</span></span></span>
     <div>
       <blockquote>"In <i>Varghese v. China Southern Airlines</i>, the court held…"</blockquote>
       <span class="stamp">✕ BLOCKED</span>
@@ -77,7 +79,7 @@
 
   <main class="main">
     <div class="card">
-      <a class="brand mobile-brand" href="/login"><span class="mark" aria-hidden="true">¶</span>para.</a>
+      <a class="brand mobile-brand" href="/login"><span class="mark" aria-hidden="true">¶</span><span>para.</span></a>
       <h1 id="title">Sign in to Para</h1>
       <p class="lede" id="lede">Check every AI-drafted memo before it reaches the partner.</p>
 
