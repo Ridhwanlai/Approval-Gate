@@ -118,6 +118,8 @@ def status():
 
 def _port_free(port):
     with socket.socket() as s:
+        # Same reuse rule as the HTTP server, so a port still draining from a restart counts as free.
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
             s.bind(("127.0.0.1", port))
             return True
