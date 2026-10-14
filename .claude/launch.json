@@ -7,6 +7,12 @@
       "runtimeArgs": ["run.py"],
       "env": { "PORT": "50412" },
       "port": 50412
+    },
+    {
+      "name": "site",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8770", "--bind", "127.0.0.1", "--directory", "docs"],
+      "port": 8770
     }
   ]
 }
