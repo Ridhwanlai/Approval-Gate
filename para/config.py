@@ -9,10 +9,13 @@ import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-KEY_FILE = ROOT / ".env.harnessrouter"
 FIRM_DIR = ROOT / "firm"
-DATA_DIR = Path(os.getenv("PARA_DATA_DIR") or ROOT / "data")
-REGISTRY = ROOT / "harnesses" / "registry.json"
+# A packaged install (para.pyz) sets PARA_HOME, normally ~/.para, so each user's key, harness map and
+# logs live in their own home folder. A source checkout keeps them inside the repository, git-ignored.
+HOME = Path(os.environ["PARA_HOME"]) if os.getenv("PARA_HOME") else None
+KEY_FILE = HOME / "harnessrouter.key" if HOME else ROOT / ".env.harnessrouter"
+DATA_DIR = Path(os.getenv("PARA_DATA_DIR") or (HOME / "data" if HOME else ROOT / "data"))
+REGISTRY = HOME / "registry.json" if HOME else ROOT / "harnesses" / "registry.json"
 
 HR_BASE_URL = os.getenv("HR_BASE_URL", "https://api.harnessrouter.ai").rstrip("/")
 # Discovered from GET /v1/uhp on 2026-10-11; re-run discovery before changing it.
