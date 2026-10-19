@@ -1,123 +1,128 @@
-# Para: stop fabricated cases before the partner reads them
+# ¶ Para
 
-Para is an approval gate between a paralegal's AI-drafted research memo and the supervising partner.
-Every memo is cite-checked against the firm's own lists, scored by Ezio, and read by AI auditors
-running on HarnessRouter. Para then returns APPROVE, HOLD_FOR_REVIEW or BLOCK with a plain-language
-reason and evidence. The memo is sent only on APPROVE.
+**Stop fake cases before your partner reads them.**
 
-**Website:** https://ridhwanlai.github.io/Approval-Gate/ · **Download:** [`docs/download/para.pyz`](docs/download/para.pyz) ·
-**Decision policy:** [POLICY.md](POLICY.md)
+Para checks AI-written legal research memos before they're sent, and stops the ones that cite cases
+that don't exist, misquote a holding, or argue instead of inform. It's free, it's one file, and it
+runs on your own computer.
 
-On the 16-memo practice set, run live through the HarnessRouter agents: 16/16 exact decisions,
-8/8 bad memos caught, 0/8 good memos stopped.
+**[Visit the website](https://ridhwanlai.github.io/Approval-Gate/)** ·
+**[Download Para (free)](https://github.com/Ridhwanlai/Approval-Gate/raw/main/docs/download/para.pyz)** ·
+**[See how it decides](POLICY.md)**
 
-## Use it: one file
+---
 
-```bash
-python3 para.pyz              # first run asks for your HarnessRouter key (hidden), sets up the agents, opens the browser
-python3 para.pyz setup-email  # optional: email approved memos to the partner (Gmail, Outlook or any SMTP server)
-python3 para.pyz status       # what is configured (never prints a key or password)
-python3 para.pyz setup        # replace the HarnessRouter key
-```
+## The problem
 
-In the app: type a research question and choose **Draft with AI**, edit the draft, then **Check and
-send to partner**. Under **AI models**, pick the model each agent runs on from everything your
-HarnessRouter plan offers.
+In *Mata v. Avianca* (2023), two New York lawyers filed a brief built on cases that ChatGPT made
+up. The cases sounded real. The lawyers were sanctioned.
 
-Python 3.9+, nothing else to install. Everything Para stores lives in `~/.para` (override with
-`PARA_HOME`): the HarnessRouter key and SMTP password (each owner-only), the harness map, settings
-(model choices, email details) and the audit log. Without a key, every memo is
-held for review, never sent unread, and the firm's lists still block fabricated cases.
+A trust score can't catch this. A fake case isn't a public fact anyone can look up, so an AI
+fact-checker happily rates the memo as fine. The only thing that knows the case is fake is
+**your firm's own list of cases it has checked**.
 
-**Ezio is simulated in this release.** Para scores memos with the buildathon's Ezio simulation, run
-locally. Ezio's production API (checked 2026-10-13) accepts only signed-in web-app sessions, not a
-developer API key, so a server cannot call it yet. When Ezio provides an API key and endpoint, set
-`EZIO_URL` and `EZIO_KEY` before starting and Para uses it instead.
+## What Para does
 
-## Sell it: hosted Para
+Here is a real memo Para checked. The AI fact-checker scored it a perfect 100:
 
-The same code runs as a paid, multi-firm web service with `python3 run.py serve-hosted`: firms sign
-up, get a 14-day free trial (20 AI checks), then subscribe through Stripe to **Solo** ($20/month,
-150 checks, 1 user) or **Firm** ($150/month, 1,000 checks, 10 users). Each firm's memos, team,
-citation lists, settings and audit log are kept separate; owners manage billing in the Stripe portal.
-See **[DEPLOY.md](DEPLOY.md)** to launch it on Render with `render.yaml`.
+> "In *Varghese v. China Southern Airlines*, the court held that the Montreal Convention tolls the
+> statute of limitations during bankruptcy."
+>
+> **Fact-checker:** GREEN, 100 out of 100
+>
+> **Para:** ✕ **Blocked.** *Varghese v. China Southern Airlines* is on the firm's list of fabricated
+> cases. It was cited in the *Mata v. Avianca* brief, and the court found it did not exist. The
+> partner never received this memo.
 
-## Develop it: from source
+Every memo ends one of three ways:
 
-```bash
-python3 run.py                        # http://127.0.0.1:9000/  (setup|provision|status also work)
-python3 -m unittest discover -s tests # offline: fake HarnessRouter + the mock Ezio, no key needed
-python3 tests/live_eval.py            # live: the 16 practice memos through the real harnesses (uses credits)
-python3 tools/build_pyz.py            # build dist/para.pyz
-python3 tools/record_demo.py --audit data/live_eval/audit_log.jsonl --revise pl-07 pl-12   # refresh the site demo
-```
-
-From source, the key is read from `HR_API_KEY` or the git-ignored, owner-only `.env.harnessrouter`.
-The website is the static `docs/` folder, served by GitHub Pages.
-
-The original buildathon submission is unchanged and still runs: see [TEAM_README.md](TEAM_README.md)
-(`gate.py`, `wrapper/`). The challenge brief that was this repository's README is now
-[CHALLENGE.md](CHALLENGE.md).
-
-## How the work is split
-
-| Layer | Owns | Where |
-|---|---|---|
-| Product (Para server) | UI, firm citation lists, regex cite-check, Ezio client, **the decision**, review queue, audit log, the send action | `para/`, `ui/`, `firm/` |
-| `para-cite-auditor` (Hermes, read-only) | Finds every authority in any format and judges it against the firm lists, including whether a paraphrased holding matches | `harnesses/para-cite-auditor.json` |
-| `para-memo-reviewer` (Hermes, read-only) | Analysis or advocacy: overconfidence, emotional language, one-sidedness | `harnesses/para-memo-reviewer.json` |
-| `para-revision-drafter` (Hermes, writes files only) | On request, drafts a corrected memo for a held or blocked one. Never sent; it must pass the gate again | `harnesses/para-revision-drafter.json` |
-| `para-memo-drafter` (Hermes, read-only) | Writes a first draft from the paralegal's question, citing only trusted cases and marking "[AUTHORITY NEEDED]" gaps. Never sent; it must pass the gate | `harnesses/para-memo-drafter.json` |
-
-**Why four.** Merging the auditor and reviewer would work, but separate harnesses keep two success
-criteria apart, run in parallel and fail independently. The two writers are separate from the two
-judges so no agent grades its own work, and from each other because drafting from a question and
-fixing a held memo have different inputs and success criteria. Ezio stays an API integration. The decision stays in code: a "decider" harness
-would hand the safety call to a model.
-
-**How they combine (`para/gate.py`, `para/pipeline.py`).** For each check the server runs the list
-check, Ezio, the auditor and the reviewer in parallel. Agent output is untrusted: a finding is
-discarded unless its quote is verbatim in the memo and its list entry exists and is named by the
-quote. Validated findings can only make the decision stricter:
-
-- fabricated → BLOCK
-- misstated or unverified → HOLD
-- advocacy → HOLD
-- an agent saying "verified" never lowers anything
-- an agent failure (outage, timeout, billing, unreadable or off-task reply) → HOLD
-
-The browser sends memo text only. The server maps `feature_key` to `harness_id` from the
-registry provisioning writes (`~/.para/registry.json`, or `harnesses/registry.json` from source). Keys, harness IDs and session IDs never reach the page. Traces are
-served through `/api/trace/<check>/<feature>`.
-
-## HarnessRouter notes (checked 2026-10-11)
-
-- The Free plan runs **2 tasks at a time**; the server queues to
-  `HR_MAX_CONCURRENT` (default 2), so a full check takes about one harness run's time per memo in line.
-- `claude-haiku-5.5` returned 402 (`billing_error`, needs a provider key) on the Free plan;
-  `claude-sonnet-5.5` runs, so it is every harness's default. Each agent's model can be changed per
-  install in the app (sent as the Responses API `model` field; checked live with Claude, GPT and
-  Gemini models on 2026-10-13). A model the plan cannot bill is reported and the memo is held.
-- Hermes tool restrictions are enforced by instruction, not hard limits. That is why the server
-  validates every finding.
-
-## Files
-
-| Path | Role |
+| | What happens |
 |---|---|
-| `para/gate.py` | The decision: lists + Ezio + validated agent findings → APPROVE/HOLD/BLOCK |
-| `para/pipeline.py` | Runs checks, drafts and revisions as jobs with per-stage progress; review; trace |
-| `para/agents.py` | Feature → harness routing, task inputs, output validation, plan-limit queue |
-| `para/hr_client.py` | HarnessRouter UHP client: streaming, recovery without resubmitting, retries, error codes |
-| `para/citation_check.py`, `para/ezio_client.py` | From the original Para; the cite-check now ignores doctrine labels like "Miranda warnings" |
-| `para/policy.json` | Every threshold and agent rule with its one-sentence why |
-| `para/cli.py`, `para/provisioning.py` | `run`, `setup`, `setup-email`, `provision`, `status`; creating or updating the harnesses |
-| `para/mailer.py`, `para/settings.py` | Emailing approved memos over SMTP; non-secret settings (models, email) |
-| `para/store.py`, `para/plans.py`, `para/tenant.py` | Hosted: firms, users, sessions, usage and audit in SQLite; plans; per-firm context |
-| `para/billing.py`, `tools/stripe_setup.py` | Hosted: Stripe Checkout, customer portal and signed webhooks; creating the prices |
-| `ui/login.html`, `ui/account.html` | Hosted: sign-in, free trial, invites; plan, billing, team, lists |
-| `render.yaml`, `DEPLOY.md` | Hosted: the Render blueprint and the launch guide |
-| `harnesses/*.json`, `provision.py` | Harness configuration as data, and the script that applies it |
-| `tools/build_pyz.py`, `tools/record_demo.py` | Build the one-file download; record the site's replay demo from live runs |
-| `docs/` | The website, the replay data and the published `para.pyz` |
-| `data/` | `audit_log.jsonl`, `actions.log` (git-ignored) |
+| ✓ **Approved** | Every check passed. The memo goes to the partner. |
+| ‖ **Held** | Something needs a human: a case Para can't verify, overconfident language, or a check that couldn't finish. An attorney reviews it first. |
+| ✕ **Blocked** | A fake or misquoted case, or a false statement. It can't be sent until it's fixed. |
+
+## Why Para is different
+
+- **It checks against your firm's own list.** Not the internet's opinion: the cases your firm has
+  actually verified, and the ones it knows are fake.
+- **Four AI agents, each with one job.** One writes a first draft from your question, one checks
+  every citation, one flags advocacy ("slam dunk!") in what should be neutral analysis, and one
+  drafts a fix when a memo is held or blocked. They run on [HarnessRouter](https://harnessrouter.ai),
+  and you choose the AI model each one uses.
+- **The AI can't overrule the rules.** Para's own code makes every decision. An AI agent can make
+  a memo stricter, never looser, so a memo can't talk its way through.
+- **It fails safe.** If anything is down or unsure, the memo is held for a person. It is never sent
+  unread.
+- **It shows its work.** Every decision comes with the reason, the evidence and a log you can audit.
+- **It's free and private.** One small file on your own computer. Nothing to install, no account
+  with us, no subscription.
+
+## Proof
+
+We ran the challenge's 16 practice memos through Para with the live AI agents:
+
+| | |
+|---|---|
+| Correct decisions | **16 of 16** |
+| Bad memos caught | **8 of 8** |
+| Good memos wrongly stopped | **0 of 8** |
+
+At the Decision-Grade AI Buildathon, the first version scored **48.3 of 50 measured points** on the
+sealed test set and passed all six failure drills.
+
+## Get it free in three steps
+
+1. **[Download `para.pyz`](https://github.com/Ridhwanlai/Approval-Gate/raw/main/docs/download/para.pyz)**
+   (a single 100 KB file). You need Python 3.9 or newer; Macs and Linux usually have it.
+2. **Get a free HarnessRouter account** at [harnessrouter.ai](https://harnessrouter.ai) and create
+   an API key. This runs the AI agents.
+3. **Open Terminal** in the folder where you saved the file and type:
+
+   ```
+   python3 para.pyz
+   ```
+
+   (On Windows: `py para.pyz`.) Paste your key when asked; it's hidden as you type and stays on your
+   computer. Para sets up its agents and opens in your browser.
+
+Then type a research question and choose **Draft with AI**, or paste a memo and choose
+**Check and send to partner**.
+
+## How it works
+
+```mermaid
+flowchart LR
+    A["Your question<br/>or AI memo"] --> B{"Para"}
+    B --> C["Your firm's<br/>case lists"]
+    B --> D["Fact-checker"]
+    B --> E["AI cite-checker"]
+    B --> F["AI tone checker"]
+    C & D & E & F --> G{"Strictest<br/>result wins"}
+    G -->|"all clear"| H["✓ Sent to partner"]
+    G -->|"needs a human"| I["‖ Held for attorney"]
+    G -->|"fake or wrong"| J["✕ Blocked"]
+```
+
+## Questions
+
+**Does Para replace a lawyer?** No. It's a checking tool, not legal advice. An attorney stays
+responsible for every memo.
+
+**Where does my memo go?** Para runs on your computer. To run the AI checks, the memo text goes to
+HarnessRouter under your own account, and nowhere else.
+
+**What does it cost?** Para is free. HarnessRouter's free plan was enough for our testing; heavy
+daily use may need one of their paid plans.
+
+**Can I use my firm's own case lists?** Yes. They're two simple files: the cases you've verified,
+and the ones you know are fake.
+
+## More
+
+- [How Para decides, rule by rule](POLICY.md)
+- [For developers: how it's built, tested and run](DEVELOPERS.md)
+- [The original buildathon challenge](CHALLENGE.md) and [submission](TEAM_README.md)
+
+*Para is a checking tool for legal research memos. It is not legal advice and does not replace an
+attorney's review. Fact-checking (Ezio) is simulated in this release.*
