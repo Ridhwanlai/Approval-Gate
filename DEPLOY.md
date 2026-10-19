@@ -1,4 +1,11 @@
-# Launching hosted Para
+# Optional: launching a hosted, paid Para
+
+> **You don't need this to use or share Para.** Para is free: people download one file and run it on
+> their own computer, and the website is free on GitHub Pages (see the README). This guide is only
+> for running Para as a shared web service that firms sign in to and pay for. It costs about $7–8 a
+> month, because the service needs a disk that keeps accounts between restarts, and free hosts don't
+> provide one (Render's free tier wipes files whenever it sleeps after 15 idle minutes).
+
 
 Hosted Para is the paid, no-install version: firms sign up on the web, start a 14-day trial
 (20 AI checks, no card), and subscribe through Stripe. It runs the same code as the free download
