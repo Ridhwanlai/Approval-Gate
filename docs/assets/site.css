@@ -286,3 +286,8 @@ p code, .note code { font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; 
 .price-card ul { margin: 0 0 8px; padding-left: 20px; color: var(--ink-2); font-size: 15.5px; display: grid; gap: 4px; }
 .price-card .btn { margin-top: auto; justify-content: center; }
 .price-card .amount.word { font-size: 28px; letter-spacing: -.03em; line-height: 1.15; overflow-wrap: anywhere; }
+.paysteps { list-style: none; counter-reset: p; padding: 0; margin: 26px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 860px) { .paysteps { grid-template-columns: 1fr; } }
+.paysteps li { counter-increment: p; border: 1px solid var(--rule); border-radius: var(--radius); padding: 16px 18px; background: var(--bg-soft); }
+.paysteps li b::before { content: counter(p) ". "; color: var(--accent); }
+.paysteps li b { display: block; margin-bottom: 4px; } .paysteps li span { color: var(--ink-2); font-size: 15px; }

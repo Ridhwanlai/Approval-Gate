@@ -8,7 +8,8 @@ runs on your own computer.
 
 **[Visit the website](https://ridhwanlai.github.io/Approval-Gate/)** ·
 **[Download Para (free)](https://github.com/Ridhwanlai/Approval-Gate/raw/main/docs/download/para.pyz)** ·
-**[See how it decides](POLICY.md)**
+**[See how it decides](POLICY.md)** ·
+**[Book a call](https://calendly.com/ridhwanlai-badmos/30min)**
 
 ---
 
@@ -113,7 +114,9 @@ responsible for every memo.
 HarnessRouter under your own account, and nowhere else.
 
 **What does it cost?** Para is free. HarnessRouter's free plan was enough for our testing; heavy
-daily use may need one of their paid plans.
+daily use may need one of their paid plans. If you'd like hands-on help, setup and support plans
+start at $20 a month: [book a call](https://calendly.com/ridhwanlai-badmos/30min), and you can pay
+by Interac e-Transfer or card after it.
 
 **Can I use my firm's own case lists?** Yes. They're two simple files: the cases you've verified,
 and the ones you know are fake.
