@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap">
-<link rel="stylesheet" href="assets/site.css?v=20261019">
+<link rel="stylesheet" href="assets/site.css?v=20261019cb">
 </head>
 <body>
 
@@ -44,7 +44,7 @@
       <h1>Stop fabricated cases <span class="accent">before the partner reads them.</span></h1>
       <p class="lede">Para checks every AI-drafted research memo against <b>your firm's own citation lists</b>, scores it with Ezio, and has AI auditors read it, then decides: send, hold for an attorney, or block.</p>
       <div class="ctas">
-        <a class="btn primary" href="#download">Download Para <span class="arrow" aria-hidden="true">↗</span></a>
+        <a class="btn primary" href="#download">Download Para <span class="arrow" aria-hidden="true">↓</span></a>
         <a class="btn ghost" href="#demo">See it decide <span class="arrow" aria-hidden="true">↓</span></a>
       </div>
       <p class="fineprint">One file. Runs on your computer. Python 3.9+ and a HarnessRouter key.</p>
@@ -130,7 +130,7 @@
         <article class="sig-card">
           <span class="num">2</span>
           <h3>Ezio fact-check</h3>
-          <p>Trust tier, tone, bias and agreement, plus a fact-check of public claims such as what an amendment says. A contradicted claim blocks. Para ships with the buildathon's Ezio simulation; set <code>EZIO_URL</code> to use a live one.</p>
+          <p>Trust tier, tone, bias and agreement, plus a fact-check of public claims such as what an amendment says. A contradicted claim blocks. This release uses a built-in simulation of Ezio; a live connection is planned.</p>
           <p class="tag">Simulated in this release</p>
         </article>
         <article class="sig-card">
@@ -149,14 +149,14 @@
 
       <div class="verdicts">
         <div class="verdict ok"><b class="stamp-mini ok">✓ Approve</b><p>Every check passes. The memo goes to the partner, and only then.</p></div>
-        <div class="verdict hold"><b class="stamp-mini hold">‖ Hold</b><p>A case on neither list, advocacy, a weak score, an unfinished placeholder, or any check that couldn't finish. An attorney logs a reason, then proceeds or rejects.</p></div>
+        <div class="verdict hold"><b class="stamp-mini hold">‖ Hold</b><p>A case on neither list, advocacy, a weak score, an unresolved “[AUTHORITY NEEDED]” note, or any check that couldn't finish. An attorney logs a reason, then proceeds or rejects.</p></div>
         <div class="verdict block"><b class="stamp-mini block">✕ Block</b><p>A fabricated or misstated case, or a claim Ezio contradicts. It can never be pushed through; fix it and resend.</p></div>
       </div>
 
       <ul class="guarantees">
-        <li><b>Fails closed.</b> If Ezio or an agent is down, slow or unreadable, the memo is held, never sent unread.</li>
+        <li><b>It fails safe.</b> If Ezio or an agent is down, slow or unreadable, the memo is held, never sent unread.</li>
         <li><b>Agents can't lower a decision.</b> An AI saying "this case is fine" never overrides your list. A memo can't talk its way through.</li>
-        <li><b>Every call is audited.</b> Input, evidence, reason, reviewer and whether it was sent, in an append-only log.</li>
+        <li><b>Every decision is logged.</b> The memo, the evidence, the reason, the reviewer and whether it was sent, in a log that can't be edited.</li>
       </ul>
     </div>
   </section>
@@ -165,7 +165,7 @@
     <div class="wrap">
       <p class="kicker">The agents</p>
       <h2>Four Hermes agents on HarnessRouter, one job each.</h2>
-      <p class="section-lede">Each agent is a configured harness with its own instructions, tools and limits. They are split by job and permission: the two that judge can't write, and the two that write never judge. Pick the model each one runs on, from every model your HarnessRouter plan offers.</p>
+      <p class="section-lede">Each agent has its own instructions, tools and limits. They are split by job and permission: the two that judge can't write, and the two that write never judge. Pick the model each one runs on, from every model your HarnessRouter plan offers.</p>
       <div class="agents">
         <article class="agent-card">
           <header><span class="agent-ico" aria-hidden="true">?</span><div><h3>Memo drafter</h3><code>para-memo-drafter</code></div></header>
@@ -192,7 +192,7 @@
       <div class="arch" aria-label="How Para connects to HarnessRouter">
         <div class="arch-node"><b>Browser</b><span>Memo text only. Never sees a key, harness or session ID.</span></div>
         <div class="arch-link" aria-hidden="true">→</div>
-        <div class="arch-node strong"><b>Para server, on your machine</b><span>Lists, Ezio, policy, audit log. Maps each feature to its harness and makes the decision.</span></div>
+        <div class="arch-node strong"><b>Para server, on your machine</b><span>Your lists, the rules and the audit log. Sends each job to the right agent and makes the decision.</span></div>
         <div class="arch-link" aria-hidden="true">→</div>
         <div class="arch-node"><b>HarnessRouter</b><span>One API. Runs each Hermes agent in its own sandbox and keeps a trace of what it did.</span></div>
       </div>
@@ -200,9 +200,9 @@
         <li><b>Ask</b><span>The paralegal types the question. The memo drafter writes a first draft from your verified cases.</span></li>
         <li><b>Edit</b><span>The draft lands in the editor. Nothing has been sent.</span></li>
         <li><b>Check</b><span>Lists, Ezio, the cite-auditor and the memo reviewer run together; Para decides.</span></li>
-        <li><b>Send</b><span>Approved memos are emailed to the partner from your firm's own mail account. Held ones wait for an attorney.</span></li>
+        <li><b>Send</b><span>Approved memos are emailed to the partner from your firm's own account once email is set up, and otherwise recorded. Held ones wait for an attorney.</span></li>
       </ol>
-      <p class="note">Agent output is untrusted. A finding is discarded unless its quote appears word for word in the memo and the case it names is really on your list. Harness configuration is plain JSON in the repository, so it can be reviewed and reproduced.</p>
+      <p class="note">Agent output is untrusted. A finding is discarded unless its quote appears word for word in the memo and the case it names is really on your list. Each agent's setup is published in the repository, so anyone can review it.</p>
     </div>
   </section>
 
@@ -210,14 +210,14 @@
     <div class="wrap center">
       <p class="kicker">Results</p>
       <h2>Every bad memo caught. No good memo stopped.</h2>
-      <p class="section-lede">The challenge's 16-memo practice set, run end to end through the live Hermes agents on HarnessRouter on 11 October 2026, with the simulated Ezio.</p>
+      <p class="section-lede">The 16-memo practice set from the Decision-Grade AI Buildathon, run end to end through the live AI agents on 11 October 2026.</p>
       <div class="stats">
         <div class="stat"><b>16<small>/16</small></b><span>exact decisions</span></div>
         <div class="stat"><b>8<small>/8</small></b><span>bad memos caught</span></div>
         <div class="stat"><b>0<small>/8</small></b><span>good memos held or blocked</span></div>
         <div class="stat"><b>32<small>/32</small></b><span>agent runs completed</span></div>
       </div>
-      <p class="note center-note">At the buildathon, the earlier lists-and-Ezio version scored 48.3 / 50 measured points on the sealed final set: 12 of 12 core decisions exact, 5 of 6 stretch memos, and all six failure drills (rate limit, server error, outage, slow response, malformed response, fact-check unavailable). Each agent run takes about 15–20 s on its own.</p>
+      <p class="note center-note">At the buildathon itself, Para's first version scored 48.3 of 50 measured points on the judges' sealed test set, and passed all six failure drills: rate limits, server errors, an outage, slow and malformed responses, and an unavailable fact-check. Each AI check takes about 15 to 20 seconds.</p>
     </div>
   </section>
 
@@ -225,7 +225,7 @@
     <div class="wrap">
       <p class="kicker">See it decide</p>
       <h2>Pick a memo. See exactly why it was sent, held or blocked.</h2>
-      <p class="section-lede">A replay of Para's real decisions on the 16 practice memos, recorded from a live run with the Hermes agents on HarnessRouter. Nothing on this page calls an API; download Para to run your own memos.</p>
+      <p class="section-lede">A replay of Para's real decisions on the 16 practice memos, recorded from a live run with the Hermes agents on HarnessRouter. This page only replays those results; download Para to check your own memos.</p>
       <div class="demo">
         <div class="docket" role="listbox" aria-label="Practice memos" id="docket"><p class="muted">Loading recorded decisions…</p></div>
         <div class="decision" id="decision" aria-live="polite"></div>
@@ -242,13 +242,13 @@
         <article class="price-card">
           <h3>Free</h3>
           <p class="amount">$0 <small>forever</small></p>
-          <ul><li>The full app: all four AI agents</li><li>Runs on your own computer</li><li>You set it up with the guide</li><li>Bring your own HarnessRouter account (free plan available)</li></ul>
+          <ul><li>The full app: all four AI agents</li><li>Runs on your own computer</li><li>Set it up yourself in three steps</li><li>Bring your own HarnessRouter account (free plan available)</li></ul>
           <a class="btn ghost" href="#download">Download Para</a>
         </article>
         <article class="price-card featured">
           <h3>Solo setup &amp; support</h3>
           <p class="amount">$20 <small>/ month</small></p>
-          <ul><li>We install Para with you and connect HarnessRouter and email</li><li>We load your verified and known-fake case lists</li><li>Support by email when something's off</li><li>For one person</li></ul>
+          <ul><li>We install Para with you and connect HarnessRouter and email</li><li>We load your verified and known-fake case lists</li><li>Email support</li><li>For one person</li></ul>
           <a class="btn primary" href="https://calendly.com/ridhwanlai-badmos/30min" target="_blank" rel="noopener">Book a call</a>
         </article>
         <article class="price-card">
@@ -269,26 +269,37 @@
   <section id="download" class="soft">
     <div class="wrap">
       <p class="kicker">Get Para</p>
-      <h2>One file. Three steps. Running on your machine.</h2>
+      <h2>One file. Three steps. Running on your computer.</h2>
       <p class="section-lede">Para runs on your own computer, so memos never sit on someone else's server. The AI checks run on HarnessRouter under your own account and key.</p>
       <div class="get">
         <div class="get-main">
           <ol class="steps">
-            <li><b>Download <code>para.pyz</code></b><span>A single 60 KB file. Nothing to install beyond Python 3.9 or newer, which macOS and Linux usually have.</span></li>
+            <li><b>Download <code>para.pyz</code></b><span>A single file of about 100 KB. You only need Python 3.9 or newer, which Macs and Linux usually have. On Windows, install it free from python.org.</span></li>
             <li><b>Run it</b><pre><code>python3 para.pyz</code></pre></li>
             <li><b>Paste your HarnessRouter key once</b><span>Create one in the <a href="https://harnessrouter.ai">HarnessRouter console</a>. Para stores it on your computer only, readable by you alone, sets up its four agents in your account, and opens the gate in your browser.</span></li>
-            <li><b>Optional: connect email</b><pre><code>python3 para.pyz setup-email</code></pre><span>Approved memos are then emailed to the partner from your own mail account (Gmail, Outlook or any SMTP server). Until then they are logged only.</span></li>
           </ol>
+          <div class="optional">
+            <h3>Optional: email approved memos to the partner</h3>
+            <p>Without this step, Para records approved memos in its log but doesn't email them. To have them emailed from your firm's own account, run this once:</p>
+            <pre><code>python3 para.pyz setup-email</code></pre>
+            <p>Para asks for:</p>
+            <ul>
+              <li>your mail provider: Gmail, Outlook, or your firm's own mail server;</li>
+              <li>the address memos come from, and the partner's address they go to;</li>
+              <li>the account's password. For Gmail and Outlook this must be an <b>app password</b>, which you create in your Google or Microsoft account's security settings, not your everyday password.</li>
+            </ul>
+            <p>Para signs in once to test the details before saving them, and keeps the password on your computer only. If an email ever fails, Para tells you it wasn't delivered.</p>
+          </div>
           <div class="ctas left">
             <a class="btn primary" href="download/para.pyz" download>Download para.pyz <span class="arrow" aria-hidden="true">↓</span></a>
             <a class="btn ghost" href="https://github.com/Ridhwanlai/Approval-Gate">View source <span class="arrow" aria-hidden="true">↗</span></a>
           </div>
-          <p class="note">Windows: run <code>py para.pyz</code>. Later: <code>python3 para.pyz status</code> shows what's configured; <code>python3 para.pyz setup</code> replaces the key.</p>
+          <p class="note">On Windows, type <code>py</code> instead of <code>python3</code> in each command. Later, <code>python3 para.pyz status</code> shows what's set up, and <code>python3 para.pyz setup</code> replaces your HarnessRouter key.</p>
         </div>
         <aside class="get-side">
           <h3>What it costs</h3>
           <p>Para is free and open source. The AI agents run on your own HarnessRouter account: two agent runs per check, plus one for each AI draft or fix. HarnessRouter's free plan was enough for our testing.</p>
-          <p>On the free plan, two agent runs happen at a time, so Para queues the rest.</p>
+          <p>HarnessRouter's free plan runs two agents at a time, so a busy moment can mean a short wait.</p>
           <h3>Want help setting it up?</h3>
           <p>We'll install Para with you, load your firm's verified and known-fake case lists, and support you after. Plans start at $20 a month.</p>
           <a class="btn primary small" href="https://calendly.com/ridhwanlai-badmos/30min" target="_blank" rel="noopener">Book a call</a>
@@ -320,7 +331,7 @@
         </details>
         <details>
           <summary>How do we use our own citation lists?</summary>
-          <p>The lists are two JSON files in <code>firm/</code>: verified cases with citation, year and a one-line holding, and cases known to be fabricated. A pilot replaces the sample lists with yours.</p>
+          <p>Para comes with sample lists. Your firm's lists are two simple files: the cases you've verified, each with its citation, year and a one-line holding, and the cases you know are fake. On a paid plan, we load yours for you.</p>
         </details>
         <details>
           <summary>Which AI models does it use?</summary>
@@ -360,6 +371,7 @@
       <button class="theme-toggle" type="button" id="theme">Theme</button>
       <a href="https://github.com/Ridhwanlai/Approval-Gate">GitHub</a>
       <a href="https://github.com/Ridhwanlai/Approval-Gate/blob/main/POLICY.md">Decision policy</a>
+      <a href="https://calendly.com/ridhwanlai-badmos/30min" target="_blank" rel="noopener">Book a call</a>
     </span>
   </div>
 </footer>

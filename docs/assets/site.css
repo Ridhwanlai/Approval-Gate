@@ -291,3 +291,10 @@ p code, .note code { font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; 
 .paysteps li { counter-increment: p; border: 1px solid var(--rule); border-radius: var(--radius); padding: 16px 18px; background: var(--bg-soft); }
 .paysteps li b::before { content: counter(p) ". "; color: var(--accent); }
 .paysteps li b { display: block; margin-bottom: 4px; } .paysteps li span { color: var(--ink-2); font-size: 15px; }
+.optional { border: 1px dashed var(--rule); border-radius: var(--radius); padding: 18px 20px; margin: 4px 0 24px; background: var(--bg-soft); }
+.optional h3 { margin: 0 0 8px; font-size: 18px; letter-spacing: -.02em; }
+.optional p, .optional li { color: var(--ink-2); font-size: 15.5px; margin: 0 0 10px; }
+.optional ul { margin: 0 0 10px; padding-left: 20px; display: grid; gap: 4px; }
+.optional pre { margin: 0 0 12px; }
+@media (max-width: 640px) { .optional { padding: 16px 14px; } }
+.get-main, .get-side { min-width: 0; }
