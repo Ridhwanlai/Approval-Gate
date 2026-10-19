@@ -285,3 +285,4 @@ p code, .note code { font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; 
 .price-card .amount small { font-size: 16px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
 .price-card ul { margin: 0 0 8px; padding-left: 20px; color: var(--ink-2); font-size: 15.5px; display: grid; gap: 4px; }
 .price-card .btn { margin-top: auto; justify-content: center; }
+.price-card .amount.word { font-size: 28px; letter-spacing: -.03em; line-height: 1.15; overflow-wrap: anywhere; }
