@@ -10,7 +10,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parent.parent / "ezio_sim"
 DATA = json.loads((HERE / "fixtures.json").read_text())
 KEY = "mock-team-key"
 

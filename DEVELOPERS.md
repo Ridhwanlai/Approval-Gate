@@ -45,9 +45,8 @@ python3 tools/record_demo.py --audit data/live_eval/audit_log.jsonl --revise pl-
 From source, the key is read from `HR_API_KEY` or the git-ignored, owner-only `.env.harnessrouter`.
 The website is the static `docs/` folder, served by GitHub Pages.
 
-The original buildathon submission is unchanged and still runs: see [TEAM_README.md](TEAM_README.md)
-(`gate.py`, `wrapper/`). The challenge brief that was this repository's README is now
-[CHALLENGE.md](CHALLENGE.md).
+The original buildathon submission is kept, unchanged and still runnable, in [buildathon/](buildathon/README.md).
+The simulated Ezio that both use lives in [ezio_sim/](ezio_sim/README.md).
 
 ## How the work is split
 
@@ -111,4 +110,7 @@ served through `/api/trace/<check>/<feature>`.
 | `harnesses/*.json`, `provision.py` | Harness configuration as data, and the script that applies it |
 | `tools/build_pyz.py`, `tools/record_demo.py` | Build the one-file download; record the site's replay demo from live runs |
 | `docs/` | The website, the replay data and the published `para.pyz` |
+| `ezio_sim/` | The simulated Ezio scoring API Para uses unless `EZIO_URL` is set |
+| `firm/`, `ui/persona.html`, `tests/` | The sample firm's citation lists and practice memos; the app's page; the test suite |
+| `buildathon/` | The original buildathon entry, kept as judged |
 | `data/` | `audit_log.jsonl`, `actions.log` (git-ignored) |

@@ -282,7 +282,7 @@ def _serve(host, port, open_browser, demo=False):
         mock_port = _free_port()
         env = {k: v for k, v in os.environ.items() if k != "HR_API_KEY"}  # the mock never needs the key
         env.update(HOST="127.0.0.1", PORT=str(mock_port), LATENCY=os.getenv("LATENCY", "0.5-1.5"))
-        mock = subprocess.Popen([sys.executable, str(config.ROOT / "mock_ezio.py")], env=env, cwd=config.ROOT,
+        mock = subprocess.Popen([sys.executable, str(config.ROOT / "ezio_sim" / "mock_ezio.py")], env=env, cwd=config.ROOT,
                                 stdout=subprocess.DEVNULL)
         for _ in range(50):
             try:

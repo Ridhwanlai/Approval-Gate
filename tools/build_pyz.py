@@ -16,7 +16,7 @@ import zipapp
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-INCLUDE = ["para", "ui", "firm", "mock_ezio.py", "fixtures.json"]
+INCLUDE = ["para", "ui", "firm", "ezio_sim"]
 SPECS = "harnesses/para-*.json"
 
 BOOTSTRAP = '''\

@@ -24,7 +24,7 @@ def main():
         s.bind(("127.0.0.1", 0))
         port = s.getsockname()[1]
     env = {k: v for k, v in os.environ.items() if k != "HR_API_KEY"}
-    mock = subprocess.Popen([sys.executable, str(ROOT / "mock_ezio.py")], env={**env, "PORT": str(port), "LATENCY": "0.5-1.5"},
+    mock = subprocess.Popen([sys.executable, str(ROOT / "ezio_sim" / "mock_ezio.py")], env={**env, "PORT": str(port), "LATENCY": "0.5-1.5"},
                             stdout=subprocess.DEVNULL)
     os.environ["EZIO_URL"] = f"http://127.0.0.1:{port}"
     os.environ.setdefault("PARA_DATA_DIR", str(ROOT / "data" / "live_eval"))

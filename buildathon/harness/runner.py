@@ -92,7 +92,7 @@ class Stack:
             claims_file.chmod(0o600)
             mock_env["EXTRA_KNOWN_CLAIMS"] = str(claims_file)
         self.mock_url = f"http://127.0.0.1:{mock_env['PORT']}"
-        mock = self._spawn([sys.executable, str(REPO / "mock_ezio.py")], mock_env, REPO, tmp / "mock.stderr")
+        mock = self._spawn([sys.executable, str(REPO.parent / "ezio_sim" / "mock_ezio.py")], mock_env, REPO, tmp / "mock.stderr")
         try:
             wait_for(self.mock_url + "/v1/health", mock, "mock", 20)
         except StackError as e:

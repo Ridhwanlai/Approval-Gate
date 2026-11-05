@@ -56,7 +56,7 @@ class Base(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         env = {**os.environ, "HOST": "127.0.0.1", "PORT": str(MOCK_PORT), "LATENCY": "0"}
-        cls.mock = subprocess.Popen([sys.executable, str(ROOT / "mock_ezio.py")], env=env, stdout=subprocess.DEVNULL)
+        cls.mock = subprocess.Popen([sys.executable, str(ROOT / "ezio_sim" / "mock_ezio.py")], env=env, stdout=subprocess.DEVNULL)
         for _ in range(50):
             try:
                 urllib.request.urlopen(f"http://127.0.0.1:{MOCK_PORT}/v1/health", timeout=1)

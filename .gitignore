@@ -7,7 +7,8 @@ __pycache__/
 *.log
 *.jsonl
 runs/
-results/*.practice.*
+buildathon/results/*.practice.*
+buildathon/runs/
 
 # Para on HarnessRouter
 /.env.harnessrouter

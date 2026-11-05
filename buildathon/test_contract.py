@@ -9,7 +9,8 @@ from http.server import ThreadingHTTPServer
 from pathlib import Path
 from unittest.mock import patch
 
-import mock_ezio
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "ezio_sim"))
+import mock_ezio  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "wrapper"))
 

@@ -125,7 +125,7 @@ and the ones you know are fake.
 
 - [How Para decides, rule by rule](POLICY.md)
 - [For developers: how it's built, tested and run](DEVELOPERS.md)
-- [The original buildathon challenge](CHALLENGE.md) and [submission](TEAM_README.md)
+- [The original buildathon entry](buildathon/README.md): the challenge, the submission and its judged results
 
 *Para is a checking tool for legal research memos. It is not legal advice and does not replace an
 attorney's review. Fact-checking (Ezio) is simulated in this release.*

@@ -56,7 +56,7 @@ def tree_digest(paths):
         root = Path(root)
         files.extend([root] if root.is_file() else (p for p in root.rglob("*") if p.is_file()))
     for path in sorted(set(files)):
-        rel = path.relative_to(REPO)
+        rel = path.relative_to(REPO.parent)
         if (set(rel.parts) & SKIP_DIRS) or path.suffix in SKIP_SUFFIXES or path.name in (".DS_Store", "actions.log"):
             continue
         digest.update(str(rel).replace("\\", "/").encode() + b"\0" + path.read_bytes() + b"\0")
@@ -65,7 +65,7 @@ def tree_digest(paths):
 
 def tool_digest():
     """Hash of everything teams are not meant to change: harness, mock, fixtures, persona data."""
-    return tree_digest([REPO / "harness", REPO / "gate.py", REPO / "mock_ezio.py", REPO / "fixtures.json", REPO / "personas"])
+    return tree_digest([REPO / "harness", REPO / "gate.py", REPO.parent / "ezio_sim" / "mock_ezio.py", REPO.parent / "ezio_sim" / "fixtures.json", REPO / "personas"])
 
 
 def wrapper_digest():
