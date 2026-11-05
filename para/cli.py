@@ -261,7 +261,18 @@ def admin(args):
         raise SystemExit(str(e))
 
 
-def _serve(host, port, open_browser):
+def serve_demo():
+    """The free public try-it service (e.g. on Render's free tier). Settings come from the environment."""
+    config.MODE, config.DEMO = "demo", True
+    config.REGISTRY = config.DATA_DIR / "registry.json"
+    if not config.hr_api_key():
+        _say("Warning: HR_API_KEY is not set, so AI agents are unavailable and every demo memo will be held.")
+    else:
+        ensure_harnesses()
+    _serve(os.getenv("HOST", "0.0.0.0"), int(os.getenv("PORT", "10000")), False, demo=True)
+
+
+def _serve(host, port, open_browser, demo=False):
     # A real Ezio endpoint (EZIO_URL, with EZIO_KEY) is used when given; otherwise the bundled simulation runs locally.
     mock = None
     if os.getenv("EZIO_URL"):
@@ -283,6 +294,8 @@ def _serve(host, port, open_browser):
     # Turn SIGTERM into a normal exit so the finally block below also stops the Ezio simulation.
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
     from . import server  # imported after EZIO_URL is set; ezio_client reads it at import
+    if demo:
+        from . import demo_server as server  # noqa: F811
     if open_browser:
         webbrowser.open(f"http://127.0.0.1:{port}/")
     try:
@@ -303,6 +316,7 @@ def main(argv=None):
     sub.add_parser("setup-email", help="email approved memos to the partner (SMTP)")
     sub.add_parser("status", help="show what is configured")
     sub.add_parser("serve-hosted", help="run the paid multi-firm service (settings from the environment)")
+    sub.add_parser("serve-demo", help="run the free public try-it service (settings from the environment)")
     g = sub.add_parser("grant", help="hosted: give a firm a paid plan paid outside Stripe (e.g. e-Transfer)")
     g.add_argument("--email", required=True, help="any member's email; the whole firm gets the plan")
     g.add_argument("--plan", required=True, choices=["solo", "firm"])
@@ -319,6 +333,8 @@ def main(argv=None):
         sys.exit(0 if ensure_harnesses(force=True) else 1)
     if args.cmd == "serve-hosted":
         return serve_hosted()
+    if args.cmd == "serve-demo":
+        return serve_demo()
     if args.cmd in ("grant", "revoke", "firms"):
         return admin(args)
     if args.cmd == "status":

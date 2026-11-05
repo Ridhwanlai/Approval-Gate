@@ -406,6 +406,90 @@ class HttpTests(Base):
         self.assertEqual(self.req("/api/checks/chk_000000000000/review", {"outcome": "proceed", "note": "x"})[0], 404)
 
 
+class DemoTests(Base):
+    """The free public try-it service: real gate and agents, limits, nothing kept or sent."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        from http.server import ThreadingHTTPServer
+        import threading
+        from para import demo_server
+        cls.demo = demo_server
+        cls.web = ThreadingHTTPServer(("127.0.0.1", 0), demo_server.DemoHandler)
+        cls.base = f"http://127.0.0.1:{cls.web.server_address[1]}"
+        threading.Thread(target=cls.web.serve_forever, daemon=True).start()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.web.shutdown()
+        super().tearDownClass()
+
+    def setUp(self):
+        super().setUp()
+        config.DEMO = True
+        self.demo._day.update(date=None, total=0, visitors={})
+        self.data_dir, config.DATA_DIR = config.DATA_DIR, Path(tempfile.mkdtemp(prefix="para-demo-"))
+
+    def tearDown(self):
+        config.DEMO = False
+        config.DATA_DIR = self.data_dir
+
+    def req(self, path, body=None, headers=None, method=None):
+        r = urllib.request.Request(self.base + path, data=json.dumps(body).encode() if body is not None else None,
+                                   headers={"Content-Type": "application/json", **(headers or {})}, method=method)
+        try:
+            with urllib.request.urlopen(r, timeout=30) as f:
+                return f.status, json.loads(f.read() or b"{}"), dict(f.headers)
+        except urllib.error.HTTPError as e:
+            return e.code, json.loads(e.read() or b"{}"), dict(e.headers)
+
+    def run_check(self, text, ip="9.9.9.9"):
+        code, body, _ = self.req("/api/demo/check", {"text": text}, {"X-Forwarded-For": ip})
+        if code != 202:
+            return code, body
+        for _ in range(200):
+            code, job, _ = self.req(f"/api/demo/checks/{body['id']}")
+            if job["state"] == "done":
+                return code, job
+            time.sleep(0.05)
+        self.fail("check did not finish")
+
+    def test_real_decision_and_nothing_kept(self):
+        code, job = self.run_check(PRACTICE["pl-07"]["text"])
+        self.assertEqual((code, job["result"]["decision"]), (200, "BLOCK"))
+        self.assertEqual(set(job), {"id", "state", "seconds", "stages", "result"})
+        dump = json.dumps(job)
+        for secret in ("hsess", "resp_", "chrn_", "sk-hr-"):
+            self.assertNotIn(secret, dump)
+        self.assertTrue(self.hr.calls, "the demo must run the real agents")
+        self.assertEqual(list(config.DATA_DIR.iterdir()), [], "the demo must not write audit or action logs")
+
+    def test_limits(self):
+        self.assertEqual(self.req("/api/demo/check", {"text": "x" * (self.demo.MAX_CHARS + 1)})[0], 400)
+        self.assertEqual(self.req("/api/demo/check", {"text": "  "})[0], 400)
+        for _ in range(self.demo.PER_VISITOR):
+            self.assertEqual(self.run_check("A short memo with no authorities.", ip="1.1.1.1, 5.5.5.5")[0], 200)
+        code, body = self.run_check("One more.", ip="1.1.1.1, 5.5.5.5")
+        self.assertEqual(code, 429)
+        self.assertIn("Download Para", body["error"])
+        self.assertEqual(self.run_check("Someone else.", ip="6.6.6.6")[0], 200)
+
+    def test_cors_only_for_the_website(self):
+        site = sorted(self.demo.ORIGINS)[0]
+        _, _, h = self.req("/health", headers={"Origin": site})
+        self.assertEqual(h.get("Access-Control-Allow-Origin"), site)
+        _, _, h = self.req("/health", headers={"Origin": "https://evil.example"})
+        self.assertNotIn("Access-Control-Allow-Origin", h)
+        r = urllib.request.Request(self.base + "/api/demo/check", method="OPTIONS", headers={"Origin": site})
+        with urllib.request.urlopen(r, timeout=5) as f:
+            self.assertEqual((f.status, f.headers["Access-Control-Allow-Origin"]), (204, site))
+
+    def test_other_routes_are_not_exposed(self):
+        for path in ("/", "/api/checks", "/api/settings", "/api/audit"):
+            self.assertEqual(self.req(path)[0], 404)
+
+
 class CliTests(unittest.TestCase):
     def test_save_key_is_owner_only_and_readable_back(self):
         from para import cli

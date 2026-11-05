@@ -49,6 +49,19 @@ def running(firm_id):
         return sum(1 for j in _jobs.values() if j.firm_id == firm_id and j.state == "running")
 
 
+def prune(max_age_s=1800):
+    """Forget finished jobs older than max_age_s (the public demo keeps nothing for long)."""
+    now = time.monotonic()
+    with _lock:
+        for job_id in [j for j, job in _jobs.items() if job.state == "done" and now - job.started > max_age_s]:
+            del _jobs[job_id]
+
+
+def running_total():
+    with _lock:
+        return sum(1 for j in _jobs.values() if j.state == "running")
+
+
 def get(job_id):
     """The job, only if it belongs to the current firm (hosted) or this install (local)."""
     with _lock:

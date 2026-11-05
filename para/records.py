@@ -19,6 +19,8 @@ def _append(name, entry):
 
 
 def audit(entry):
+    if config.DEMO:  # the public demo keeps no record of visitors' memos
+        return
     entry = {"timestamp": _now(), **entry}
     if config.HOSTED:  # per-firm audit in the database
         from . import store
@@ -32,6 +34,8 @@ def submit_memo_to_partner(memo, check_id, reason="", subject=""):
     Returns {channel, to, sent, error}. Every attempt, failed or not, goes to actions.log, so a blocked
     memo is visible by its absence and a failed delivery is never mistaken for a sent one.
     """
+    if config.DEMO:  # the public demo never sends anything
+        return {"channel": "demo", "to": None, "sent": False, "error": None}
     from . import mailer
     delivery = {**mailer.describe(), "sent": False, "error": None}
     if delivery["channel"] == "email":

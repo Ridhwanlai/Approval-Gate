@@ -25,6 +25,8 @@ HR_UHP_VERSION = os.getenv("HR_UHP_VERSION", "2026-09-28")
 # "local": one install, one user (the download). "hosted": many firms behind sign-in (the paid service).
 MODE = os.getenv("PARA_MODE", "local")
 HOSTED = MODE == "hosted"
+# "demo": the free public try-it service. No accounts, nothing stored, nothing sent.
+DEMO = MODE == "demo"
 # The public address of the hosted app, e.g. https://para-memo-gate.onrender.com (links, cookies, Stripe returns).
 PUBLIC_URL = os.getenv("PUBLIC_URL", "http://127.0.0.1:9000").rstrip("/")
 DB_FILE = DATA_DIR / "para.db"
