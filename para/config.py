@@ -49,6 +49,17 @@ def hr_api_key():
     return ""
 
 
+def hr_key_problem(key=None):
+    """Why a HarnessRouter key cannot work, or "" if it looks usable. Never includes the key itself."""
+    key = hr_api_key() if key is None else key
+    if not key:
+        return "HR_API_KEY is not set"
+    if not key.isascii() or any(c.isspace() for c in key):
+        return ("HR_API_KEY contains characters a real key never has. It looks like the masked version "
+                "(with dots) was copied; paste the full key from HarnessRouter instead")
+    return ""
+
+
 def registry():
     """feature_key -> harness_id, written by harnesses/provision.py. Non-secret."""
     try:

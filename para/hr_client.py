@@ -68,7 +68,7 @@ class Client:
         self._scheme, self._host, self._port, self._prefix = u.scheme, u.hostname, u.port, u.path.rstrip("/")
 
     def configured(self):
-        return bool(self.key)
+        return bool(self.key) and not config.hr_key_problem(self.key)
 
     def _conn(self, timeout):
         cls = http.client.HTTPSConnection if self._scheme == "https" else http.client.HTTPConnection

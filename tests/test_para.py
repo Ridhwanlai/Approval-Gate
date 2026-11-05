@@ -490,6 +490,13 @@ class DemoTests(Base):
             self.assertEqual(self.req(path)[0], 404)
 
 
+class KeyTests(unittest.TestCase):
+    def test_masked_key_is_reported_not_sent(self):
+        self.assertIn("masked", config.hr_key_problem("sk-hr-\u2022\u2022\u2022\u20221cd0"))
+        self.assertEqual(config.hr_key_problem("sk-hr-abcdef0123456789"), "")
+        self.assertFalse(Client(base_url="http://127.0.0.1:1", api_key="sk-hr-\u2022\u2022").configured())
+
+
 class CliTests(unittest.TestCase):
     def test_save_key_is_owner_only_and_readable_back(self):
         from para import cli

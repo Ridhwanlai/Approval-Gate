@@ -51,8 +51,8 @@ def specs():
 
 def provision(check=False, log=print):
     """Apply every spec; return the registry dict (and write it unless check=True)."""
-    if not config.hr_api_key():
-        raise ProvisionError("No HarnessRouter key is configured.")
+    if config.hr_key_problem():
+        raise ProvisionError(config.hr_key_problem() + ".")
     me = _call("GET", "/v1/me")
     existing = {h["name"]: h for h in _call("GET", "/v1/harnesses").get("harnesses", []) if isinstance(h, dict)}
     features, harnesses = {}, {}

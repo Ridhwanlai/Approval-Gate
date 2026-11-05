@@ -265,10 +265,11 @@ def serve_demo():
     """The free public try-it service (e.g. on Render's free tier). Settings come from the environment."""
     config.MODE, config.DEMO = "demo", True
     config.REGISTRY = config.DATA_DIR / "registry.json"
-    if not config.hr_api_key():
-        _say("Warning: HR_API_KEY is not set, so AI agents are unavailable and every demo memo will be held.")
-    else:
-        ensure_harnesses()
+    problem = config.hr_key_problem()
+    if problem:
+        _say(f"Warning: {problem}. The AI agents are unavailable, so every demo memo will be held for review.")
+    elif not ensure_harnesses():
+        _say("Warning: the AI agents could not be set up, so demo memos will be held for review until they can.")
     _serve(os.getenv("HOST", "0.0.0.0"), int(os.getenv("PORT", "10000")), False, demo=True)
 
 
