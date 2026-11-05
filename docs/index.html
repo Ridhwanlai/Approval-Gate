@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap">
-<link rel="stylesheet" href="assets/site.css?v=20261104h">
+<link rel="stylesheet" href="assets/site.css?v=20261105a">
 </head>
 <body>
 
@@ -29,6 +29,7 @@
       <a href="#how">How it decides</a>
       <a href="#agents">Agents</a>
       <a href="#results">Results</a>
+      <a href="#try" id="nav-try" hidden>Try it</a>
       <a href="#demo">Demo</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
@@ -221,6 +222,29 @@
     </div>
   </section>
 
+  <section id="try" class="soft" hidden>
+    <div class="wrap">
+      <p class="kicker">Try it live</p>
+      <h2>Paste a memo. Watch Para decide.</h2>
+      <p class="section-lede">This runs your memo through the real Para gate and its four-part check, with the AI agents running live on HarnessRouter. It takes about 20 seconds. Nothing is saved and nothing is sent.</p>
+      <div class="try">
+        <form class="try-form" id="try-form">
+          <label for="try-text">Your memo</label>
+          <textarea id="try-text" rows="10" maxlength="3000" placeholder="Paste a short legal memo with its case citations…" required></textarea>
+          <div class="try-row">
+            <button class="btn primary" type="submit" id="try-run">Check this memo</button>
+            <button class="btn ghost small" type="button" id="try-sample">Use a sample memo</button>
+            <span class="try-count" id="try-count">0 / 3,000</span>
+          </div>
+          <p class="note">Please don't paste client-confidential text: this is a public demo. It checks citations against a sample firm's lists, and the Ezio score is simulated. Five checks per visitor per day.</p>
+        </form>
+        <div class="try-out" id="try-out" aria-live="polite">
+          <p class="muted">Your result appears here: the decision, the reason, and the evidence from each check.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="demo">
     <div class="wrap">
       <p class="kicker">See it decide</p>
@@ -377,6 +401,6 @@
   </div>
 </footer>
 
-<script src="assets/site.js?v=20261104h" defer></script>
+<script src="assets/site.js?v=20261105a" defer></script>
 </body>
 </html>
