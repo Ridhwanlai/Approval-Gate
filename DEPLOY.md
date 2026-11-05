@@ -49,8 +49,9 @@ an issue, chat or email.
 
 ## 2. Render
 
-1. Click **[Deploy to Render](https://render.com/deploy?repo=https://github.com/Ridhwanlai/Approval-Gate)**
-   (or Render dashboard → New → Blueprint → this repository). Render reads `render.yaml`.
+1. In the Render dashboard choose New → Blueprint, pick this repository, and set **Blueprint Path** to
+   `deploy/render-paid.yaml`. (The `render.yaml` at the top of the repository is the free public demo,
+   described at the end of this guide.)
 2. Fill in the values it asks for:
    - `PUBLIC_URL`: the service's address, e.g. `https://para-memo-gate.onrender.com`. Render shows it
      after the first deploy; set it, then redeploy.
@@ -122,3 +123,20 @@ For someone who pays you by Interac e-Transfer (or invoice) instead of a card:
 
 Back up `/var/data/para.db` (Render disk snapshots, or download it periodically): it is every
 firm's account and history.
+
+## The free public demo ("Try it live" on the website)
+
+A separate, free service lets anyone paste a memo on the website and watch it go through the real gate
+and the real HarnessRouter agents. It has no accounts, keeps nothing, sends nothing, and runs on
+Render's free instance (it sleeps after 15 idle minutes and takes about a minute to wake).
+
+1. Render dashboard → New → Blueprint → this repository. Render reads `render.yaml` (plan: free).
+2. When it asks for `HR_API_KEY`, paste your HarnessRouter key into Render's form. That is the only value.
+3. When it is live, open `https://<your-service>.onrender.com/health`; it should say `"status": "ok"`.
+4. Put that address in `DEMO_API` near the top of `docs/assets/site.js` and push. The "Try it live" box
+   on the website appears once `DEMO_API` is set.
+
+Limits, all environment variables: `DEMO_PER_VISITOR` (5 checks per visitor per day), `DEMO_PER_DAY`
+(100 in total), `DEMO_MAX_CHARS` (3,000), `DEMO_AT_ONCE` (2 at a time, the HarnessRouter Free plan).
+`DEMO_ORIGINS` is the website address allowed to call it.
+

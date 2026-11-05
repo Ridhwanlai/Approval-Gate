@@ -106,7 +106,8 @@ served through `/api/trace/<check>/<feature>`.
 | `para/store.py`, `para/plans.py`, `para/tenant.py` | Hosted: firms, users, sessions, usage and audit in SQLite; plans; per-firm context |
 | `para/billing.py`, `tools/stripe_setup.py` | Hosted: Stripe Checkout, customer portal and signed webhooks; creating the prices |
 | `ui/login.html`, `ui/account.html` | Hosted: sign-in, free trial, invites; plan, billing, team, lists |
-| `render.yaml`, `DEPLOY.md` | Hosted: the Render blueprint and the launch guide |
+| `render.yaml`, `para/demo_server.py` | The free public demo (Try it live) and its Render blueprint |
+| `deploy/render-paid.yaml`, `DEPLOY.md` | Hosted: the paid Render blueprint and the launch guide |
 | `harnesses/*.json`, `provision.py` | Harness configuration as data, and the script that applies it |
 | `tools/build_pyz.py`, `tools/record_demo.py` | Build the one-file download; record the site's replay demo from live runs |
 | `docs/` | The website, the replay data and the published `para.pyz` |

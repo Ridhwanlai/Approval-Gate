@@ -1,42 +1,28 @@
-# Render blueprint for the hosted, paid Para service. Deploy: Render dashboard > New > Blueprint, or the
-# "Deploy to Render" button in DEPLOY.md. Secrets are marked sync: false, so Render asks for them at
-# deploy time and they never live in this file.
+# Render blueprint for Para's free public demo (the "Try it live" box on the website).
+# Free instance: no disk and nothing stored. It sleeps after 15 idle minutes and wakes on the next
+# visit in about a minute. HR_API_KEY is marked sync: false, so Render asks for it in its own form at
+# deploy time and it never lives in this file.
+# The paid, multi-firm service has its own blueprint: deploy/render-paid.yaml (see DEPLOY.md).
 services:
   - type: web
-    name: para-memo-gate
+    name: para-demo
     runtime: python
-    plan: starter            # a persistent disk needs a paid instance
+    plan: free
     buildCommand: python3 --version   # standard library only: nothing to install
-    startCommand: python3 run.py serve-hosted
+    startCommand: python3 run.py serve-demo
     healthCheckPath: /health
-    disk:
-      name: para-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.7
       - key: PARA_DATA_DIR
-        value: /var/data
+        value: /tmp/para
       - key: HR_MAX_CONCURRENT
-        value: "2"           # raise to match your HarnessRouter plan
-      - key: PUBLIC_URL      # e.g. https://para-memo-gate.onrender.com
-        sync: false
+        value: "2"           # the HarnessRouter Free plan runs 2 tasks at once
+      - key: DEMO_ORIGINS
+        value: https://ridhwanlai.github.io
+      - key: DEMO_PER_VISITOR
+        value: "5"
+      - key: DEMO_PER_DAY
+        value: "100"
       - key: HR_API_KEY
-        sync: false
-      - key: STRIPE_SECRET_KEY
-        sync: false
-      - key: STRIPE_WEBHOOK_SECRET
-        sync: false
-      - key: PARA_SMTP_HOST
-        sync: false
-      - key: PARA_SMTP_PORT
-        value: "587"
-      - key: PARA_SMTP_SECURITY
-        value: starttls
-      - key: PARA_SMTP_USERNAME
-        sync: false
-      - key: PARA_SMTP_FROM
-        sync: false
-      - key: SMTP_PASSWORD
         sync: false
