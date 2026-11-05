@@ -1,7 +1,7 @@
 /* Para site behaviour. The replay demo is static; "Try it live" calls Para's public demo service. */
 
 /* The free demo service (render.yaml, `python3 run.py serve-demo`). Empty: the Try it live box stays hidden. */
-const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://127.0.0.1:10000" : "";
+const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://127.0.0.1:10000" : "https://para-demo.onrender.com";
 (function theme() {
   const root = document.documentElement, btn = document.getElementById("theme");
   let saved = null;
@@ -127,8 +127,7 @@ const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://
   const section = document.getElementById("try"), form = document.getElementById("try-form");
   if (!section || !form || !DEMO_API || !window.paraView) return;
   section.hidden = false;
-  const navLink = document.getElementById("nav-try");
-  if (navLink) navLink.hidden = false;
+  document.querySelectorAll("[data-needs-demo]").forEach((el) => { el.hidden = false; });
   const { esc, LABEL, GLYPH, annotate, evidenceHtml } = window.paraView;
   const text = document.getElementById("try-text"), out = document.getElementById("try-out");
   const run = document.getElementById("try-run"), count = document.getElementById("try-count");
@@ -137,7 +136,8 @@ const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://
   let awake = null;
 
   // The free server sleeps when idle; start waking it as soon as the section comes into view.
-  const wake = () => awake || (awake = fetch(`${DEMO_API}/health`).then((r) => r.ok).catch(() => false));
+  // Resolves to the server's agent status ("configured" when the HarnessRouter agents are ready), or false.
+  const wake = () => awake || (awake = fetch(`${DEMO_API}/health`).then((r) => r.ok && r.json()).then((h) => h && h.agents).catch(() => false));
   if ("IntersectionObserver" in window) {
     const io = new IntersectionObserver((e) => { if (e.some((x) => x.isIntersecting)) { wake(); io.disconnect(); } }, { rootMargin: "400px" });
     io.observe(section);
@@ -173,6 +173,7 @@ const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://
       if (!ok) { awake = null; ok = await wake(); }
       clearTimeout(slow);
       if (!ok) return fail("The demo server could not be reached. Please try again in a minute.");
+      if (ok !== "configured") { awake = null; return fail("The live AI agents are being set up right now, so live checks are paused. The replay below shows Para's real decisions in the meantime."); }
       const start = await fetch(`${DEMO_API}/api/demo/check`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: memo }) });
       const started = await start.json().catch(() => ({}));
       if (!start.ok) return fail(started.error || "The check could not start. Please try again.");

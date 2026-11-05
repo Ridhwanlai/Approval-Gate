@@ -6,6 +6,7 @@ Para checks AI-written legal research memos before they're sent, and stops the o
 that don't exist, misquote a holding, or argue instead of inform. It's free, it's one file, and it
 runs on your own computer.
 
+**[Try it on your own memo](https://ridhwanlai.github.io/Approval-Gate/#try)** (no account needed) ·
 **[Visit the website](https://ridhwanlai.github.io/Approval-Gate/)** ·
 **[Download Para (free)](https://github.com/Ridhwanlai/Approval-Gate/raw/main/docs/download/para.pyz)** ·
 **[See how it decides](POLICY.md)** ·
@@ -118,6 +119,10 @@ daily use may need one of their paid plans. If you'd like hands-on help, setup a
 start at $20 a month: [book a call](https://calendly.com/ridhwanlai-badmos/30min), and you can pay
 by Interac e-Transfer or card after it.
 
+**Do I need a HarnessRouter account?** Not to try it: the Try it live box on the website runs on
+ours. To use Para at your firm, yes, a free one. Para runs its AI agents under your own account so
+your memos and usage stay yours, and it sets those agents up for you the first time you run it.
+
 **Can I use my firm's own case lists?** Yes. They're two simple files: the cases you've verified,
 and the ones you know are fake.
 
@@ -125,6 +130,7 @@ and the ones you know are fake.
 
 - [How Para decides, rule by rule](POLICY.md)
 - [For developers: how it's built, tested and run](DEVELOPERS.md)
+- [Hosting: the free public demo and the optional paid service](DEPLOY.md)
 - [The original buildathon entry](buildathon/README.md): the challenge, the submission and its judged results
 
 *Para is a checking tool for legal research memos. It is not legal advice and does not replace an
