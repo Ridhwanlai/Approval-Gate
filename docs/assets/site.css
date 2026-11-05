@@ -298,3 +298,17 @@ p code, .note code { font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; 
 .optional pre { margin: 0 0 12px; }
 @media (max-width: 640px) { .optional { padding: 16px 14px; } }
 .get-main, .get-side { min-width: 0; }
+
+/* Section heads on full-width sections sit centred, with the intro spread wide enough to read as one block. */
+:is(#how, #agents, #demo, #pricing, #download) > .wrap > :is(.kicker, h2, .section-lede) { text-align: center; margin-left: auto; margin-right: auto; }
+:is(#how, #agents, #demo, #pricing, #download) > .wrap > h2 { max-width: 24ch; }
+:is(#how, #agents, #demo, #pricing, #download) > .wrap > .section-lede { max-width: 920px; }
+/* No stranded words at the end of a line or paragraph. */
+h1, h2, h3, .caption { text-wrap: balance; }
+.section-lede { text-wrap: pretty; }
+p, li, dd, .note, .flowline span, .paysteps span, .steps span { text-wrap: pretty; }
+:is(#how, #agents, #demo, #pricing, #download) > .wrap > .section-lede { text-wrap: balance; }
+/* Short blocks: even line lengths, so no line ends in a stray word or two. */
+.hero .lede, .memo-line, .caption, .guarantees li, .sig-card p, .verdict p, .agent-card > p, .note, .center-note,
+.flowline span, .paysteps span, .steps span, .arch-node span, .get-side p, .price-card li, .stat span, .memo-card figcaption { text-wrap: balance; }
+.memo-line, .arch-node span, .paysteps li span, .flowline li span { display: block; }
