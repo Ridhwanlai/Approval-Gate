@@ -2,6 +2,7 @@
 
   POST /api/demo/check          {text}  -> 202 {id}
   GET  /api/demo/checks/<id>    progress per stage, then the decision
+  GET  /api/demo/quota          {limit, remaining, max_chars} for this visitor today
   GET  /health
 
 No accounts, no review queue, no drafting, nothing stored and nothing sent: the audit log and the send
@@ -44,6 +45,14 @@ def take_quota(visitor):
         _day["total"] += 1
         _day["visitors"][visitor] = _day["visitors"].get(visitor, 0) + 1
         return None
+
+
+def remaining(visitor):
+    """Checks this visitor has left today (never more than the day's total left)."""
+    with _lock:
+        if _day["date"] != _today():
+            return PER_VISITOR
+        return max(0, min(PER_VISITOR - _day["visitors"].get(visitor, 0), PER_DAY - _day["total"]))
 
 
 def give_back(visitor):
@@ -103,6 +112,8 @@ class DemoHandler(BaseHTTPRequestHandler):
         route = self.path.partition("?")[0]
         if route == "/health":
             return self.send_json(200, {"status": "ok", "agents": agents.status()})
+        if route == "/api/demo/quota":
+            return self.send_json(200, {"limit": PER_VISITOR, "remaining": remaining(self.visitor()), "max_chars": MAX_CHARS})
         m = re.fullmatch(r"/api/demo/checks/(chk_[0-9a-f]{12})", route)
         if m:
             job = pipeline.get(m.group(1))
@@ -129,13 +140,13 @@ class DemoHandler(BaseHTTPRequestHandler):
             return self.send_json(429, {"error": "Para is checking other memos right now. Try again in a minute."})
         refused = take_quota(self.visitor())
         if refused:
-            return self.send_json(429, {"error": refused})
+            return self.send_json(429, {"error": refused, "remaining": remaining(self.visitor())})
         try:
             job = pipeline.start_check(text.strip(), {})
         except Exception:
             give_back(self.visitor())
             return self.send_json(500, {"error": "The check could not start. Try again in a minute."})
-        return self.send_json(202, {"id": job.id})
+        return self.send_json(202, {"id": job.id, "remaining": remaining(self.visitor())})
 
 
 def serve(host, port):

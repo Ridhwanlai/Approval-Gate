@@ -194,7 +194,7 @@ def apply_policy(signals, list_findings, agent_pairs, policy):
 def explain(decision, reasons, list_findings, signals, results):
     verified = [1 for level, _, ev in list_findings if level == APPROVE and (ev or {}).get("status") == "verified"]
     if decision == APPROVE:
-        what = f"{len(verified)} case citation(s) match the firm's trusted list" if verified else "the memo cites no cases, so there is nothing to cite-check"
+        what = (f"{len(verified)} case citations match" if len(verified) != 1 else "the case citation matches") + " the firm's trusted list" if verified else "the memo cites no cases, so there is nothing to cite-check"
         ezio = f"Ezio scored it {signals.tier} {signals.score:g}" if signals else "Ezio"
         ai = " The AI cite-audit and memo review raised nothing." if results and all(r.ok for r in results) else ""
         return f"Approved: {what}, and {ezio} with no contradicted claims or weak dimensions.{ai} Sent to the partner."

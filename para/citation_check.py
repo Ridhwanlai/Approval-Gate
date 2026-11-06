@@ -251,7 +251,7 @@ def check(text, sot):
         ev["note"] = e["note"] or e["holding"]
         if e["kind"] == "fabricated":
             ev["status"] = "fabricated"
-            findings.append((BLOCK, f"{cited} is on the firm's fabricated-case list ({e['note'] or 'flagged as fabricated'})", ev))
+            findings.append((BLOCK, f"{cited} is on the firm's fabricated-case list ({(e['note'] or 'flagged as fabricated').rstrip('.')})", ev))
             continue
         if mt.get("near_name"):
             ev["status"] = "near_miss"
@@ -309,7 +309,8 @@ def check(text, sot):
     for pat, label in ADVOCACY:
         m = re.search(pat, text, flags=0 if label == "shouting" else re.I)
         if m:
-            hits.append(f"{label} (\"{m.group(0)}\")")
+            quoted = f"\"{m.group(0)}\""
+            hits.append(quoted if label.strip('"').lower() == m.group(0).lower() else f"{label} ({quoted})")
     if hits:
         findings.append((HOLD, "the memo reads as advocacy, not analysis: " + ", ".join(hits[:3]),
                          {"signal": "rule_check", "rule": "Memos are not advocacy (business rule 4)", "matches": hits}))

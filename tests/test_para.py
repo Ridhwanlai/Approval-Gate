@@ -468,8 +468,11 @@ class DemoTests(Base):
     def test_limits(self):
         self.assertEqual(self.req("/api/demo/check", {"text": "x" * (self.demo.MAX_CHARS + 1)})[0], 400)
         self.assertEqual(self.req("/api/demo/check", {"text": "  "})[0], 400)
+        ip = {"X-Forwarded-For": "1.1.1.1, 5.5.5.5"}
+        self.assertEqual(self.req("/api/demo/quota", headers=ip)[1]["remaining"], self.demo.PER_VISITOR)
         for _ in range(self.demo.PER_VISITOR):
             self.assertEqual(self.run_check("A short memo with no authorities.", ip="1.1.1.1, 5.5.5.5")[0], 200)
+        self.assertEqual(self.req("/api/demo/quota", headers=ip)[1]["remaining"], 0)
         code, body = self.run_check("One more.", ip="1.1.1.1, 5.5.5.5")
         self.assertEqual(code, 429)
         self.assertIn("Download Para", body["error"])
