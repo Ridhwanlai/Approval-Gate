@@ -145,10 +145,17 @@ const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://
 
   // The free server sleeps when idle; start waking it as soon as the section comes into view.
   // Resolves to the server's agent status ("configured" when the HarnessRouter agents are ready), or false.
-  const wake = () => awake || (awake = fetch(`${DEMO_API}/health`).then((r) => r.ok && r.json()).then((h) => {
-    if (h) fetch(`${DEMO_API}/api/demo/quota`).then((r) => r.json()).then((q) => showQuota(q.remaining)).catch(() => {});
-    return h && h.agents;
-  }).catch(() => false));
+  // While it wakes (up to about a minute), its host answers without the website's access header or not
+  // at all, so keep asking every few seconds for up to two minutes before giving up.
+  const ping = () => fetch(`${DEMO_API}/health`, { cache: "no-store" }).then((r) => r.ok && r.json()).catch(() => false);
+  const wake = () => awake || (awake = (async () => {
+    const until = Date.now() + 120000;
+    let h = await ping();
+    while (!h && Date.now() < until) { await wait(4000); h = await ping(); }
+    if (!h) { awake = null; return false; }
+    fetch(`${DEMO_API}/api/demo/quota`).then((r) => r.json()).then((q) => showQuota(q.remaining)).catch(() => {});
+    return h.agents;
+  })());
   if ("IntersectionObserver" in window) {
     const io = new IntersectionObserver((e) => { if (e.some((x) => x.isIntersecting)) { wake(); io.disconnect(); } }, { rootMargin: "400px" });
     io.observe(section);
@@ -185,9 +192,8 @@ const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://
     run.disabled = true;
     try {
       out.innerHTML = `<p class="muted">Connecting to Para…</p>`;
-      const slow = setTimeout(() => { out.innerHTML = `<p class="muted">Waking the demo server. The first check after a quiet spell takes up to a minute.</p>`; }, 2500);
-      let ok = await wake();
-      if (!ok) { awake = null; ok = await wake(); }
+      const slow = setTimeout(() => { out.innerHTML = `<p class="muted">Waking the demo server. This takes up to a minute after a quiet spell, and only the first time.</p>`; }, 2500);
+      const ok = await wake();
       clearTimeout(slow);
       if (!ok) return fail("The demo server could not be reached. Please try again in a minute.");
       if (ok !== "configured") { awake = null; return fail("The live AI agents are being set up right now, so live checks are paused. The replay below shows Para's real decisions in the meantime."); }
