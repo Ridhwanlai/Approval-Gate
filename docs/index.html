@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap">
-<link rel="stylesheet" href="assets/site.css?v=20261105b">
+<link rel="stylesheet" href="assets/site.css?v=20261106a">
 </head>
 <body>
 
@@ -25,11 +25,11 @@
   <div class="wrap">
     <a class="brand" href="#top" aria-label="Para home"><span class="mark" aria-hidden="true">¶</span><span>para<span class="dot">.</span></span></a>
     <div class="nav-links">
+      <a href="#try" data-needs-demo hidden>Try it</a>
       <a href="#problem">Why</a>
       <a href="#how">How it decides</a>
       <a href="#agents">Agents</a>
       <a href="#results">Results</a>
-      <a href="#try" data-needs-demo hidden>Try it</a>
       <a href="#demo">Demo</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
@@ -45,11 +45,10 @@
       <h1>Stop fabricated cases <span class="accent">before the partner reads them.</span></h1>
       <p class="lede">Para checks every AI-drafted research memo against <b>your firm's own citation lists</b>, scores it with Ezio, and has AI auditors read it, then decides: send, hold for an attorney, or block.</p>
       <div class="ctas">
-        <a class="btn primary" href="#download">Download Para <span class="arrow" aria-hidden="true">↓</span></a>
-        <a class="btn ghost" href="#try" data-needs-demo hidden>Try it with your memo <span class="arrow" aria-hidden="true">↓</span></a>
-        <a class="btn ghost" href="#demo">See it decide <span class="arrow" aria-hidden="true">↓</span></a>
+        <a class="btn primary" href="#try" data-needs-demo hidden>Try it on a memo <span class="arrow" aria-hidden="true">↓</span></a>
+        <a class="btn ghost" href="#download">Download Para <span class="arrow" aria-hidden="true">↓</span></a>
       </div>
-      <p class="fineprint">Try it here with no account. To use it at your firm: one file on your computer, Python 3.9+ and a free HarnessRouter account.</p>
+      <p class="fineprint">Try it here free, with no account. To use it at your firm: one file on your computer, Python 3.9+ and a free HarnessRouter account.</p>
     </div>
   </header>
 
@@ -95,6 +94,45 @@
       </div>
     </div>
   </div>
+
+  <section id="try" class="soft" hidden>
+    <div class="wrap">
+      <p class="kicker">Try it live</p>
+      <h2>Paste a memo. Watch Para decide.</h2>
+      <p class="section-lede">Your memo goes through the real Para gate: the firm's citation lists, Ezio, and two AI agents running live on HarnessRouter. It takes about 15 seconds and needs no account.</p>
+      <div class="try">
+        <form class="try-form" id="try-form">
+          <div class="try-head">
+            <label for="try-text">Your memo</label>
+            <span class="quota" id="try-quota">5 free checks a day</span>
+          </div>
+          <textarea id="try-text" rows="10" maxlength="3000" placeholder="Paste a short legal research memo with its case citations, or pick a sample below." required></textarea>
+          <div class="samples" role="group" aria-label="Sample memos">
+            <span class="samples-k">Samples</span>
+            <button type="button" class="sample" data-sample="pl-07">Fake case</button>
+            <button type="button" class="sample" data-sample="pl-16">Wrong year</button>
+            <button type="button" class="sample" data-sample="pl-12">Advocacy</button>
+            <button type="button" class="sample" data-sample="pl-02">Clean memo</button>
+          </div>
+          <div class="try-row">
+            <button class="btn primary" type="submit" id="try-run">Check this memo</button>
+            <span class="try-count" id="try-count">0 / 3,000</span>
+          </div>
+          <p class="note">This is a public demo: please don't paste client-confidential text. The memo is sent to the AI agents on HarnessRouter to be checked; Para doesn't store it and nothing is emailed. Citations are checked against a sample firm's lists, and the Ezio score is simulated.</p>
+        </form>
+        <div class="try-out" id="try-out" aria-live="polite">
+          <div class="try-empty">
+            <p class="try-empty-h">Your result appears here</p>
+            <ol class="try-steps">
+              <li><b>Four checks run at once</b>Your firm's lists, Ezio, the AI cite-auditor and the AI memo reviewer.</li>
+              <li><b>The strictest result wins</b>Para's own code decides. The AI agents add evidence; they can't approve a memo.</li>
+              <li><b>You see why</b>The decision, the reason, and the evidence behind it.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <section id="problem">
     <div class="wrap split">
@@ -223,34 +261,11 @@
     </div>
   </section>
 
-  <section id="try" class="soft" hidden>
-    <div class="wrap">
-      <p class="kicker">Try it live</p>
-      <h2>Paste a memo. Watch Para decide.</h2>
-      <p class="section-lede">This runs your memo through the real Para gate and its four-part check, with the AI agents running live on HarnessRouter. It takes about 20 seconds, and you don't need an account. Para doesn't store your memo, and nothing is emailed.</p>
-      <div class="try">
-        <form class="try-form" id="try-form">
-          <label for="try-text">Your memo</label>
-          <textarea id="try-text" rows="10" maxlength="3000" placeholder="Paste a short legal memo with its case citations…" required></textarea>
-          <div class="try-row">
-            <button class="btn primary" type="submit" id="try-run">Check this memo</button>
-            <button class="btn ghost small" type="button" id="try-sample">Use a sample memo</button>
-            <span class="try-count" id="try-count">0 / 3,000</span>
-          </div>
-          <p class="note">Please don't paste client-confidential text: this is a public demo, and the memo is sent to the AI agents on HarnessRouter to be checked. It checks citations against a sample firm's lists, and the Ezio score is simulated. Five checks per visitor per day.</p>
-        </form>
-        <div class="try-out" id="try-out" aria-live="polite">
-          <p class="muted">Your result appears here: the decision, the reason, and the evidence from each check.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <section id="demo">
     <div class="wrap">
       <p class="kicker">See it decide</p>
       <h2>Pick a memo. See exactly why it was sent, held or blocked.</h2>
-      <p class="section-lede">A replay of Para's real decisions on the 16 practice memos, recorded from a live run with the Hermes agents on HarnessRouter. These are recorded results; to check your own memo, use Try it live above or download Para.</p>
+      <p class="section-lede">A replay of Para's real decisions on the 16 practice memos, recorded from a live run with the Hermes agents on HarnessRouter. These are recorded results; to check your own memo, use Try it live at the top of the page or download Para.</p>
       <div class="demo">
         <div class="docket" role="listbox" aria-label="Practice memos" id="docket"><p class="muted">Loading recorded decisions…</p></div>
         <div class="decision" id="decision" aria-live="polite"></div>
@@ -407,6 +422,6 @@
   </div>
 </footer>
 
-<script src="assets/site.js?v=20261105b" defer></script>
+<script src="assets/site.js?v=20261106a" defer></script>
 </body>
 </html>

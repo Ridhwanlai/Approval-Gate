@@ -300,7 +300,7 @@ p code, .note code { font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; 
 .get-main, .get-side { min-width: 0; }
 
 /* Section heads on full-width sections sit centred, with the intro spread wide enough to read as one block. */
-:is(#how, #agents, #demo, #pricing, #download) > .wrap > :is(.kicker, h2, .section-lede) { text-align: center; margin-left: auto; margin-right: auto; }
+:is(#try, #how, #agents, #demo, #pricing, #download) > .wrap > :is(.kicker, h2, .section-lede) { text-align: center; margin-left: auto; margin-right: auto; }
 :is(#how, #agents, #demo, #pricing, #download) > .wrap > h2 { max-width: 24ch; }
 :is(#how, #agents, #demo, #pricing, #download) > .wrap > .section-lede { max-width: 920px; }
 /* No stranded words at the end of a line or paragraph. */
@@ -338,3 +338,22 @@ p, li, dd, .note, .flowline span, .paysteps span, .steps span { text-wrap: prett
 @keyframes pulse { 50% { opacity: .35; } }
 @media (prefers-reduced-motion: reduce) { .stages li.running .dot { animation: none; } }
 .try-error { color: var(--ink); background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; margin: 0; }
+.try-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.try-head label { margin: 0; }
+.quota { font-size: 13px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 4px 12px; }
+.quota.out { color: var(--hold); background: var(--hold-bg); }
+.samples { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.samples-k { font-size: 13px; color: var(--muted); margin-right: 2px; }
+.sample { font: 500 14px var(--sans); color: var(--ink-2); background: var(--bg); border: 1px solid var(--rule); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+.sample:hover { border-color: var(--accent); color: var(--accent); }
+.sample[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.try-empty-h { font-weight: 700; font-size: 18px; margin: 0 0 16px; }
+.try-steps { list-style: none; counter-reset: step; padding: 0; margin: 0; display: grid; gap: 16px; }
+.try-steps li { counter-increment: step; position: relative; padding-left: 44px; color: var(--ink-2); font-size: 15px; }
+.try-steps li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center;
+  background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 14px; }
+.try-steps b { display: block; color: var(--ink); font-size: 16px; }
+
+/* Numbered sections */
+main { counter-reset: section; }
+section > .wrap > .kicker::before, section > .wrap > div > .kicker::before { counter-increment: section; content: counter(section, decimal-leading-zero) " · "; opacity: .7; }

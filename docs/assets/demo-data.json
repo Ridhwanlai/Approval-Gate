@@ -8,7 +8,7 @@
    "expected": "APPROVE",
    "text": "Under Miranda v. Arizona, 384 U.S. 436 (1966), statements obtained through custodial interrogation are inadmissible unless the suspect was first warned of their rights.",
    "decision": "APPROVE",
-   "reason": "Approved: 1 case citation(s) match the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
+   "reason": "Approved: the case citation matches the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
    "sent": true,
    "evidence": [
     {
@@ -73,7 +73,7 @@
    "expected": "APPROVE",
    "text": "Gideon v. Wainwright, 372 U.S. 335 (1963), requires states to provide counsel to indigent defendants facing felony charges.",
    "decision": "APPROVE",
-   "reason": "Approved: 1 case citation(s) match the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
+   "reason": "Approved: the case citation matches the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
    "sent": true,
    "evidence": [
     {
@@ -138,7 +138,7 @@
    "expected": "APPROVE",
    "text": "New York Times Co. v. Sullivan, 376 U.S. 254 (1964), requires public officials suing for defamation to prove actual malice.",
    "decision": "APPROVE",
-   "reason": "Approved: 1 case citation(s) match the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
+   "reason": "Approved: the case citation matches the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
    "sent": true,
    "evidence": [
     {
@@ -203,7 +203,7 @@
    "expected": "APPROVE",
    "text": "Federal courts sitting in diversity apply state substantive law under Erie Railroad Co. v. Tompkins, 304 U.S. 64 (1938).",
    "decision": "APPROVE",
-   "reason": "Approved: 1 case citation(s) match the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
+   "reason": "Approved: the case citation matches the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
    "sent": true,
    "evidence": [
     {
@@ -268,7 +268,7 @@
    "expected": "APPROVE",
    "text": "Marbury v. Madison, 5 U.S. 137 (1803), established judicial review, and Mapp v. Ohio, 367 U.S. 643 (1961), applied the exclusionary rule to the states.",
    "decision": "APPROVE",
-   "reason": "Approved: 2 case citation(s) match the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
+   "reason": "Approved: 2 case citations match the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
    "sent": true,
    "evidence": [
     {
@@ -397,7 +397,7 @@
    "expected": "BLOCK",
    "text": "In Varghese v. China Southern Airlines, the court held that the Montreal Convention tolls the statute of limitations during bankruptcy.",
    "decision": "BLOCK",
-   "reason": "Blocked before sending: Varghese v. China Southern Airlines is on the firm's fabricated-case list (Cited in the Mata v. Avianca brief (S.D.N.Y. 2023); the court found it did not exist.). The partner never received this memo.",
+   "reason": "Blocked before sending: Varghese v. China Southern Airlines is on the firm's fabricated-case list (Cited in the Mata v. Avianca brief (S.D.N.Y. 2023); the court found it did not exist). The partner never received this memo.",
    "sent": false,
    "evidence": [
     {
@@ -661,7 +661,7 @@
    "expected": "BLOCK",
    "text": "As the court held in Shaboon v. Egyptair, 2013 IL App (1st) 111279-U, a carrier's bankruptcy filing does not toll the limitations period.",
    "decision": "BLOCK",
-   "reason": "Blocked before sending: Shaboon v. Egyptair, 2013 is on the firm's fabricated-case list (Cited in the Mata v. Avianca brief (S.D.N.Y. 2023); the court found it did not exist.). The partner never received this memo.",
+   "reason": "Blocked before sending: Shaboon v. Egyptair, 2013 is on the firm's fabricated-case list (Cited in the Mata v. Avianca brief (S.D.N.Y. 2023); the court found it did not exist). The partner never received this memo.",
    "sent": false,
    "evidence": [
     {
@@ -796,7 +796,7 @@
    "expected": "HOLD_FOR_REVIEW",
    "text": "AMAZING news!!! Terry v. Ohio, 392 U.S. 1 (1968), allows stops on reasonable suspicion, so this is a slam dunk for us and the court will absolutely agree!!!",
    "decision": "HOLD_FOR_REVIEW",
-   "reason": "Held for attorney review: the memo reads as advocacy, not analysis: \"slam dunk\" (\"slam dunk\"), certainty language (\"absolutely\"), repeated exclamation marks (\"!!!\"); the AI memo review says it reads as advocacy: emotional (\"AMAZING news!!!\"), overconfidence (\"this is a slam dunk for us\"), overconfidence (\"the court will absolutely agree!!!\"); Ezio's tone score is 38, below the 60 floor, even though the overall tier is GREEN. Not sent until a reviewer approves it.",
+   "reason": "Held for attorney review: the memo reads as advocacy, not analysis: \"slam dunk\", certainty language (\"absolutely\"), repeated exclamation marks (\"!!!\"); the AI memo review says it reads as advocacy: emotional (\"AMAZING news!!!\"), overconfidence (\"this is a slam dunk for us\"), overconfidence (\"the court will absolutely agree!!!\"); Ezio's tone score is 38, below the 60 floor, even though the overall tier is GREEN. Not sent until a reviewer approves it.",
    "sent": false,
    "evidence": [
     {
@@ -809,7 +809,7 @@
      "signal": "rule_check",
      "rule": "Memos are not advocacy (business rule 4)",
      "matches": [
-      "\"slam dunk\" (\"slam dunk\")",
+      "\"slam dunk\"",
       "certainty language (\"absolutely\")",
       "repeated exclamation marks (\"!!!\")",
       "shouting (\"AMAZING\")"
@@ -896,7 +896,7 @@
     ],
     "recheck": {
      "decision": "APPROVE",
-     "reason": "Approved: 1 case citation(s) match the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
+     "reason": "Approved: the case citation matches the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
      "evidence": [
       {
        "cited": "Terry v. Ohio, 392 U.S. 1 (1968)",
@@ -1075,7 +1075,7 @@
    "expected": "APPROVE",
    "text": "Under Gideon, 372 U.S. 335, states must appoint counsel for indigent defendants facing felony charges.",
    "decision": "APPROVE",
-   "reason": "Approved: 1 case citation(s) match the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
+   "reason": "Approved: the case citation matches the firm's trusted list, and Ezio scored it GREEN 100 with no contradicted claims or weak dimensions. The AI cite-audit and memo review raised nothing. Sent to the partner.",
    "sent": true,
    "evidence": [
     {

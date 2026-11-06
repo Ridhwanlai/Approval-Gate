@@ -117,7 +117,7 @@ const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://
       if (matchMedia("(max-width: 900px)").matches) panel.scrollIntoView({ block: "start" });  // the panel is below the list on phones
     }));
     show(memos.find((m) => m.id === "pl-07") || memos[0], memos);
-    window.paraSample = (memos.find((m) => m.id === "pl-07") || memos[0]).text;
+    window.paraSamples = Object.fromEntries(memos.map((m) => [m.id, m.text]));
   }).catch(() => { docket.innerHTML = `<p class="muted">The recorded decisions could not be loaded.</p>`; });
   window.paraView = { esc, LABEL, GLYPH, annotate, evidenceHtml };
 })();
@@ -131,13 +131,24 @@ const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://
   const { esc, LABEL, GLYPH, annotate, evidenceHtml } = window.paraView;
   const text = document.getElementById("try-text"), out = document.getElementById("try-out");
   const run = document.getElementById("try-run"), count = document.getElementById("try-count");
+  const quota = document.getElementById("try-quota");
+  let left = null;
+  const showQuota = (n) => {
+    if (typeof n !== "number") return;
+    left = n;
+    quota.textContent = n > 0 ? `${n} of 5 free checks left today` : "No free checks left today";
+    quota.classList.toggle("out", n === 0);
+  };
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   const fail = (msg) => { out.innerHTML = `<p class="try-error">${esc(msg)}</p>`; };
   let awake = null;
 
   // The free server sleeps when idle; start waking it as soon as the section comes into view.
   // Resolves to the server's agent status ("configured" when the HarnessRouter agents are ready), or false.
-  const wake = () => awake || (awake = fetch(`${DEMO_API}/health`).then((r) => r.ok && r.json()).then((h) => h && h.agents).catch(() => false));
+  const wake = () => awake || (awake = fetch(`${DEMO_API}/health`).then((r) => r.ok && r.json()).then((h) => {
+    if (h) fetch(`${DEMO_API}/api/demo/quota`).then((r) => r.json()).then((q) => showQuota(q.remaining)).catch(() => {});
+    return h && h.agents;
+  }).catch(() => false));
   if ("IntersectionObserver" in window) {
     const io = new IntersectionObserver((e) => { if (e.some((x) => x.isIntersecting)) { wake(); io.disconnect(); } }, { rootMargin: "400px" });
     io.observe(section);
@@ -145,7 +156,13 @@ const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://
 
   const setCount = () => { count.textContent = `${text.value.length.toLocaleString()} / 3,000`; };
   text.addEventListener("input", setCount);
-  document.getElementById("try-sample").onclick = () => { if (window.paraSample) { text.value = window.paraSample; setCount(); text.focus(); } };
+  document.querySelectorAll("[data-sample]").forEach((b) => (b.onclick = () => {
+    const sample = (window.paraSamples || {})[b.dataset.sample];
+    if (!sample) return;
+    text.value = sample; setCount();
+    document.querySelectorAll("[data-sample]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  }));
+  text.addEventListener("input", () => document.querySelectorAll("[data-sample]").forEach((x) => x.setAttribute("aria-pressed", "false")));
 
   function progress(job) {
     out.innerHTML = `<h4>Checking · ${esc(Math.round(job.seconds || 0))}s</h4><ul class="stages">${job.stages.map((s) =>
@@ -155,8 +172,8 @@ const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://
   function result(job, memo) {
     const r = job.result;
     out.innerHTML = `<div class="stamp-big ${esc(r.decision)}"><span aria-hidden="true">${GLYPH[r.decision] || ""}</span>${esc(LABEL[r.decision] || r.decision)}</div>
-      <p class="reason">${esc(r.reason)}</p>
-      <p class="sent">${r.decision === "APPROVE" ? "In the app, this memo would now go to the partner." : "In the app, this memo would not reach the partner."} Checked in ${esc(Math.round(job.seconds))} seconds.</p>
+      <p class="reason">${esc(String(r.reason || "").replace(/ Sent to the partner\.$/, ""))}</p>
+      <p class="sent">${r.decision === "APPROVE" ? "In the app, it would now be emailed to the partner." : "In the app, it would stay off the partner's desk."} Checked in ${esc(Math.round(job.seconds))} seconds; the evidence is below.</p>
       <h4>Your memo</h4><div class="memo-view">${annotate(memo, r.evidence || [])}</div>
       ${evidenceHtml(r.evidence || [])}`;
   }
@@ -176,6 +193,7 @@ const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://
       if (ok !== "configured") { awake = null; return fail("The live AI agents are being set up right now, so live checks are paused. The replay below shows Para's real decisions in the meantime."); }
       const start = await fetch(`${DEMO_API}/api/demo/check`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: memo }) });
       const started = await start.json().catch(() => ({}));
+      showQuota(started.remaining);
       if (!start.ok) return fail(started.error || "The check could not start. Please try again.");
       for (let i = 0; i < 180; i++) {
         const res = await fetch(`${DEMO_API}/api/demo/checks/${encodeURIComponent(started.id)}`);
