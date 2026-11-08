@@ -1,7 +1,11 @@
 /* Para site behaviour. The replay demo is static; "Try it live" calls Para's public demo service. */
 
 /* The free demo service (render.yaml, `python3 run.py serve-demo`). Empty: the Try it live box stays hidden. */
-const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://127.0.0.1:10000" : "https://para-demo.onrender.com";
+// The live demo service. A copy of the site served from this computer uses a local demo server when one
+// is running (python3 run.py serve-demo) and the public one otherwise.
+const DEMO_PUBLIC = "https://para-demo.onrender.com";
+const DEMO_LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://127.0.0.1:10000" : "";
+let DEMO_API = DEMO_PUBLIC;
 (function theme() {
   const root = document.documentElement, btn = document.getElementById("theme");
   let saved = null;
@@ -140,6 +144,7 @@ const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://
     quota.classList.toggle("out", n === 0);
   };
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const BLOCKED = "This browser couldn't reach Para's demo server (para-demo.onrender.com). If it works on another device, an ad blocker, privacy extension or network filter is likely blocking it: allow that address, or try a private window. Otherwise wait a minute and try again.";
   const fail = (msg) => { out.innerHTML = `<p class="try-error">${esc(msg)}</p>`; };
   let awake = null;
 
@@ -147,13 +152,24 @@ const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://
   // Resolves to the server's agent status ("configured" when the HarnessRouter agents are ready), or false.
   // While it wakes (up to about a minute), its host answers without the website's access header or not
   // at all, so keep asking every few seconds for up to two minutes before giving up.
-  const ping = () => fetch(`${DEMO_API}/health`, { cache: "no-store" }).then((r) => r.ok && r.json()).catch(() => false);
+  // Every request has a time limit, so a stalled connection can never leave the page waiting forever.
+  const call = (path, opts = {}, ms = 20000) => {
+    const ctl = "AbortController" in window ? new AbortController() : null;
+    const t = ctl && setTimeout(() => ctl.abort(), ms);
+    return fetch(`${DEMO_API}${path}`, { cache: "no-store", credentials: "omit", ...opts, signal: ctl && ctl.signal })
+      .finally(() => clearTimeout(t));
+  };
+  const ping = () => call("/health", {}, 15000).then((r) => r.ok && r.json()).catch(() => false);
   const wake = () => awake || (awake = (async () => {
+    if (DEMO_LOCAL) {  // prefer a local demo server when the site itself is served locally
+      DEMO_API = DEMO_LOCAL;
+      if (!(await ping())) DEMO_API = DEMO_PUBLIC;
+    }
     const until = Date.now() + 120000;
     let h = await ping();
     while (!h && Date.now() < until) { await wait(4000); h = await ping(); }
     if (!h) { awake = null; return false; }
-    fetch(`${DEMO_API}/api/demo/quota`).then((r) => r.json()).then((q) => showQuota(q.remaining)).catch(() => {});
+    call("/api/demo/quota").then((r) => r.json()).then((q) => showQuota(q.remaining)).catch(() => {});
     return h.agents;
   })());
   if ("IntersectionObserver" in window) {
@@ -195,14 +211,18 @@ const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://
       const slow = setTimeout(() => { out.innerHTML = `<p class="muted">Waking the demo server. This takes up to a minute after a quiet spell, and only the first time.</p>`; }, 2500);
       const ok = await wake();
       clearTimeout(slow);
-      if (!ok) return fail("The demo server could not be reached. Please try again in a minute.");
+      if (!ok) return fail(BLOCKED);
       if (ok !== "configured") { awake = null; return fail("The live AI agents are being set up right now, so live checks are paused. The replay below shows Para's real decisions in the meantime."); }
-      const start = await fetch(`${DEMO_API}/api/demo/check`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: memo }) });
+      // Sent as plain text (the server reads it as JSON either way): that keeps it a simple request, with no
+      // separate permission check first, which some privacy extensions, firewalls and proxies break.
+      const start = await call("/api/demo/check", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ text: memo }) });
       const started = await start.json().catch(() => ({}));
       showQuota(started.remaining);
       if (!start.ok) return fail(started.error || "The check could not start. Please try again.");
       for (let i = 0; i < 180; i++) {
-        const res = await fetch(`${DEMO_API}/api/demo/checks/${encodeURIComponent(started.id)}`);
+        let res;
+        try { res = await call(`/api/demo/checks/${encodeURIComponent(started.id)}`, {}, 10000); }
+        catch (err) { await wait(2000); continue; }  // one dropped poll is not a failure; keep going
         const job = await res.json().catch(() => ({}));
         if (!res.ok) return fail(job.error || "The check was lost. Please run it again.");
         if (job.state === "done" && job.result) return result(job, memo);
@@ -211,7 +231,7 @@ const DEMO_API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://
       }
       fail("The check is taking longer than expected. Please try again.");
     } catch (err) {
-      fail("The demo server could not be reached. Please try again in a minute.");
+      fail(BLOCKED);
     } finally {
       run.disabled = false;
     }

@@ -484,6 +484,11 @@ class DemoTests(Base):
         self.assertEqual(h.get("Access-Control-Allow-Origin"), site)
         _, _, h = self.req("/health", headers={"Origin": "https://evil.example"})
         self.assertNotIn("Access-Control-Allow-Origin", h)
+        for local in ("http://localhost:8000", "http://127.0.0.1:5500", "null"):
+            _, _, h = self.req("/health", headers={"Origin": local})
+            self.assertEqual(h.get("Access-Control-Allow-Origin"), local)
+        _, _, h = self.req("/health", headers={"Origin": "http://localhost.evil.example"})
+        self.assertNotIn("Access-Control-Allow-Origin", h)
         r = urllib.request.Request(self.base + "/api/demo/check", method="OPTIONS", headers={"Origin": site})
         with urllib.request.urlopen(r, timeout=5) as f:
             self.assertEqual((f.status, f.headers["Access-Control-Allow-Origin"]), (204, site))

@@ -7,8 +7,9 @@
 
 No accounts, no review queue, no drafting, nothing stored and nothing sent: the audit log and the send
 action are switched off in demo mode (config.DEMO). Limits keep the operator's HarnessRouter credits
-safe: checks per visitor per day, a daily total, memo length, and how many checks run at once. Only
-the website's own origin (DEMO_ORIGINS) may call it from a browser.
+safe: checks per visitor per day, a daily total, memo length, and how many checks run at once. In a
+browser, only the website's own origin (DEMO_ORIGINS) and copies of the site opened on the visitor's own
+computer (localhost, 127.0.0.1, or a file) may call it; the limits apply to everyone the same way.
 """
 import json
 import os
@@ -24,6 +25,7 @@ PER_VISITOR = int(os.getenv("DEMO_PER_VISITOR", "5"))      # checks per visitor 
 PER_DAY = int(os.getenv("DEMO_PER_DAY", "100"))             # checks per day in total
 AT_ONCE = int(os.getenv("DEMO_AT_ONCE", "2"))               # checks running at the same time
 ORIGINS = {o.strip().rstrip("/") for o in os.getenv("DEMO_ORIGINS", "https://ridhwanlai.github.io").split(",") if o.strip()}
+LOCAL_ORIGIN = re.compile(r"(null|http://(localhost|127\.0\.0\.1)(:\d{1,5})?)")
 
 _lock = threading.Lock()
 _day = {"date": None, "total": 0, "visitors": {}}
@@ -76,7 +78,7 @@ class DemoHandler(BaseHTTPRequestHandler):
 
     def cors(self):
         origin = (self.headers.get("Origin") or "").rstrip("/")
-        if origin in ORIGINS:
+        if origin in ORIGINS or LOCAL_ORIGIN.fullmatch(origin):
             return {"Access-Control-Allow-Origin": origin, "Vary": "Origin"}
         return {}
 
